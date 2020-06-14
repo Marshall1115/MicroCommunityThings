@@ -1,4 +1,4 @@
-import { login, logout, getInfo } from '@/api/user'
+import { saveFssVote,login, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
@@ -28,6 +28,21 @@ const mutations = {
 }
 
 const actions = {
+  // user saveFssVote
+  saveFssVote({ commit,temp }, ) {
+    return new Promise((resolve, reject) => {
+      saveFssVote(temp).then(response => {
+        const { data } = response
+        console.log('data', data)
+        commit('SET_TOKEN', data.token)
+        setToken(data.token)
+        resolve()
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+
   // user login
   login({ commit }, userInfo) {
     const { username, password } = userInfo

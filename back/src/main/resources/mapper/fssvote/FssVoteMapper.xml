@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.java110.things.dao.IFssVoteDao">
+
+	<insert id="insert" parameterType="com.java110.things.entity.FssVote">
+	
+	<selectKey keyProperty="id" resultType="String" order="BEFORE">
+            select replace(uuid(),'-','') from dual
+        </selectKey>
+	
+		insert into fss_vote
+		(
+			`id`, 
+			`title1`, 
+			`title2`, 
+			`title3`, 
+			`building`, 
+			`room`, 
+			`tel`, 
+			`name`,
+			`create_time`,
+			`from_ip`, 
+			`order_date`
+		)
+		values
+		(
+			#{id}, 
+			#{title1}, 
+			#{title2}, 
+			#{title3}, 
+			#{building}, 
+			#{room}, 
+			#{tel}, 
+			#{name},
+			#{createTime},
+			#{fromIp}, 
+			#{orderDate}
+		)
+	</insert>
+	 
+
+</mapper>

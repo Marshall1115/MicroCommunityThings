@@ -13,6 +13,7 @@ public class ServiceConfiguration {
     @Bean
     public FilterRegistrationBean jwtFilter() {
         StringBuffer exclusions = new StringBuffer();
+        exclusions.append("/api/user/saveFssVote,");
         exclusions.append("/api/user/login,");
         exclusions.append("/api/data/*,");
         exclusions.append("/api/accessControl/faceResult");

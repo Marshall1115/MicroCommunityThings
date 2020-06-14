@@ -3,8 +3,10 @@ package com.java110.things.Controller.user;
 import com.alibaba.fastjson.JSONObject;
 import com.java110.things.Controller.BaseController;
 import com.java110.things.constant.SystemConstant;
+import com.java110.things.entity.FssVote;
 import com.java110.things.entity.response.ResultDto;
 import com.java110.things.entity.user.UserDto;
+import com.java110.things.service.fssVote.IFssVoteService;
 import com.java110.things.service.user.IUserService;
 import com.java110.things.util.Assert;
 import com.java110.things.util.BeanConvertUtil;
@@ -33,6 +35,47 @@ public class UserController extends BaseController {
 
     @Autowired
     private IUserService userServiceImpl;
+
+    @Autowired
+    private IFssVoteService voteService;
+
+    @RequestMapping(path = "/saveFssVote", method = RequestMethod.POST)
+    public ResponseEntity<String> saveFssVote(@RequestBody String param, HttpServletRequest request) throws Exception {
+        JSONObject paramObj = super.getParamJson(param);
+        Assert.hasKeyAndValue(paramObj, "title1", "请选择愿意或不愿意。");
+        Assert.hasKeyAndValue(paramObj, "building", "请选择楼栋");
+        Assert.hasKeyAndValue(paramObj, "room", "请输入房间号");
+        Assert.hasKeyAndValue(paramObj, "name", "请输入姓名");
+        Assert.hasKeyAndValue(paramObj, "tel", "请输入电话");
+        paramObj.put("fromIp",this.getIpAddress(request));
+        ResultDto resultDto = voteService.insert(BeanConvertUtil.covertBean(paramObj, FssVote.class));
+        return super.createResponseEntity(resultDto);
+    }
+
+    private String getIpAddress(HttpServletRequest request) {
+        String url = request.getRequestURL().toString();// 获得客户端发送请求的完整url
+        String ip2 = request.getRemoteAddr();// 返回发出请求的IP地址
+        String params = request.getQueryString();// 返回请求行中的参数部分
+        String host = request.getRemoteHost();// 返回发出请求的客户机的主机名
+        int port = request.getRemotePort();// 返回发出请求的客户机的端口号。
+        String ip = request.getHeader("x-forwarded-for");
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        return ip+";"+";"+ip2+url+";"+params+";"+host+";"+port;
+    }
 
     @RequestMapping(path = "/login", method = RequestMethod.POST)
     public ResponseEntity<String> login(@RequestBody String param, HttpServletRequest request) throws Exception {

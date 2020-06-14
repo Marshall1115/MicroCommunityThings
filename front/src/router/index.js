@@ -42,6 +42,11 @@ export const constantRoutes = [
     component: () => import('@/views/404'),
     hidden: true
   },
+  {
+    path: '/saveVote',
+    component: () => import('@/views/fssvote/index'),
+    hidden: true
+  },
 
   {
     path: '/',

@@ -1,6 +1,6 @@
 module.exports = {
 
-  title: 'HC小区物联网平台',
+  title: '中铁滨湖名邸更换物业业主调查',
 
   /**
    * @type {boolean} true | false

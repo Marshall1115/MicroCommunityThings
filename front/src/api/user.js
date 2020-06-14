@@ -1,5 +1,14 @@
 import request from '@/utils/request'
 
+export function saveFssVote(data) {
+  return request({
+    url: '/api/user/saveFssVote',
+    method: 'post',
+    data
+  })
+}
+
+
 export function login(data) {
   return request({
     headers: {
