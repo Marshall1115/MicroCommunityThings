@@ -356,7 +356,8 @@ public class SxoaAssessControlProcessAdapt extends DefaultAbstractAccessControlA
         //添加设备
         JSONObject paramIn = new JSONObject();
         paramIn.put("owUserId", machineFaceDtos.get(0).getExtUserId());
-        paramIn.put("owDeviceId", machineDto.getMachineId());
+       // paramIn.put("owDeviceId", machineDto.getMachineId());
+        paramIn.put("owDeviceId", machineDto.getThirdMachineId().split("::")[1]);
 
         HttpEntity httpEntity = new HttpEntity(paramIn.toJSONString(), SxCommomFactory.getHeader(outRestTemplate));
         ResponseEntity<String> responseEntity = outRestTemplate.exchange(MappingCacheFactory.getValue("SXOA_URL") + CMD_OPEN_DOOR, HttpMethod.POST, httpEntity, String.class);
