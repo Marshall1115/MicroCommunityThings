@@ -347,12 +347,15 @@ public class SxoaAssessControlProcessAdapt extends DefaultAbstractAccessControlA
 
         MachineFaceDto machineFaceDto = new MachineFaceDto();
         machineFaceDto.setMachineCode(machineDto.getMachineCode());
+        machineFaceDto.setHasExtUserId("Y");
         List<MachineFaceDto> machineFaceDtos = machineFaceService.queryMachineFace(machineFaceDto);
 
-        Assert.listOnlyOne(machineFaceDtos, "用户未被添加过");
+        if(machineFaceDtos == null || machineFaceDtos.size()<1){
+            throw new IllegalArgumentException("用户未被添加过");
+        }
         //添加设备
         JSONObject paramIn = new JSONObject();
-        paramIn.put("owUserId", machineFaceDtos.get(0).getUserId());
+        paramIn.put("owUserId", machineFaceDtos.get(0).getExtUserId());
         paramIn.put("owDeviceId", machineDto.getMachineId());
 
         HttpEntity httpEntity = new HttpEntity(paramIn.toJSONString(), SxCommomFactory.getHeader(outRestTemplate));
