@@ -146,7 +146,8 @@ public class SxCommomFactory {
         paramIn.put("ffResidentId", userFaceDto.getUserId());
         paramIn.put("ffUserId", userFaceDto.getUserId());
         paramIn.put("ffKey", userFaceDto.getUserId());
-        paramIn.put("ffOrgId", getSxCommunity(outRestTemplate, machineDto.getCommunityId(), sxoaCommunityServiceDaoImpl).getViOrgId());
+        //paramIn.put("ffOrgId", getSxCommunity(outRestTemplate, machineDto.getCommunityId(), sxoaCommunityServiceDaoImpl).getViOrgId());
+        paramIn.put("ffOrgId", MappingCacheFactory.getValue("ffOrgId"));
         paramIn.put("fileUrl", MappingCacheFactory.getValue(FACE_URL) + "/" + machineDto.getCommunityId() + "/" + userFaceDto.getUserId() + IMAGE_SUFFIX);
 
         HttpEntity httpEntity = new HttpEntity(paramIn.toJSONString(), getHeader(outRestTemplate));
