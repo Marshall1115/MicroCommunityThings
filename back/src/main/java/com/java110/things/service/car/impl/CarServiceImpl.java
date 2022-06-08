@@ -74,11 +74,11 @@ public class CarServiceImpl implements ICarService {
     private ResultDto addTransactorOtherCar(CarDto carDto) throws Exception {
         // 查询停车场对应设备 是否为 第三方平台
         MachineDto machineDto = new MachineDto();
-        machineDto.setLocationObjId(carDto.getExtCarId());
+        machineDto.setLocationObjId(carDto.getExtPaId());
         //machineDto.setLocationType(MachineDto.LOCATION_TYPE_PARKING_AREA);
         List<MachineDto> machineDtos = machineService.queryMachines(machineDto);
         if (machineDtos == null || machineDtos.size() < 1) {
-            return new ResultDto(ResultDto.ERROR, "设备不存在");
+            return new ResultDto(ResultDto.SUCCESS,"成功");
         }
 
         if(MachineDto.MACHINE_TYPE_CAR.equals(machineDtos.get(0).getMachineTypeCd())){
