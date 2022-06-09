@@ -97,7 +97,7 @@ public class HeartBeatSimpleHandle extends ChannelInboundHandlerAdapter {
 
         IMachineService machineService = ApplicationContextFactory.getBean("machineServiceImpl", IMachineService.class);
         MachineDto machineDto = new MachineDto();
-        machineDto.setLocationType(MachineDto.LOCATION_TYPE_PARKING_AREA);
+        //machineDto.setLocationType(MachineDto.LOCATION_TYPE_PARKING_AREA);
         machineDto.setLocationObjId(parkId);
         List<MachineDto> machineDtos = machineService.queryMachines(machineDto);
         if (machineDtos == null || machineDtos.size() < 1) {
