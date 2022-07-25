@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.java110.things.constant.MachineConstant;
 import com.java110.things.constant.ResponseConstant;
 import com.java110.things.constant.SystemConstant;
+import com.java110.things.dao.IMachineServiceDao;
 import com.java110.things.dao.IStaffServiceDao;
 import com.java110.things.entity.PageDto;
 import com.java110.things.entity.attendance.AttendanceClassesStaffDto;
@@ -11,15 +12,20 @@ import com.java110.things.entity.machine.MachineCmdDto;
 import com.java110.things.entity.machine.MachineDto;
 import com.java110.things.entity.response.ResultDto;
 import com.java110.things.entity.user.StaffDto;
+import com.java110.things.factory.AccessControlProcessFactory;
+import com.java110.things.factory.AttendanceProcessFactory;
+import com.java110.things.factory.ImageFactory;
 import com.java110.things.service.machine.IMachineCmdService;
 import com.java110.things.service.staff.IStaffService;
 import com.java110.things.service.machine.IMachineService;
 import com.java110.things.util.Assert;
 import com.java110.things.util.SeqUtil;
+import com.java110.things.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -51,6 +57,11 @@ public class StaffServiceImpl implements IStaffService {
     @Autowired
     private IMachineCmdService machineCmdServiceImpl;
 
+    @Autowired
+    private IMachineServiceDao machineServiceDaoImpl;
+
+    public static final String MACHINE_HAS_NOT_FACE = "-1"; // 设备没有人脸
+
     /**
      * 添加小区信息
      *
@@ -61,6 +72,37 @@ public class StaffServiceImpl implements IStaffService {
     public ResultDto saveStaff(StaffDto staffDto) throws Exception {
         ResultDto resultDto = null;
 
+        //如果有 照片
+        if(!StringUtil.isEmpty(staffDto.getFaceBase64())) {
+            MachineDto machineDto = new MachineDto();
+            machineDto.setMachineCode(staffDto.getMachineCode());
+            List<MachineDto> machineDtos = machineServiceDaoImpl.getMachines(machineDto);
+            Assert.listOnlyOne(machineDtos, "设备编码错误，不存在该设备");
+            machineDto = machineDtos.get(0);
+            boolean exists = ImageFactory.existsImage(staffDto.getExtCommunityId() + File.separatorChar + staffDto.getExtStaffId() + ".jpg");
+            String faceId = exists ? staffDto.getExtStaffId() : null;
+            //调用新增人脸接口
+            if (StringUtil.isEmpty(faceId) || MACHINE_HAS_NOT_FACE.equals(faceId)) {
+                //存储人脸
+                String faceBase = staffDto.getFaceBase64();
+                if (faceBase.contains("base64,")) {
+                    faceBase = faceBase.substring(faceBase.indexOf("base64,") + 7);
+                }
+                String img = ImageFactory.GenerateImage(faceBase, staffDto.getExtCommunityId() + File.separatorChar + staffDto.getExtStaffId() + ".jpg");
+                resultDto = AttendanceProcessFactory.getAttendanceProcessImpl(machineDto.getHmId()).addFace(machineDto, staffDto);
+            } else { //调用更新人脸接口
+                ImageFactory.deleteImage(machineDto.getMachineCode() + File.separatorChar + staffDto.getExtStaffId() + ".jpg");
+                String faceBase = staffDto.getFaceBase64();
+                if (faceBase.contains("base64,")) {
+                    faceBase = faceBase.substring(faceBase.indexOf("base64,") + 7);
+                }
+                String img = ImageFactory.GenerateImage(faceBase, machineDto.getCommunityId() + File.separatorChar + staffDto.getExtStaffId() + ".jpg");
+                resultDto = AttendanceProcessFactory.getAttendanceProcessImpl(machineDto.getHmId()).updateFace(machineDto, staffDto);
+            }
+            if (resultDto == null) {
+                return resultDto;
+            }
+        }
         //设备写值
         addStaffMachineCmd(staffDto);
 

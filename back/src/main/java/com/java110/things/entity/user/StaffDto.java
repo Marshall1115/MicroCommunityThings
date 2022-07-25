@@ -14,6 +14,7 @@ import java.io.Serializable;
  **/
 public class StaffDto extends PageDto implements Serializable {
 
+    private String taskId;
     private String staffId;
     private String staffName;
     private String departmentId;
@@ -22,6 +23,10 @@ public class StaffDto extends PageDto implements Serializable {
     private String face2;
     private String face3;
     private String extStaffId;
+    private String machineCode;
+    private String extMachineId;
+    private String extCommunityId;
+    private String faceBase64;
 
     private String statusCd;
 
@@ -95,5 +100,45 @@ public class StaffDto extends PageDto implements Serializable {
 
     public void setStatusCd(String statusCd) {
         this.statusCd = statusCd;
+    }
+
+    public String getMachineCode() {
+        return machineCode;
+    }
+
+    public void setMachineCode(String machineCode) {
+        this.machineCode = machineCode;
+    }
+
+    public String getExtMachineId() {
+        return extMachineId;
+    }
+
+    public void setExtMachineId(String extMachineId) {
+        this.extMachineId = extMachineId;
+    }
+
+    public String getExtCommunityId() {
+        return extCommunityId;
+    }
+
+    public void setExtCommunityId(String extCommunityId) {
+        this.extCommunityId = extCommunityId;
+    }
+
+    public String getFaceBase64() {
+        return faceBase64;
+    }
+
+    public void setFaceBase64(String faceBase64) {
+        this.faceBase64 = faceBase64;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 }
