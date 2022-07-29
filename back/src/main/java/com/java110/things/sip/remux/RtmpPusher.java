@@ -50,6 +50,7 @@ public class RtmpPusher extends Observer{
 		} catch (IOException e) {
 			e.printStackTrace();
 			try {
+				pos.close();
 				pos.connect(pis);
 			} catch (IOException ioException) {
 				ioException.printStackTrace();

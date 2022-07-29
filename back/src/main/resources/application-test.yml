@@ -54,8 +54,8 @@ spring :
   datasource:
     username: ${username}
     password: ${mysqlpwd}
-    url: jdbc:mysql://things.homecommunity.cn:3306/${database}?useUnicode=true&characterEncoding=gbk&zeroDateTimeBehavior=convertToNull&useSSL=false
-    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://things.homecommunity.cn:3306/${database}?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
+    driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     initialSize: 5
     minIdle: 5
