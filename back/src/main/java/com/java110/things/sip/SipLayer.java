@@ -206,7 +206,8 @@ public class SipLayer implements SipListener {
             if (RedisUtil.checkExist(deviceId)) {
                 RedisUtil.expire(deviceId, RedisUtil.EXPIRE);
             } else {
-                response = mMessageFactory.createResponse(Response.BAD_REQUEST, request);
+                //response = mMessageFactory.createResponse(Response.BAD_REQUEST, request);
+                response = mMessageFactory.createResponse(Response.UNAUTHORIZED, request);
             }
         }
 
