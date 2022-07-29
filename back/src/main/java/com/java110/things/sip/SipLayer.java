@@ -208,6 +208,7 @@ public class SipLayer implements SipListener {
             } else {
                 //response = mMessageFactory.createResponse(Response.BAD_REQUEST, request);
                 response = mMessageFactory.createResponse(Response.UNAUTHORIZED, request);
+                mDigestServerAuthenticationHelper.generateChallenge(mHeaderFactory, response, mSipRealm);
             }
         }
 
