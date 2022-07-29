@@ -460,6 +460,25 @@ public class MachineExtController extends BaseController implements OnProcessLis
             //getPort可能耗时，在外面调用。
             int port = mSipLayer.getPort(isTcp);
             String ssrc = mSipLayer.getSsrc(true);
+
+
+            //启动服务 =================================
+            String address = configProperties.getPushRtmpAddress().concat(streamName);
+            Server server = isTcp ? new TCPServer() : new UDPServer();
+            Observer observer = new RtmpPusher(address, callId);
+
+            server.subscribe(observer);
+            pushStreamDevice = new PushStreamDevice(deviceId, Integer.valueOf(ssrc), callId, streamName, port, isTcp, server,
+                    observer, address);
+
+            server.startServer(pushStreamDevice.getFrameDeque(), Integer.valueOf(ssrc), port, false);
+            observer.startRemux();
+
+            observer.setOnProcessListener(this);
+            mPushStreamDeviceManager.put(streamName, callId, Integer.valueOf(ssrc), pushStreamDevice);
+
+            //启动完成=====================================
+
             mSipLayer.sendInvite(device, SipLayer.SESSION_NAME_PLAY, callId, channelId, port, ssrc, isTcp);
             //4.等待指令响应
             SyncFuture<?> receive = mMessageManager.receive(callId);
@@ -467,20 +486,7 @@ public class MachineExtController extends BaseController implements OnProcessLis
 
             //4.1响应成功，创建推流session
             if (response != null) {
-                String address = configProperties.getPushRtmpAddress().concat(streamName);
-                Server server = isTcp ? new TCPServer() : new UDPServer();
-                Observer observer = new RtmpPusher(address, callId);
-
-                server.subscribe(observer);
-                pushStreamDevice = new PushStreamDevice(deviceId, Integer.valueOf(ssrc), callId, streamName, port, isTcp, server,
-                        observer, address);
-
                 pushStreamDevice.setDialog(response);
-                server.startServer(pushStreamDevice.getFrameDeque(), Integer.valueOf(ssrc), port, false);
-                observer.startRemux();
-
-                observer.setOnProcessListener(this);
-                mPushStreamDeviceManager.put(streamName, callId, Integer.valueOf(ssrc), pushStreamDevice);
                 //result = GBResult.ok(new MediaData(configProperties.getPullRtmpAddress().concat(streamName), pushStreamDevice.getCallId()));
                 result.put("address", configProperties.getPullRtmpAddress().concat(streamName));
                 result.put("callId", pushStreamDevice.getCallId());
@@ -488,6 +494,8 @@ public class MachineExtController extends BaseController implements OnProcessLis
 
                 prolongedSurvival(pushStreamDevice.getCallId());
             } else {
+                server.stopServer();
+                observer.stopRemux();
                 //3.2响应失败，删除推流session
                 mMessageManager.remove(callId);
                 //throw new IllegalArgumentException("摄像头 指令未响应");
