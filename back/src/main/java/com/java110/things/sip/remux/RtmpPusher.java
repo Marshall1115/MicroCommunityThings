@@ -55,7 +55,12 @@ public class RtmpPusher extends Observer {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            this.recoverPiped(); //  恢复管道
+			try {
+				pos.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			this.recoverPiped(); //  恢复管道
         }
     }
 
@@ -147,6 +152,7 @@ public class RtmpPusher extends Observer {
      */
     public void recoverPiped() {
         try {
+			pos = new PipedOutputStream();
             pis = new PipedInputStream(pos);
             grabber = new FFmpegFrameGrabber(pis);
             //阻塞式，直到通道有数据
