@@ -542,7 +542,13 @@ public class MachineExtController extends BaseController implements OnProcessLis
                 continue;
             }
             prolongedSurvival(callId);
+            String tmpCallId = RedisCacheFactory.getValue(callId+"_pushStream");
+            if(StringUtil.isEmpty(tmpCallId)){
+                return ResultDto.createResponseEntity(new ResultDto(ResultDto.NO_PUSH_STREAM,"设备未推流"));
+            }
         }
+
+
 
         return ResultDto.success();
     }
