@@ -194,6 +194,19 @@ public class StaffServiceImpl implements IStaffService {
         //修改传送第三方平台
         ResultDto resultDto = null;
 
+        if(!StringUtil.isEmpty(staffDto.getMachineCode())) {
+            MachineDto machineDto = new MachineDto();
+            machineDto.setMachineCode(staffDto.getMachineCode());
+            List<MachineDto> machineDtos = machineServiceDaoImpl.getMachines(machineDto);
+            Assert.listOnlyOne(machineDtos, "设备编码错误，不存在该设备");
+            machineDto = machineDtos.get(0);
+            resultDto = AttendanceProcessFactory.getAttendanceProcessImpl(machineDto.getHmId()).updateFace(machineDto, staffDto);
+        }
+
+        if(resultDto != null && resultDto.getCode() != ResultDto.SUCCESS){
+            return resultDto;
+        }
+
         int count = staffServiceDao.updateStaff(staffDto);
 
         if (count < 1) {
@@ -208,7 +221,20 @@ public class StaffServiceImpl implements IStaffService {
 
     @Override
     public ResultDto deleteStaff(StaffDto staffDto) throws Exception {
+
         ResultDto resultDto = null;
+
+        if(!StringUtil.isEmpty(staffDto.getMachineCode())) {
+            MachineDto machineDto = new MachineDto();
+            machineDto.setMachineCode(staffDto.getMachineCode());
+            List<MachineDto> machineDtos = machineServiceDaoImpl.getMachines(machineDto);
+            Assert.listOnlyOne(machineDtos, "设备编码错误，不存在该设备");
+            machineDto = machineDtos.get(0);
+            resultDto = AttendanceProcessFactory.getAttendanceProcessImpl(machineDto.getHmId()).deleteFace(machineDto, staffDto);
+        }
+        if(resultDto != null && resultDto.getCode() != ResultDto.SUCCESS){
+            return resultDto;
+        }
         deleteStaffMachineCmd(staffDto);
         staffDto.setStatusCd("1");
         int count = staffServiceDao.updateStaff(staffDto);

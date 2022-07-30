@@ -25,6 +25,7 @@ import com.java110.things.entity.attendance.AttendanceClassesStaffDto;
 import com.java110.things.entity.attendance.AttendanceClassesTaskDto;
 import com.java110.things.entity.response.ResultDto;
 import com.java110.things.entity.user.StaffDto;
+import com.java110.things.exception.Result;
 import com.java110.things.service.community.ICommunityService;
 import com.java110.things.service.staff.IStaffService;
 import com.java110.things.util.Assert;
@@ -257,6 +258,34 @@ public class AttendanceExtController extends BaseController {
         return ResultDto.success();
     }
 
+    /**
+     * 添加考勤员工信息
+     * <p>
+     *
+     * @param reqParam {
+     *                 "attendanceCode":""
+     *                 attendance_name
+     *                 attendance_type_cd
+     *                 create_time
+     *                 status_cd
+     *                 oem
+     *                 ext_attendance_id
+     *                 community_id
+     *                 hm_id
+     *                 }
+     * @return 成功或者失败
+     * @throws Exception
+     */
+    @RequestMapping(path = "/updateAttendanceClassStaffs", method = RequestMethod.POST)
+    public ResponseEntity<String> updateAttendanceClassStaffs(@RequestBody String reqParam) throws Exception {
+
+        JSONArray datas = JSONArray.parseArray(reqParam);
+        for (int dataIndex = 0; dataIndex < datas.size(); dataIndex++) {
+            updateAttendanceClassStaff(datas.get(dataIndex).toString());
+        }
+        return ResultDto.success();
+    }
+
 
     /**
      * 添加考勤员工信息
@@ -327,6 +356,83 @@ public class AttendanceExtController extends BaseController {
     }
 
     /**
+     * 修改考勤员工信息
+     * <p>
+     *
+     * @param reqParam {
+     *                 "attendanceCode":""
+     *                 attendance_name
+     *                 attendance_type_cd
+     *                 create_time
+     *                 status_cd
+     *                 oem
+     *                 ext_attendance_id
+     *                 community_id
+     *                 hm_id
+     *                 }
+     * @return 成功或者失败
+     * @throws Exception
+     */
+    @RequestMapping(path = "/updateAttendanceClassStaff", method = RequestMethod.POST)
+    public ResponseEntity<String> updateAttendanceClassStaff(@RequestBody String reqParam) throws Exception {
+
+        JSONObject reqJson = JSONObject.parseObject(reqParam);
+
+        Assert.hasKeyAndValue(reqJson, "extClassesId", "未包含外部考勤班组ID");
+        Assert.hasKeyAndValue(reqJson, "extStaffId", "未包含外部员工ID");
+        Assert.hasKeyAndValue(reqJson, "staffName", "未包含员工名称");
+        Assert.hasKeyAndValue(reqJson, "departmentId", "未包含部门ID");
+        Assert.hasKeyAndValue(reqJson, "departmentName", "未包含部门名称");
+        Assert.hasKeyAndValue(reqJson, "taskId", "未包含任务ID");
+
+        StaffDto staffDto = new StaffDto();
+        staffDto.setExtStaffId(reqJson.getString("extStaffId"));
+        //检查员工是否存在
+        List<StaffDto> staffDtos = attendanceServiceImpl.queryStaffs(staffDto);
+
+        String staffId = "";
+        ResultDto resultDto = null;
+        if (staffDtos == null || staffDtos.size() < 1) {
+            StaffDto tmpStaffDto = BeanConvertUtil.covertBean(reqJson, StaffDto.class);
+            tmpStaffDto.setStaffId(SeqUtil.getId());
+            resultDto = staffServiceImpl.saveStaff(tmpStaffDto);
+            staffId = tmpStaffDto.getStaffId();
+
+            if(resultDto != null && resultDto.getCode() != ResultDto.SUCCESS){
+                return ResultDto.createResponseEntity(resultDto);
+            }
+
+            AttendanceClassesDto attendanceClassesDto = new AttendanceClassesDto();
+            attendanceClassesDto.setExtClassesId(reqJson.getString("extClassesId"));
+            List<AttendanceClassesDto> attendanceClassesDtos = attendanceServiceImpl.getAttendanceClasses(attendanceClassesDto);
+
+            Assert.listOnlyOne(attendanceClassesDtos, "不存在考勤班组");
+
+            //判断员工是否在这个考勤班组中
+            AttendanceClassesStaffDto attendanceClassesStaffDto = new AttendanceClassesStaffDto();
+            attendanceClassesStaffDto.setClassesId(attendanceClassesDtos.get(0).getClassesId());
+            attendanceClassesStaffDto.setStaffId(staffId);
+            List<AttendanceClassesStaffDto> attendanceClassesStaffDtos = attendanceServiceImpl.queryClassStaffs(attendanceClassesStaffDto);
+            //班组中已经存在
+            if (attendanceClassesStaffDtos != null && attendanceClassesStaffDtos.size() > 0) {
+                return ResultDto.success();
+            }
+            attendanceClassesStaffDto = BeanConvertUtil.covertBean(reqJson, AttendanceClassesStaffDto.class);
+            attendanceClassesStaffDto.setStaffId(staffId);
+            attendanceClassesStaffDto.setClassesId(attendanceClassesDtos.get(0).getClassesId());
+            resultDto = attendanceServiceImpl.saveClassStaff(attendanceClassesStaffDto);
+        } else {
+            staffId = staffDtos.get(0).getStaffId();
+            StaffDto tmpStaffDto = BeanConvertUtil.covertBean(reqJson, StaffDto.class);
+            tmpStaffDto.setStaffId(staffId);
+            resultDto = staffServiceImpl.updateStaff(tmpStaffDto);
+        }
+//
+        return ResultDto.createResponseEntity(resultDto);
+    }
+
+
+    /**
      * 添加考勤员工信息
      * <p>
      *
@@ -358,14 +464,21 @@ public class AttendanceExtController extends BaseController {
         //检查员工是否存在
         List<StaffDto> staffDtos = attendanceServiceImpl.queryStaffs(staffDto);
 
-        Assert.listOnlyOne(staffDtos, "员工不存在");
+        //Assert.listOnlyOne(staffDtos, "员工不存在");
+
+        if (staffDtos == null || staffDtos.size() < 1) {
+            return ResultDto.success();
+        }
 
         AttendanceClassesDto attendanceClassesDto = new AttendanceClassesDto();
         attendanceClassesDto.setExtClassesId(reqJson.getString("extClassesId"));
         List<AttendanceClassesDto> attendanceClassesDtos = attendanceServiceImpl.getAttendanceClasses(attendanceClassesDto);
 
-        Assert.listOnlyOne(attendanceClassesDtos, "不存在考勤班组");
+        //Assert.listOnlyOne(attendanceClassesDtos, "不存在考勤班组");
 
+        if (staffDtos == null || staffDtos.size() < 1) {
+            return ResultDto.success();
+        }
         //判断员工是否在这个考勤班组中
         AttendanceClassesStaffDto attendanceClassesStaffDto = new AttendanceClassesStaffDto();
         attendanceClassesStaffDto.setClassesId(attendanceClassesDtos.get(0).getClassesId());
