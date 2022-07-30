@@ -441,11 +441,22 @@ public class MachineExtController extends BaseController implements OnProcessLis
             //如果正在推流，直接返回rtmp地址
             String streamName = StreamNameUtils.play(deviceId, channelId);
             PushStreamDevice pushStreamDevice = mPushStreamDeviceManager.get(streamName);
-            if (pushStreamDevice != null) {
-                result.put("address", configProperties.getPullRtmpAddress().concat(streamName));
-                result.put("callId", pushStreamDevice.getCallId());
-                prolongedSurvival(pushStreamDevice.getCallId());
-                return ResultDto.createResponseEntity(result);
+            RedisCacheFactory.getValue(pushStreamDevice.getCallId()+"_pushStream");
+            if (pushStreamDevice != null ) {
+                String callId = RedisCacheFactory.getValue(pushStreamDevice.getCallId()+"_pushStream");
+
+                if(!StringUtil.isEmpty(callId)) {
+                    result.put("address", configProperties.getPullRtmpAddress().concat(streamName));
+                    result.put("callId", pushStreamDevice.getCallId());
+                    prolongedSurvival(pushStreamDevice.getCallId());
+                    return ResultDto.createResponseEntity(result);
+                }else{
+                    try {
+                        mSipLayer.sendBye(callId);
+                    } catch (SipException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
             //检查通道是否存在
             Device device = JSONObject.parseObject(deviceStr, Device.class);
