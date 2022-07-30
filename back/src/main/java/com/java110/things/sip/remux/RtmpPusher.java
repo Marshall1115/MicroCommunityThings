@@ -3,6 +3,8 @@ package com.java110.things.sip.remux;
 import org.bytedeco.javacpp.avcodec;
 import org.bytedeco.javacpp.avcodec.AVPacket;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
+import org.bytedeco.javacv.FrameGrabber;
+import org.bytedeco.javacv.FrameRecorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,12 +57,7 @@ public class RtmpPusher extends Observer {
             }
         } catch (IOException e) {
             e.printStackTrace();
-			try {
-				pos.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			this.recoverPiped(); //  恢复管道
+            this.recoverPiped(); //  恢复管道
         }
     }
 
@@ -151,8 +148,37 @@ public class RtmpPusher extends Observer {
      * 管道关闭后  恢复下管道
      */
     public void recoverPiped() {
+
+        if (recorder != null) {
+            try {
+                recorder.close();
+            } catch (FrameRecorder.Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (grabber != null) {
+            try {
+                grabber.close();
+            } catch (FrameGrabber.Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (pos != null) {
+            try {
+                pos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (pis != null) {
+            try {
+                pis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         try {
-			pos = new PipedOutputStream();
+            pos = new PipedOutputStream();
             pis = new PipedInputStream(pos);
             grabber = new FFmpegFrameGrabber(pis);
             //阻塞式，直到通道有数据
