@@ -441,7 +441,6 @@ public class MachineExtController extends BaseController implements OnProcessLis
             //如果正在推流，直接返回rtmp地址
             String streamName = StreamNameUtils.play(deviceId, channelId);
             PushStreamDevice pushStreamDevice = mPushStreamDeviceManager.get(streamName);
-            RedisCacheFactory.getValue(pushStreamDevice.getCallId()+"_pushStream");
             if (pushStreamDevice != null ) {
                 String callId = RedisCacheFactory.getValue(pushStreamDevice.getCallId()+"_pushStream");
 
