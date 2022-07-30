@@ -25,6 +25,7 @@ public class RtmpPusher extends Observer{
 	private PipedOutputStream pos = new PipedOutputStream();;
 
 	private boolean mRunning = true;
+	private boolean rtmpPusherFinish = true; // 默认没有结束
 
 	private String address;
 
@@ -49,12 +50,7 @@ public class RtmpPusher extends Observer{
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			try {
-				pos.close();
-				pos.connect(pis);
-			} catch (IOException ioException) {
-				ioException.printStackTrace();
-			}
+			this.restartRemux(); // 停掉重启
 		}
 	}
 
@@ -89,6 +85,7 @@ public class RtmpPusher extends Observer{
 		FFmpegFrameGrabber grabber = null;
 		CustomFFmpegFrameRecorder recorder = null;
 		Long pts  = 0L;
+		rtmpPusherFinish = false;
 		try{
 			//pis = new PipedInputStream(pos,1024*1024);
 			pis = new PipedInputStream(pos);
@@ -131,6 +128,7 @@ public class RtmpPusher extends Observer{
 			}
 		}
 		log.error("推流结束");
+		rtmpPusherFinish = true;
 	}
 
 	@Override
@@ -139,6 +137,19 @@ public class RtmpPusher extends Observer{
 	}
 	@Override
 	public void startRemux() {
+		this.start();
+	}
+
+	public void restartRemux() {
+		this.mRunning = false;
+		while(!rtmpPusherFinish){ // 如果 推流 还没有结束 等待
+			try {
+				sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		this.mRunning = true;
 		this.start();
 	}
 
