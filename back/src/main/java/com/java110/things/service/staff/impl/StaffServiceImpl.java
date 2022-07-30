@@ -203,7 +203,10 @@ public class StaffServiceImpl implements IStaffService {
             MachineDto machineDto = new MachineDto();
             machineDto.setMachineCode(staffDto.getMachineCode());
             List<MachineDto> machineDtos = machineServiceDaoImpl.getMachines(machineDto);
-            Assert.listOnlyOne(machineDtos, "设备编码错误，不存在该设备");
+            //Assert.listOnlyOne(machineDtos, "设备编码错误，不存在该设备");
+            if(machineDtos == null || machineDtos.size()<1){
+                throw new IllegalArgumentException( "设备编码错误，不存在该设备");
+            }
             machineDto = machineDtos.get(0);
             resultDto = AttendanceProcessFactory.getAttendanceProcessImpl(machineDto.getHmId()).updateFace(machineDto, staffDto);
         }
