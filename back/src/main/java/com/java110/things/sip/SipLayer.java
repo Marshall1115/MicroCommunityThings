@@ -161,10 +161,26 @@ public class SipLayer implements SipListener {
                 processMessage(evt);
             } else if (method.equalsIgnoreCase(Request.BYE)) {
                 processBye(evt);
+            }else{
+                processCommon(evt);
             }
         } catch (Exception e) {
             logger.error("处理摄像头 请求失败", e);
         }
+    }
+
+    private void processCommon(RequestEvent evt) throws  Exception{
+        ServerTransaction serverTransaction = evt.getServerTransaction();
+        Dialog dialog = serverTransaction != null ? serverTransaction.getDialog() : null;
+
+        Request request = evt.getRequest();
+
+        if (serverTransaction == null || dialog == null) {
+            serverTransaction = (isTCP(request) ? mTCPSipProvider : mUDPSipProvider).getNewServerTransaction(request);
+        }
+        Response response = mMessageFactory.createResponse(Response.OK, request);
+        serverTransaction.sendResponse(response);
+
     }
 
 
