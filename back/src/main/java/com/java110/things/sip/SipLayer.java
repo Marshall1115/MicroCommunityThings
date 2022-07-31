@@ -162,7 +162,7 @@ public class SipLayer implements SipListener {
             } else if (method.equalsIgnoreCase(Request.BYE)) {
                 processBye(evt);
             }else{
-                processCommon(evt);
+               // processCommon(evt);
             }
         } catch (Exception e) {
             logger.error("处理摄像头 请求失败", e);
