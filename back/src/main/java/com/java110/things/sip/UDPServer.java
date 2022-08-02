@@ -71,7 +71,7 @@ public class UDPServer extends Server {
     @Override
     public void stopServer() {
         if (!this.isRunning) {
-            throw new IllegalStateException(TAG + " is not yet started .");
+           return;
         }
         this.isRunning = false;
         try {

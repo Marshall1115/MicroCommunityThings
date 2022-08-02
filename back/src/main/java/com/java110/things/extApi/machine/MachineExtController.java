@@ -18,7 +18,6 @@ package com.java110.things.extApi.machine;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.java110.things.Controller.BaseController;
-import com.java110.things.adapt.car.zeroOne.ZeroOneCarSocketProcessAdapt;
 import com.java110.things.entity.accessControl.UserFaceDto;
 import com.java110.things.entity.car.BarrierGateControlDto;
 import com.java110.things.entity.car.CarInoutDto;
@@ -423,6 +422,7 @@ public class MachineExtController extends BaseController implements OnProcessLis
         ///play/{deviceId}/{channelId}/{mediaProtocol}
         Assert.hasKeyAndValue(paramIn, "deviceId", "未包含deviceId");
         Assert.hasKeyAndValue(paramIn, "channelId", "未包含channelId");
+        Assert.hasKeyAndValue(paramIn, "port", "未包含port");
         Assert.hasKeyAndValue(paramIn, "mediaProtocol", "未包含mediaProtocol");
 
         String deviceId = paramIn.getString("deviceId");
@@ -441,15 +441,15 @@ public class MachineExtController extends BaseController implements OnProcessLis
             //如果正在推流，直接返回rtmp地址
             String streamName = StreamNameUtils.play(deviceId, channelId);
             PushStreamDevice pushStreamDevice = mPushStreamDeviceManager.get(streamName);
-            if (pushStreamDevice != null ) {
-                String callId = RedisCacheFactory.getValue(pushStreamDevice.getCallId()+"_pushStream");
+            if (pushStreamDevice != null) {
+                String callId = RedisCacheFactory.getValue(pushStreamDevice.getCallId() + "_pushStream");
 
-                if(!StringUtil.isEmpty(callId)) {
+                if (!StringUtil.isEmpty(callId)) {
                     result.put("address", configProperties.getPullRtmpAddress().concat(streamName));
                     result.put("callId", pushStreamDevice.getCallId());
                     prolongedSurvival(pushStreamDevice.getCallId());
                     return ResultDto.createResponseEntity(result);
-                }else{
+                } else {
                     try {
                         mSipLayer.sendBye(callId);
                     } catch (SipException e) {
@@ -468,7 +468,8 @@ public class MachineExtController extends BaseController implements OnProcessLis
             //3.下发指令
             String callId = IDUtils.id();
             //getPort可能耗时，在外面调用。
-            int port = mSipLayer.getPort(isTcp);
+            //int port = mSipLayer.getPort(isTcp);
+            int port = paramIn.getIntValue("port");
             String ssrc = mSipLayer.getSsrc(true);
 
 
@@ -541,12 +542,11 @@ public class MachineExtController extends BaseController implements OnProcessLis
                 continue;
             }
             prolongedSurvival(callId);
-            String tmpCallId = RedisCacheFactory.getValue(callId+"_pushStream");
-            if(StringUtil.isEmpty(tmpCallId)){
-                return ResultDto.createResponseEntity(new ResultDto(ResultDto.NO_PUSH_STREAM,"设备未推流"));
+            String tmpCallId = RedisCacheFactory.getValue(callId + "_pushStream");
+            if (StringUtil.isEmpty(tmpCallId)) {
+                return ResultDto.createResponseEntity(new ResultDto(ResultDto.NO_PUSH_STREAM, "设备未推流"));
             }
         }
-
 
 
         return ResultDto.success();
