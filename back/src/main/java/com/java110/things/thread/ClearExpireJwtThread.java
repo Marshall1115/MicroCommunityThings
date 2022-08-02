@@ -22,7 +22,7 @@ import javax.sip.SipException;
 public class ClearExpireJwtThread implements Runnable {
     Logger logger = LoggerFactory.getLogger(ClearExpireJwtThread.class);
 
-    public static final long DEFAULT_WAIT_SECOND = 1 * 60 * 1000; // 默认5分钟执行一次
+    public static final long DEFAULT_WAIT_SECOND = 1 * 10 * 1000; // 默认5分钟执行一次
 
     public static boolean CLEAR_EXPIRE_STATE = false;
 
