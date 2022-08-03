@@ -2,10 +2,14 @@ package com.java110.things.config;
 
 import com.java110.things.mqtt.MqttPushCallback;
 import com.java110.things.mqtt.MqttPushClient;
+import com.java110.things.service.manufacturer.impl.ManufacturerServiceImpl;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.IntegrationComponentScan;
@@ -32,6 +36,7 @@ import org.springframework.messaging.MessagingException;
  * add by wuxw 2020/5/20
  **/
 @Configuration
+@AutoConfigureAfter(ManufacturerServiceImpl.class)
 public class MqttConfig {
 
     @Value("${spring.mqtt.username}")
@@ -57,6 +62,7 @@ public class MqttConfig {
 
 
     @Bean
+    @ConditionalOnBean(ManufacturerServiceImpl.class)
     public MqttClient mqttClient() {
         MqttClient client = null;
         try {
