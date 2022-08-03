@@ -1,7 +1,10 @@
 package com.java110.things.service.manufacturer;
 
+import com.java110.things.entity.manufacturer.ManufacturerAttrDto;
 import com.java110.things.entity.manufacturer.ManufacturerDto;
 import com.java110.things.entity.response.ResultDto;
+
+import java.util.List;
 
 /**
  * @ClassName IMappingService
@@ -32,4 +35,5 @@ public interface IManufacturerService {
     ResultDto startManufacturer(ManufacturerDto manufacturerDto) throws Exception;
 
 
+    List<ManufacturerAttrDto> getManufacturerAttr(ManufacturerAttrDto tmpManufacturerDto);
 }

@@ -1,9 +1,5 @@
 package com.java110.things.adapt.attendance;
 
-import com.alibaba.fastjson.JSONObject;
-import com.java110.things.entity.accessControl.SyncGetTaskResultDto;
-import com.java110.things.entity.attendance.AttendanceUploadDto;
-import com.java110.things.entity.machine.MachineCmdDto;
 import com.java110.things.entity.machine.MachineDto;
 import com.java110.things.entity.response.ResultDto;
 import com.java110.things.entity.user.StaffDto;
@@ -39,17 +35,16 @@ public interface IAttendanceMachineProcess {
      * 添加人脸
      *
      * @param machineDto 云端获取任务结果
-     * @param staffDto      返回结果
+     * @param staffDto   返回结果
      */
-    ResultDto addFace(MachineDto machineDto, StaffDto staffDto) ;
-
+    ResultDto addFace(MachineDto machineDto, StaffDto staffDto);
 
 
     /**
      * 更新人脸
      *
      * @param machineDto 硬件信息
-     * @param staffDto             返回结果
+     * @param staffDto   返回结果
      */
     ResultDto updateFace(MachineDto machineDto, StaffDto staffDto);
 
@@ -58,16 +53,16 @@ public interface IAttendanceMachineProcess {
      * 删除人脸
      *
      * @param machineDto 硬件信息
-     * @param staffDto             返回结果
+     * @param staffDto   返回结果
      */
-    ResultDto deleteFace(MachineDto machineDto, StaffDto staffDto) ;
+    ResultDto deleteFace(MachineDto machineDto, StaffDto staffDto);
 
 
     /**
      * 清空人脸
      *
      * @param machineDto 硬件信息
-     * @param staffDto             返回结果
+     * @param staffDto   返回结果
      */
     ResultDto clearFace(MachineDto machineDto, StaffDto staffDto);
 
@@ -77,4 +72,7 @@ public interface IAttendanceMachineProcess {
      * @return
      */
     String getDefaultResult();
+
+    void mqttMessageArrived(String topic, String data);
+
 }

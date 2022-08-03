@@ -14,6 +14,16 @@ import java.io.Serializable;
  **/
 public class ManufacturerDto extends PageDto implements Serializable {
 
+    /**
+     * 1001	门禁厂商
+     * 2002	道闸厂商
+     * 3003	监控厂商
+     * 4004	考勤厂商
+     */
+    public final static String HM_TYPE_ACCESS_CONTROL = "1001";
+    public final static String HM_TYPE_CAR = "2002";
+    public final static String HM_TYPE_ATTENDANCE = "4004";
+
     private String hmId;
     private String hmName;
     private String version;

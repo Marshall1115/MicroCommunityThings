@@ -4,11 +4,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.java110.things.constant.ResponseConstant;
 import com.java110.things.dao.IManufacturerServiceDao;
 import com.java110.things.entity.PageDto;
+import com.java110.things.entity.manufacturer.ManufacturerAttrDto;
 import com.java110.things.entity.manufacturer.ManufacturerDto;
 import com.java110.things.entity.response.ResultDto;
 import com.java110.things.exception.Result;
 import com.java110.things.exception.ServiceException;
-import com.java110.things.factory.MappingCacheFactory;
 import com.java110.things.service.manufacturer.IManufacturerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +86,13 @@ public class ManufacturerServiceImpl implements IManufacturerService {
             throw new ServiceException(Result.SYS_ERROR, "启用失败");
         }
         return new ResultDto(ResponseConstant.SUCCESS, ResponseConstant.SUCCESS_MSG);
+    }
+
+    @Override
+    public List<ManufacturerAttrDto> getManufacturerAttr(ManufacturerAttrDto tmpManufacturerDto) {
+        List<ManufacturerAttrDto> manufacturerDtoAttrs = manufacturerServiceDao.getManufacturerAttr(tmpManufacturerDto);
+
+        return manufacturerDtoAttrs;
     }
 
 

@@ -3,10 +3,11 @@ package com.java110.things.mqtt;
 
 import com.alibaba.fastjson.JSONObject;
 import com.java110.things.entity.machine.MachineDto;
-import com.java110.things.factory.AccessControlProcessFactory;
-import com.java110.things.factory.ApplicationContextFactory;
-import com.java110.things.factory.CarMachineProcessFactory;
+import com.java110.things.entity.manufacturer.ManufacturerAttrDto;
+import com.java110.things.entity.manufacturer.ManufacturerDto;
+import com.java110.things.factory.*;
 import com.java110.things.service.machine.IMachineService;
+import com.java110.things.service.manufacturer.IManufacturerService;
 import com.java110.things.util.Assert;
 import com.java110.things.util.StringUtil;
 import org.eclipse.paho.client.mqttv3.*;
@@ -21,7 +22,7 @@ import java.util.List;
  * @author wuxw
  * @date 2020-05-20
  */
-public class MqttPushCallback implements MqttCallback {
+public class MqttPushCallback implements MqttCallbackExtended {
 
     private static final Logger log = LoggerFactory.getLogger(MqttPushCallback.class);
     private MqttClient client;
@@ -40,8 +41,8 @@ public class MqttPushCallback implements MqttCallback {
     @Override
     public void connectionLost(Throwable cause) {
         log.info("断开连接，建议重连" + this);
-        log.error("连接断开",cause);
-        while(true) {
+        log.error("连接断开", cause);
+        while (true) {
             try {
                 Thread.sleep(1000);
                 // 重新连接
@@ -54,6 +55,7 @@ public class MqttPushCallback implements MqttCallback {
         }
     }
 
+
     @Override
     public void deliveryComplete(IMqttDeliveryToken token) {
         //log.info(token.isComplete() + "");
@@ -64,11 +66,38 @@ public class MqttPushCallback implements MqttCallback {
         try {
             log.info("Topic: " + topic);
             log.info("Message: " + new String(message.getPayload()));
-            if("/device/push/result".equals(topic)){ //臻识的摄像头
-                CarMachineProcessFactory.getCarImpl("17").mqttMessageArrived(topic, new String(message.getPayload()));
-            }else {
-                AccessControlProcessFactory.getAssessControlProcessImpl(getHmId(topic, message)).mqttMessageArrived(topic, new String(message.getPayload()));
+
+            //先去 topic 表中查询
+            IManufacturerService manufacturerServiceImpl = ApplicationContextFactory.getBean("manufacturerServiceImpl", IManufacturerService.class);
+            ManufacturerAttrDto tmpManufacturerDto = new ManufacturerAttrDto();
+            tmpManufacturerDto.setSpecCd(ManufacturerAttrDto.SPEC_TOPIC);
+            tmpManufacturerDto.setValue(topic);
+            List<ManufacturerAttrDto> manufacturerAttrDtos = manufacturerServiceImpl.getManufacturerAttr(tmpManufacturerDto);
+
+            if (manufacturerAttrDtos == null || manufacturerAttrDtos.size() < 1) {
+                if ("/device/push/result".equals(topic)) { //臻识的摄像头
+                    CarMachineProcessFactory.getCarImpl("17").mqttMessageArrived(topic, new String(message.getPayload()));
+                } else {
+                    String hmId = getHmId(topic, message);
+                    if ("18".contains(hmId)) {
+                        AttendanceProcessFactory.getAttendanceProcessImpl(hmId).mqttMessageArrived(topic, new String(message.getPayload()));
+                    } else {
+                        AccessControlProcessFactory.getAssessControlProcessImpl(getHmId(topic, message)).mqttMessageArrived(topic, new String(message.getPayload()));
+                    }
+                }
+                return;
             }
+
+            for(ManufacturerAttrDto manufacturerAttrDto : manufacturerAttrDtos){
+                if(ManufacturerDto.HM_TYPE_ACCESS_CONTROL.equals(manufacturerAttrDto.getHmType())){
+                    AccessControlProcessFactory.getAssessControlProcessImpl(manufacturerAttrDto.getHmId()).mqttMessageArrived(topic, new String(message.getPayload()));
+                }else if(ManufacturerDto.HM_TYPE_CAR.equals(manufacturerAttrDto.getHmType())){
+                    CarMachineProcessFactory.getCarImpl(manufacturerAttrDto.getHmId()).mqttMessageArrived(topic, new String(message.getPayload()));
+                }else if(ManufacturerDto.HM_TYPE_ATTENDANCE.equals(manufacturerAttrDto.getHmType())){
+                    AttendanceProcessFactory.getAttendanceProcessImpl(manufacturerAttrDto.getHmId()).mqttMessageArrived(topic, new String(message.getPayload()));
+                }
+            }
+
         } catch (Exception e) {
             log.error("处理订阅消息失败", e);
         }
@@ -83,7 +112,7 @@ public class MqttPushCallback implements MqttCallback {
      */
     private String getHmId(String topic, MqttMessage message) {
 
-        if(topic.contains("hiot")){
+        if (topic.contains("hiot")) {
             return "18";
         }
 
@@ -95,8 +124,6 @@ public class MqttPushCallback implements MqttCallback {
 
         //伊兰度中获取协议
         hmId = getHmIdByYld(topic, message);
-
-
 
 
         return hmId;
@@ -113,7 +140,7 @@ public class MqttPushCallback implements MqttCallback {
     private String getHmIdByYld(String topic, MqttMessage message) {
         String msg = new String(message.getPayload());
 
-        if(!Assert.isJsonObject(msg)){
+        if (!Assert.isJsonObject(msg)) {
             return "";
         }
 
@@ -121,11 +148,11 @@ public class MqttPushCallback implements MqttCallback {
 
         JSONObject msgObj = JSONObject.parseObject(msg);
         String machineCode = "";
-        if(msgObj.containsKey("sn")){
+        if (msgObj.containsKey("sn")) {
             machineCode = msgObj.getString("sn");
         }
 
-        if(msgObj.containsKey("body")){
+        if (msgObj.containsKey("body")) {
             machineCode = msgObj.getJSONObject("body").getString("sn");
         }
 
@@ -185,4 +212,20 @@ public class MqttPushCallback implements MqttCallback {
         return hmId;
     }
 
+    @Override
+    public void connectComplete(boolean reconnect, String serverURI) {
+        IManufacturerService manufacturerServiceImpl = ApplicationContextFactory.getBean("manufacturerServiceImpl", IManufacturerService.class);
+        ManufacturerAttrDto tmpManufacturerDto = new ManufacturerAttrDto();
+        tmpManufacturerDto.setSpecCd(ManufacturerAttrDto.SPEC_TOPIC);
+        List<ManufacturerAttrDto> manufacturerAttrDtos = manufacturerServiceImpl.getManufacturerAttr(tmpManufacturerDto);
+
+        if (manufacturerAttrDtos == null || manufacturerAttrDtos.size() < 1) {
+            return;
+        }
+
+        //批量订阅
+        for (ManufacturerAttrDto manufacturerAttrDto : manufacturerAttrDtos) {
+            MqttFactory.subscribe(manufacturerAttrDto.getValue());
+        }
+    }
 }

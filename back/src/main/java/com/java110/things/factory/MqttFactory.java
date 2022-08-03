@@ -50,6 +50,7 @@ public class MqttFactory {
             if(mqttClient == null || !mqttClient.isConnected()){
                 return ;
             }
+
             mqttClient.subscribe(topic, qos);
         } catch (Exception e) {
             logger.error("订阅失败", e);

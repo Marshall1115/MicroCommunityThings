@@ -95,4 +95,45 @@
         AND t.status_cd = '0'
     </update>
 
+
+    <select id="getManufacturerAttr" parameterType="com.java110.things.entity.manufacturer.ManufacturerAttrDto"
+            resultType="com.java110.things.entity.manufacturer.ManufacturerAttrDto">
+        SELECT
+        t.hm_id hmId,
+        t.attr_id attrId,
+        t.spec_cd specCd,
+        t.value value,
+        hm.hm_name hmName,
+        hm.version,
+        hm.protocol_impl protocolImpl,
+        hm.hm_type hmType,
+        hm.author,
+        hm.link,
+        hm.license,
+        hm.prod_url prodUrl,
+        hm.create_time createTime,
+        hm.default_protocol defaultProtocol
+        FROM
+        hardware_manufacturer_attr t
+        LEFT JOIN hardware_manufacturer hm on t.hm_id = hm.hm_id
+        WHERE
+        1 = 1
+        <if test="hmId != null and hmId != ''">
+            AND t.hm_id = #{hmId}
+        </if>
+        <if test="specCd != null and specCd != ''">
+            AND t.spec_cd = #{specCd}
+        </if>
+        <if test="attrId != null and attrId != ''">
+            AND t.attr_id = #{attrId}
+        </if>
+        <if test="value != null and value != ''">
+            AND t.value = #{value}
+        </if>
+        AND t.status_cd = '0'
+        AND hm.status_cd = '0'
+        order by t.create_time desc
+
+    </select>
+
 </mapper>

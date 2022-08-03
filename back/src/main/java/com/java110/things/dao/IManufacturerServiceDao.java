@@ -1,5 +1,6 @@
 package com.java110.things.dao;
 
+import com.java110.things.entity.manufacturer.ManufacturerAttrDto;
 import com.java110.things.entity.manufacturer.ManufacturerDto;
 import com.java110.things.entity.mapping.MappingDto;
 import org.apache.ibatis.annotations.Mapper;
@@ -36,5 +37,5 @@ public interface IManufacturerServiceDao {
     long updateManufacturer(ManufacturerDto manufacturerDto);
 
 
-
+    List<ManufacturerAttrDto> getManufacturerAttr(ManufacturerAttrDto tmpManufacturerDto);
 }

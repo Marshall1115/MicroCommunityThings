@@ -109,7 +109,7 @@ public class ZkAttendanceMachineProcessAdapt implements IAttendanceMachineProces
         return new ResultDto(ResultDto.SUCCESS, "成功");
     }
 
-    //    @Override
+    @Override
     public void mqttMessageArrived(String topic, String data) {
 
         JSONObject param = JSONObject.parseObject(data);
