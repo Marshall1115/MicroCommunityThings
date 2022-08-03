@@ -214,18 +214,22 @@ public class MqttPushCallback implements MqttCallbackExtended {
 
     @Override
     public void connectComplete(boolean reconnect, String serverURI) {
-        IManufacturerService manufacturerServiceImpl = ApplicationContextFactory.getBean("manufacturerServiceImpl", IManufacturerService.class);
-        ManufacturerAttrDto tmpManufacturerDto = new ManufacturerAttrDto();
-        tmpManufacturerDto.setSpecCd(ManufacturerAttrDto.SPEC_TOPIC);
-        List<ManufacturerAttrDto> manufacturerAttrDtos = manufacturerServiceImpl.getManufacturerAttr(tmpManufacturerDto);
+        try {
+            IManufacturerService manufacturerServiceImpl = ApplicationContextFactory.getBean("manufacturerServiceImpl", IManufacturerService.class);
+            ManufacturerAttrDto tmpManufacturerDto = new ManufacturerAttrDto();
+            tmpManufacturerDto.setSpecCd(ManufacturerAttrDto.SPEC_TOPIC);
+            List<ManufacturerAttrDto> manufacturerAttrDtos = manufacturerServiceImpl.getManufacturerAttr(tmpManufacturerDto);
 
-        if (manufacturerAttrDtos == null || manufacturerAttrDtos.size() < 1) {
-            return;
-        }
+            if (manufacturerAttrDtos == null || manufacturerAttrDtos.size() < 1) {
+                return;
+            }
 
-        //批量订阅
-        for (ManufacturerAttrDto manufacturerAttrDto : manufacturerAttrDtos) {
-            MqttFactory.subscribe(manufacturerAttrDto.getValue());
+            //批量订阅
+            for (ManufacturerAttrDto manufacturerAttrDto : manufacturerAttrDtos) {
+                MqttFactory.subscribe(manufacturerAttrDto.getValue());
+            }
+        }catch (Exception e){
+            // 第一次启动会 异常 不关注
         }
     }
 }

@@ -1,12 +1,14 @@
 package com.java110.things.init;
 
 import com.java110.things.entity.machine.MachineDto;
+import com.java110.things.entity.manufacturer.ManufacturerAttrDto;
 import com.java110.things.factory.ApplicationContextFactory;
 import com.java110.things.factory.MappingCacheFactory;
 import com.java110.things.factory.MqttFactory;
 import com.java110.things.quartz.accessControl.HeartbeatCloudApiThread;
 import com.java110.things.quartz.accessControl.ScanAccessControlThread;
 import com.java110.things.service.machine.IMachineService;
+import com.java110.things.service.manufacturer.IManufacturerService;
 import com.java110.things.sip.Server;
 import com.java110.things.sip.TCPServer;
 import com.java110.things.sip.message.config.ConfigProperties;
@@ -74,6 +76,22 @@ public class ServiceStartInit {
         for (MachineDto machineDto1 : machineDtos) {
             MqttFactory.subscribe("face." + machineDto1.getMachineCode() + ".response");
         }
+
+
+        IManufacturerService manufacturerServiceImpl = ApplicationContextFactory.getBean("manufacturerServiceImpl", IManufacturerService.class);
+        ManufacturerAttrDto tmpManufacturerDto = new ManufacturerAttrDto();
+        tmpManufacturerDto.setSpecCd(ManufacturerAttrDto.SPEC_TOPIC);
+        List<ManufacturerAttrDto> manufacturerAttrDtos = manufacturerServiceImpl.getManufacturerAttr(tmpManufacturerDto);
+
+        if (manufacturerAttrDtos == null || manufacturerAttrDtos.size() < 1) {
+            return;
+        }
+
+        //批量订阅
+        for (ManufacturerAttrDto manufacturerAttrDto : manufacturerAttrDtos) {
+            MqttFactory.subscribe(manufacturerAttrDto.getValue());
+        }
+
     }
 
     /**
