@@ -36,7 +36,7 @@ import org.springframework.messaging.MessagingException;
  * add by wuxw 2020/5/20
  **/
 @Configuration
-@AutoConfigureAfter(ManufacturerServiceImpl.class)
+@AutoConfigureAfter(name = "manufacturerServiceImpl")
 public class MqttConfig {
 
     @Value("${spring.mqtt.username}")
@@ -62,7 +62,7 @@ public class MqttConfig {
 
 
     @Bean
-    @ConditionalOnBean(ManufacturerServiceImpl.class)
+    @ConditionalOnBean(name="manufacturerServiceImpl")
     public MqttClient mqttClient() {
         MqttClient client = null;
         try {
