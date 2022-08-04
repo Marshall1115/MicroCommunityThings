@@ -410,10 +410,10 @@ public class CallAttendanceServiceImpl implements ICallAttendanceService {
         }
 
         //判断是否所有 打卡完成，如果完成将task 表刷成完成
-        tmpAttendanceClassesTaskDetailDto = new AttendanceClassesTaskDetailDto();
-        tmpAttendanceClassesTaskDetailDto.setTaskId(attendanceClassesTaskDetailDto.getTaskId());
+        AttendanceClassesTaskDetailDto queryAttendanceClassesTaskDetailDto = new AttendanceClassesTaskDetailDto();
+        queryAttendanceClassesTaskDetailDto.setTaskId(attendanceClassesTaskDetailDto.getTaskId());
         List<AttendanceClassesTaskDetailDto> attendanceClassesTaskDetailDtos =
-                attendanceClassesServiceDao.getAttendanceClassesTaskDetails(tmpAttendanceClassesTaskDetailDto);
+                attendanceClassesServiceDao.getAttendanceClassesTaskDetails(queryAttendanceClassesTaskDetailDto);
         boolean finishAllTaskDetail = true;
         for (AttendanceClassesTaskDetailDto tmpForAttendanceClassesTaskDetailDto : attendanceClassesTaskDetailDtos) {
             if ("10000".equals(tmpForAttendanceClassesTaskDetailDto.getState())) {

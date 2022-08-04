@@ -239,4 +239,12 @@ public class ZkAttendanceMachineProcessAdapt implements IAttendanceMachineProces
             logger.error("考勤失败", e);
         }
     }
+
+     public static void main(String[] args) {
+        Date time = new Date();
+         System.out.println(time.getTime());
+         Date date = new Date();
+         date.setTime(1659577546);
+         System.out.println(date);
+    }
 }
