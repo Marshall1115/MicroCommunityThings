@@ -217,6 +217,8 @@ public class ZkAttendanceMachineProcessAdapt implements IAttendanceMachineProces
      * @param dataObj
      */
     private void clockIn(JSONObject dataObj) {
+        logger.debug("考勤结果,{}", dataObj.toJSONString());
+        dataObj = dataObj.getJSONObject("data");
         if (!dataObj.containsKey("person_uuid") || StringUtil.isEmpty(dataObj.getString("person_uuid"))) {
             return;
         }
@@ -232,7 +234,7 @@ public class ZkAttendanceMachineProcessAdapt implements IAttendanceMachineProces
             clockInDto.setClockInTime(DateUtil.getFormatTimeString(date, DateUtil.DATE_FORMATE_STRING_A));
             clockInDto.setPic(dataObj.getString("snap_image"));
             ClockInResultDto resultDto = callAttendanceService.clockIn(clockInDto);
-            logger.debug("考勤结果", JSONObject.toJSONString(resultDto));
+            logger.debug("考勤结果,{}", JSONObject.toJSONString(resultDto));
         } catch (Exception e) {
             logger.error("考勤失败", e);
         }
