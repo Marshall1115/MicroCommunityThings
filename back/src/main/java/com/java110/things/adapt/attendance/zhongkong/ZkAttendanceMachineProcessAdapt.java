@@ -229,8 +229,8 @@ public class ZkAttendanceMachineProcessAdapt implements IAttendanceMachineProces
             ClockInDto clockInDto = new ClockInDto();
             clockInDto.setStaffId(staffId);
             Date date = new Date();
-            date.setTime(dataObj.getLong("recog_time"));
-            //clockInDto.setClockInTime(DateUtil.getNow(DateUtil.DATE_FORMATE_STRING_A));
+            //date.setTime(dataObj.getLong("recog_time"));
+            clockInDto.setClockInTime(DateUtil.getNow(DateUtil.DATE_FORMATE_STRING_A));
             clockInDto.setClockInTime(DateUtil.getFormatTimeString(date, DateUtil.DATE_FORMATE_STRING_A));
             clockInDto.setPic(dataObj.getString("snap_image"));
             ClockInResultDto resultDto = callAttendanceService.clockIn(clockInDto);
