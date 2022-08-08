@@ -397,37 +397,39 @@ public class AttendanceExtController extends BaseController {
             tmpStaffDto.setStaffId(SeqUtil.getId());
             resultDto = staffServiceImpl.saveStaff(tmpStaffDto);
             staffId = tmpStaffDto.getStaffId();
-
-            if(resultDto != null && resultDto.getCode() != ResultDto.SUCCESS){
-                return ResultDto.createResponseEntity(resultDto);
-            }
-
-            AttendanceClassesDto attendanceClassesDto = new AttendanceClassesDto();
-            attendanceClassesDto.setExtClassesId(reqJson.getString("extClassesId"));
-            List<AttendanceClassesDto> attendanceClassesDtos = attendanceServiceImpl.getAttendanceClasses(attendanceClassesDto);
-
-            Assert.listOnlyOne(attendanceClassesDtos, "不存在考勤班组");
-
-            //判断员工是否在这个考勤班组中
-            AttendanceClassesStaffDto attendanceClassesStaffDto = new AttendanceClassesStaffDto();
-            attendanceClassesStaffDto.setClassesId(attendanceClassesDtos.get(0).getClassesId());
-            attendanceClassesStaffDto.setStaffId(staffId);
-            List<AttendanceClassesStaffDto> attendanceClassesStaffDtos = attendanceServiceImpl.queryClassStaffs(attendanceClassesStaffDto);
-            //班组中已经存在
-            if (attendanceClassesStaffDtos != null && attendanceClassesStaffDtos.size() > 0) {
-                return ResultDto.success();
-            }
-            attendanceClassesStaffDto = BeanConvertUtil.covertBean(reqJson, AttendanceClassesStaffDto.class);
-            attendanceClassesStaffDto.setStaffId(staffId);
-            attendanceClassesStaffDto.setClassesId(attendanceClassesDtos.get(0).getClassesId());
-            attendanceClassesStaffDto.setCsId(SeqUtil.getId());
-            resultDto = attendanceServiceImpl.saveClassStaff(attendanceClassesStaffDto);
         } else {
             staffId = staffDtos.get(0).getStaffId();
             StaffDto tmpStaffDto = BeanConvertUtil.covertBean(reqJson, StaffDto.class);
             tmpStaffDto.setStaffId(staffId);
             resultDto = staffServiceImpl.updateStaff(tmpStaffDto);
         }
+
+        if(resultDto != null && resultDto.getCode() != ResultDto.SUCCESS){
+            return ResultDto.createResponseEntity(resultDto);
+        }
+
+        AttendanceClassesDto attendanceClassesDto = new AttendanceClassesDto();
+        attendanceClassesDto.setExtClassesId(reqJson.getString("extClassesId"));
+        List<AttendanceClassesDto> attendanceClassesDtos = attendanceServiceImpl.getAttendanceClasses(attendanceClassesDto);
+
+        if (attendanceClassesDtos != null && attendanceClassesDtos.size() > 0) {
+            return ResultDto.success();
+        }
+
+        //判断员工是否在这个考勤班组中
+        AttendanceClassesStaffDto attendanceClassesStaffDto = new AttendanceClassesStaffDto();
+        attendanceClassesStaffDto.setClassesId(attendanceClassesDtos.get(0).getClassesId());
+        attendanceClassesStaffDto.setStaffId(staffId);
+        List<AttendanceClassesStaffDto> attendanceClassesStaffDtos = attendanceServiceImpl.queryClassStaffs(attendanceClassesStaffDto);
+        //班组中已经存在
+        if (attendanceClassesStaffDtos != null && attendanceClassesStaffDtos.size() > 0) {
+            return ResultDto.success();
+        }
+        attendanceClassesStaffDto = BeanConvertUtil.covertBean(reqJson, AttendanceClassesStaffDto.class);
+        attendanceClassesStaffDto.setStaffId(staffId);
+        attendanceClassesStaffDto.setClassesId(attendanceClassesDtos.get(0).getClassesId());
+        attendanceClassesStaffDto.setCsId(SeqUtil.getId());
+        resultDto = attendanceServiceImpl.saveClassStaff(attendanceClassesStaffDto);
 //
         return ResultDto.createResponseEntity(resultDto);
     }
