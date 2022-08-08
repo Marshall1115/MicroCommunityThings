@@ -420,6 +420,7 @@ public class AttendanceExtController extends BaseController {
             attendanceClassesStaffDto = BeanConvertUtil.covertBean(reqJson, AttendanceClassesStaffDto.class);
             attendanceClassesStaffDto.setStaffId(staffId);
             attendanceClassesStaffDto.setClassesId(attendanceClassesDtos.get(0).getClassesId());
+            attendanceClassesStaffDto.setCsId(SeqUtil.getId());
             resultDto = attendanceServiceImpl.saveClassStaff(attendanceClassesStaffDto);
         } else {
             staffId = staffDtos.get(0).getStaffId();
