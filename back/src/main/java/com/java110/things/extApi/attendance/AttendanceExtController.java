@@ -412,7 +412,7 @@ public class AttendanceExtController extends BaseController {
         attendanceClassesDto.setExtClassesId(reqJson.getString("extClassesId"));
         List<AttendanceClassesDto> attendanceClassesDtos = attendanceServiceImpl.getAttendanceClasses(attendanceClassesDto);
 
-        if (attendanceClassesDtos != null && attendanceClassesDtos.size() > 0) {
+        if (attendanceClassesDtos == null || attendanceClassesDtos.size() <1) {
             return ResultDto.success();
         }
 
