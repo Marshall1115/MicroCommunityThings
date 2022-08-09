@@ -21,7 +21,7 @@ public class SeqUtil {
      * @return
      */
     public static String getId() {
-        return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString().replace("-","");
     }
 
     public static synchronized String getMachineSeq() {
