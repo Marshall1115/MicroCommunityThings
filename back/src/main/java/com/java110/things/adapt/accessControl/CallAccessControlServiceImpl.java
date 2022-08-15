@@ -116,7 +116,7 @@ public class CallAccessControlServiceImpl implements ICallAccessControlService {
      */
     public List<MachineDto> queryMachines(MachineDto machineDto) throws Exception {
 
-        machineDto.setMachineTypeCd(MachineConstant.MACHINE_TYPE_ACCESS_CONTROL);
+        //machineDto.setMachineTypeCd(MachineConstant.MACHINE_TYPE_ACCESS_CONTROL);
         List<MachineDto> machineDtos = machineServiceDao.getMachines(machineDto);
 
         return machineDtos;
