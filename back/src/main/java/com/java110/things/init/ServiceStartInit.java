@@ -55,9 +55,9 @@ public class ServiceStartInit {
 
     private static void initMqttClientSubscribe() {
         //注册设备上线 topic
-        MqttFactory.subscribe("online.response");
-        //推送人脸识别结果
-        MqttFactory.subscribe("face.response");
+//        MqttFactory.subscribe("online.response");
+//        //推送人脸识别结果
+//        MqttFactory.subscribe("face.response");
 
         // 臻识mqtt订阅
         MqttFactory.subscribe("/device/push/result");

@@ -9,6 +9,7 @@ import com.java110.things.constant.ResponseConstant;
 import com.java110.things.entity.attendance.ClockInDto;
 import com.java110.things.entity.attendance.ClockInResultDto;
 import com.java110.things.entity.cloud.MachineCmdResultDto;
+import com.java110.things.entity.community.CommunityDto;
 import com.java110.things.entity.machine.MachineDto;
 import com.java110.things.entity.machine.OperateLogDto;
 import com.java110.things.entity.response.ResultDto;
@@ -17,7 +18,9 @@ import com.java110.things.factory.CallAttendanceFactory;
 import com.java110.things.factory.MappingCacheFactory;
 import com.java110.things.factory.MqttFactory;
 import com.java110.things.factory.NotifyAccessControlFactory;
+import com.java110.things.service.community.ICommunityService;
 import com.java110.things.service.machine.IMachineService;
+import com.java110.things.util.Assert;
 import com.java110.things.util.DateUtil;
 import com.java110.things.util.StringUtil;
 import org.slf4j.Logger;
@@ -37,6 +40,9 @@ public class ZkAttendanceMachineProcessAdapt implements IAttendanceMachineProces
 
     @Autowired
     private IMachineService machineServiceImpl;
+
+    @Autowired
+    private ICommunityService communityServiceImpl;
 
     //图片后缀
     public static final String IMAGE_SUFFIX = ".jpg";
@@ -67,14 +73,20 @@ public class ZkAttendanceMachineProcessAdapt implements IAttendanceMachineProces
     @Override
     public ResultDto addFace(MachineDto machineDto, StaffDto staffDto) {
 
+        CommunityDto communityDto = new CommunityDto();
+        communityDto.setCommunityId(machineDto.getCommunityId());
+        List<CommunityDto> communityDtos = communityServiceImpl.queryCommunitys(communityDto);
+
+        Assert.listOnlyOne(communityDtos,"小区不存在");
+
         JSONObject param = JSONObject.parseObject("{\"confirmation_topic\": \"/hiot/people_send_reply\", \"data\": []}");
         JSONArray datas = param.getJSONArray("data");
         JSONObject data = new JSONObject();
         data.put("age", 0);
         data.put("card", "");
         data.put("gender", 1);
-        data.put("image_base64", staffDto.getFaceBase64());
-        data.put("image_url", MappingCacheFactory.getValue(FACE_URL) + "/" + machineDto.getCommunityId() + "/" + staffDto.getExtStaffId() + IMAGE_SUFFIX);
+        //data.put("image_base64", staffDto.getFaceBase64());
+        data.put("image_url", MappingCacheFactory.getValue(FACE_URL) + "/" + communityDtos.get(0).getExtCommunityId() + "/" + staffDto.getExtStaffId() + IMAGE_SUFFIX);
         data.put("name", staffDto.getStaffName());
         data.put("person_uuid", staffDto.getStaffId());
         data.put("phone", "");
