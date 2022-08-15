@@ -73,12 +73,6 @@ public class ZkAttendanceMachineProcessAdapt implements IAttendanceMachineProces
     @Override
     public ResultDto addFace(MachineDto machineDto, StaffDto staffDto) {
 
-        CommunityDto communityDto = new CommunityDto();
-        communityDto.setCommunityId(machineDto.getCommunityId());
-        List<CommunityDto> communityDtos = communityServiceImpl.queryCommunitys(communityDto);
-
-        Assert.listOnlyOne(communityDtos,"小区不存在");
-
         JSONObject param = JSONObject.parseObject("{\"confirmation_topic\": \"/hiot/people_send_reply\", \"data\": []}");
         JSONArray datas = param.getJSONArray("data");
         JSONObject data = new JSONObject();
@@ -86,7 +80,7 @@ public class ZkAttendanceMachineProcessAdapt implements IAttendanceMachineProces
         data.put("card", "");
         data.put("gender", 1);
         //data.put("image_base64", staffDto.getFaceBase64());
-        data.put("image_url", MappingCacheFactory.getValue(FACE_URL) + "/" + communityDtos.get(0).getExtCommunityId() + "/" + staffDto.getExtStaffId() + IMAGE_SUFFIX);
+        data.put("image_url", MappingCacheFactory.getValue(FACE_URL) + "/" + machineDto.getCommunityId() + "/" + staffDto.getExtStaffId() + IMAGE_SUFFIX);
         data.put("name", staffDto.getStaffName());
         data.put("person_uuid", staffDto.getStaffId());
         data.put("phone", "");

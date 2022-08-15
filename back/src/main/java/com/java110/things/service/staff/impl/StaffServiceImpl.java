@@ -85,7 +85,7 @@ public class StaffServiceImpl implements IStaffService {
                 if (faceBase.contains("base64,")) {
                     faceBase = faceBase.substring(faceBase.indexOf("base64,") + 7);
                 }
-                String img = ImageFactory.GenerateImage(faceBase, staffDto.getExtCommunityId() + File.separatorChar + staffDto.getExtStaffId() + ".jpg");
+                String img = ImageFactory.GenerateImage(faceBase, machineDto.getCommunityId() + File.separatorChar + staffDto.getExtStaffId() + ".jpg");
                 resultDto = AttendanceProcessFactory.getAttendanceProcessImpl(machineDto.getHmId()).addFace(machineDto, staffDto);
             } else { //调用更新人脸接口
                 ImageFactory.deleteImage(machineDto.getMachineCode() + File.separatorChar + staffDto.getExtStaffId() + ".jpg");
