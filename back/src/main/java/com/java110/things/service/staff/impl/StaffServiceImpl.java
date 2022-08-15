@@ -1,23 +1,19 @@
 package com.java110.things.service.staff.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.java110.things.constant.MachineConstant;
 import com.java110.things.constant.ResponseConstant;
-import com.java110.things.constant.SystemConstant;
 import com.java110.things.dao.IMachineServiceDao;
 import com.java110.things.dao.IStaffServiceDao;
 import com.java110.things.entity.PageDto;
-import com.java110.things.entity.attendance.AttendanceClassesStaffDto;
 import com.java110.things.entity.machine.MachineCmdDto;
 import com.java110.things.entity.machine.MachineDto;
 import com.java110.things.entity.response.ResultDto;
 import com.java110.things.entity.user.StaffDto;
-import com.java110.things.factory.AccessControlProcessFactory;
 import com.java110.things.factory.AttendanceProcessFactory;
 import com.java110.things.factory.ImageFactory;
 import com.java110.things.service.machine.IMachineCmdService;
-import com.java110.things.service.staff.IStaffService;
 import com.java110.things.service.machine.IMachineService;
+import com.java110.things.service.staff.IStaffService;
 import com.java110.things.util.Assert;
 import com.java110.things.util.SeqUtil;
 import com.java110.things.util.StringUtil;
@@ -26,11 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -73,13 +65,13 @@ public class StaffServiceImpl implements IStaffService {
         ResultDto resultDto = null;
 
         //如果有 照片
-        if(!StringUtil.isEmpty(staffDto.getFaceBase64())) {
+        if (!StringUtil.isEmpty(staffDto.getFaceBase64())) {
             MachineDto machineDto = new MachineDto();
             machineDto.setMachineCode(staffDto.getMachineCode());
             List<MachineDto> machineDtos = machineServiceDaoImpl.getMachines(machineDto);
             //Assert.listOnlyOne(machineDtos, "设备编码错误，不存在该设备");
 
-            if(machineDtos == null || machineDtos.size() <1){
+            if (machineDtos == null || machineDtos.size() < 1) {
                 //Assert.listOnlyOne(machineDtos, "设备编码错误，不存在该设备");
                 throw new IllegalArgumentException("设备编码错误，不存在该设备");
             }
@@ -199,19 +191,27 @@ public class StaffServiceImpl implements IStaffService {
         //修改传送第三方平台
         ResultDto resultDto = null;
 
-        if(!StringUtil.isEmpty(staffDto.getMachineCode())) {
+        if (!StringUtil.isEmpty(staffDto.getFaceBase64()) && !StringUtil.isEmpty(staffDto.getMachineCode())) {
             MachineDto machineDto = new MachineDto();
             machineDto.setMachineCode(staffDto.getMachineCode());
             List<MachineDto> machineDtos = machineServiceDaoImpl.getMachines(machineDto);
             //Assert.listOnlyOne(machineDtos, "设备编码错误，不存在该设备");
-            if(machineDtos == null || machineDtos.size()<1){
-                throw new IllegalArgumentException( "设备编码错误，不存在该设备");
+
+            if (machineDtos == null || machineDtos.size() < 1) {
+                //Assert.listOnlyOne(machineDtos, "设备编码错误，不存在该设备");
+                throw new IllegalArgumentException("设备编码错误，不存在该设备");
             }
             machineDto = machineDtos.get(0);
+            ImageFactory.deleteImage(machineDto.getMachineCode() + File.separatorChar + staffDto.getExtStaffId() + ".jpg");
+            String faceBase = staffDto.getFaceBase64();
+            if (faceBase.contains("base64,")) {
+                faceBase = faceBase.substring(faceBase.indexOf("base64,") + 7);
+            }
+            String img = ImageFactory.GenerateImage(faceBase, machineDto.getCommunityId() + File.separatorChar + staffDto.getExtStaffId() + ".jpg");
             resultDto = AttendanceProcessFactory.getAttendanceProcessImpl(machineDto.getHmId()).updateFace(machineDto, staffDto);
         }
 
-        if(resultDto != null && resultDto.getCode() != ResultDto.SUCCESS){
+        if (resultDto != null && resultDto.getCode() != ResultDto.SUCCESS) {
             return resultDto;
         }
 
@@ -226,13 +226,12 @@ public class StaffServiceImpl implements IStaffService {
     }
 
 
-
     @Override
     public ResultDto deleteStaff(StaffDto staffDto) throws Exception {
 
         ResultDto resultDto = null;
 
-        if(!StringUtil.isEmpty(staffDto.getMachineCode())) {
+        if (!StringUtil.isEmpty(staffDto.getMachineCode())) {
             MachineDto machineDto = new MachineDto();
             machineDto.setMachineCode(staffDto.getMachineCode());
             List<MachineDto> machineDtos = machineServiceDaoImpl.getMachines(machineDto);
@@ -240,7 +239,7 @@ public class StaffServiceImpl implements IStaffService {
             machineDto = machineDtos.get(0);
             resultDto = AttendanceProcessFactory.getAttendanceProcessImpl(machineDto.getHmId()).deleteFace(machineDto, staffDto);
         }
-        if(resultDto != null && resultDto.getCode() != ResultDto.SUCCESS){
+        if (resultDto != null && resultDto.getCode() != ResultDto.SUCCESS) {
             return resultDto;
         }
         deleteStaffMachineCmd(staffDto);
