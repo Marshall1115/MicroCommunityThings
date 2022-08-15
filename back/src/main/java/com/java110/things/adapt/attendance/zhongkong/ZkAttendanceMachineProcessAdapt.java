@@ -111,7 +111,7 @@ public class ZkAttendanceMachineProcessAdapt implements IAttendanceMachineProces
         param.put("message_uuid", staffDto.getTaskId());
         param.put("message_id", 0);
         MqttFactory.publish("/hiot/" + machineDto.getMachineCode() + "/del_data", param.toJSONString());
-        saveLog(staffDto.getTaskId(), machineDto.getMachineId(), "/hiot/" + machineDto.getMachineCode() + "/del_data", param.toJSONString(), "", "", staffDto.getStaffId(), staffDto.getStaffName());
+        saveLog(staffDto.getTaskId()+"_DEL", machineDto.getMachineId(), "/hiot/" + machineDto.getMachineCode() + "/del_data", param.toJSONString(), "", "", staffDto.getStaffId(), staffDto.getStaffName());
         return new ResultDto(ResultDto.SUCCESS, "成功");
     }
 
