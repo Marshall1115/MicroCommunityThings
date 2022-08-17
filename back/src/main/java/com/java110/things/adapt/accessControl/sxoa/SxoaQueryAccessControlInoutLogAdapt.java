@@ -137,7 +137,7 @@ public class SxoaQueryAccessControlInoutLogAdapt {
 
             OpenDoorDto openDoorDto = new OpenDoorDto();
             //openDoorDto.setFace(ImageFactory.encodeImageToBase64(body.getString("orPrintscreen")));
-            openDoorDto.setFace("123");
+            openDoorDto.setFace("");
             openDoorDto.setUserName(userName);
             openDoorDto.setHat("3");
             openDoorDto.setMachineCode(machineDtos.get(0).getMachineCode());
