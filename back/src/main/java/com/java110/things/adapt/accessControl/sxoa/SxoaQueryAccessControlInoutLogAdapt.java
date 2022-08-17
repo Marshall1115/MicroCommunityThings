@@ -131,6 +131,9 @@ public class SxoaQueryAccessControlInoutLogAdapt {
             if (StringUtil.isEmpty(userId)) {
                 userId = "-1";
             }
+            if(StringUtil.isEmpty(userName)){
+                userName = body.getString("orResidentName");
+            }
             if (StringUtil.isEmpty(userName)) {
                 userName = "门禁未上报";
             }
