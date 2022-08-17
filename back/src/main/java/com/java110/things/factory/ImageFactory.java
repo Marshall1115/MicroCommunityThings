@@ -2,6 +2,7 @@ package com.java110.things.factory;
 
 import com.java110.things.config.Java110Properties;
 import com.java110.things.util.Base64Convert;
+import com.java110.things.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.BASE64Decoder;
@@ -30,7 +31,7 @@ public class ImageFactory {
 
 
     public static String GenerateImage(String imgStr, String imagePath) {   //对字节数组字符串进行Base64解码并生成图片
-        if (imgStr == null) { //图像数据为空
+        if (StringUtil.isEmpty(imgStr )) { //图像数据为空
             return "";
         }
         imgStr = imgStr.replaceAll("\r|\n", "");
