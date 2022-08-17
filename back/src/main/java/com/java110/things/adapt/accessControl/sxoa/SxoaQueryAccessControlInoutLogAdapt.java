@@ -116,6 +116,7 @@ public class SxoaQueryAccessControlInoutLogAdapt {
 
             String userId = body.containsKey("orResidentId") ? body.getString("orResidentId") : "";
             String userName = "";
+            String createTime = "";
             if (!StringUtils.isEmpty(userId)) {
                 MachineFaceDto machineFaceDto = new MachineFaceDto();
                 machineFaceDto.setExtUserId(userId);
@@ -138,6 +139,8 @@ public class SxoaQueryAccessControlInoutLogAdapt {
                 userName = "门禁未上报";
             }
 
+            createTime = body.getString("orTime");
+
             OpenDoorDto openDoorDto = new OpenDoorDto();
             //openDoorDto.setFace(ImageFactory.encodeImageToBase64(body.getString("orPrintscreen")));
             openDoorDto.setFace("");
@@ -148,6 +151,7 @@ public class SxoaQueryAccessControlInoutLogAdapt {
             openDoorDto.setOpenId(SeqUtil.getId());
             openDoorDto.setOpenTypeCd(OPEN_TYPE_FACE);
             openDoorDto.setSimilarity("1");
+            openDoorDto.setCreateTime(createTime);
             freshOwnerFee(openDoorDto);
 
             notifyAccessControlService.saveFaceResult(openDoorDto);

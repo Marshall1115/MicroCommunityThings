@@ -260,7 +260,9 @@ public class CallAccessControlServiceImpl implements ICallAccessControlService {
         String faceUrl = MappingCacheFactory.getValue("ACCESS_CONTROL_FACE_URL");
         openDoorDto.setFace(faceUrl + "/" + openDoorDto.getFace());
         openDoorDto.setModelFace(faceUrl + "/" + openDoorDto.getModelFace());
-        openDoorDto.setCreateTime(DateUtil.getNow(DateUtil.DATE_FORMATE_STRING_A));
+        if(StringUtil.isEmpty(openDoorDto.getCreateTime())) {
+            openDoorDto.setCreateTime(DateUtil.getNow(DateUtil.DATE_FORMATE_STRING_A));
+        }
 
         OpenDoorMonitorWebSocketServer.sendInfo(JSONObject.toJSONString(openDoorDto), machineDtos.get(0).getMachineId());
 
