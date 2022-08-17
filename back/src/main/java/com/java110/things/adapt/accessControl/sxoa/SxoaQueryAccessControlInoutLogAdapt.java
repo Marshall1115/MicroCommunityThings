@@ -74,12 +74,13 @@ public class SxoaQueryAccessControlInoutLogAdapt {
         paramIn.put("startTime", DateUtil.getFormatTimeString(calendar.getTime(),DateUtil.DATE_FORMATE_STRING_A));
         paramIn.put("endTime", DateUtil.getFormatTimeString(new Date(),DateUtil.DATE_FORMATE_STRING_A));
 
+        logger.debug("------请求报文：{}" , paramIn.toJSONString());
 
         HttpEntity httpEntity = new HttpEntity(paramIn.toJSONString(), SxCommomFactory.getHeader(outRestTemplate));
         ResponseEntity<String> responseEntity = outRestTemplate.exchange(MappingCacheFactory.getValue("SXOA_URL") + QUERY_ACCESS_CONTROL_LOG, HttpMethod.POST, httpEntity, String.class);
 
         JSONObject paramOut = JSONObject.parseObject(responseEntity.getBody());
-        logger.debug("------返回信息：" + paramOut);
+        logger.debug("------返回信息：{}" + paramOut);
 
         if (paramOut.getIntValue("code") != 0) {
             return;
