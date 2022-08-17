@@ -71,7 +71,7 @@ public class SxoaQueryAccessControlInoutLogAdapt {
         paramIn.put("orTime", DateUtil.getFormatTimeString(new Date(),DateUtil.DATE_FORMATE_STRING_B));
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE,-1);
-        paramIn.put("startTime", DateUtil.getFormatTimeString(calendar.getTime(),DateUtil.DATE_FORMATE_STRING_B));
+        paramIn.put("startTime", DateUtil.getFormatTimeString(calendar.getTime(),DateUtil.DATE_FORMATE_STRING_A));
         paramIn.put("endTime", DateUtil.getFormatTimeString(new Date(),DateUtil.DATE_FORMATE_STRING_A));
 
 
