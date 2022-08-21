@@ -54,7 +54,7 @@ spring :
   datasource:
     username: hc_things
     password: hc_things12345678
-    url: jdbc:mysql://things.homecommunity.cn:3306/hc_things?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
+    url: jdbc:mysql://things.homecommunity.cn:3306/hc_things?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     initialSize: 5

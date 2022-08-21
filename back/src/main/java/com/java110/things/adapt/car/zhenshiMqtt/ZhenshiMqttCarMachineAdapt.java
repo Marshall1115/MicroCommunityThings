@@ -39,6 +39,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -84,6 +86,11 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
      */
     @Override
     public void mqttMessageArrived(String topic, String s) {
+        try {
+            s = new String(s.getBytes(StandardCharsets.UTF_8),"GBK");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         JSONObject paramIn = JSONObject.parseObject(s);
         if (!paramIn.containsKey("AlarmInfoPlate")) {
             return;

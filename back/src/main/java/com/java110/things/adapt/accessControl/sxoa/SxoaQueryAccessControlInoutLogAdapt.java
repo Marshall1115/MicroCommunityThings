@@ -34,7 +34,7 @@ import java.util.List;
 
 @Service
 public class SxoaQueryAccessControlInoutLogAdapt {
-    private static Logger logger = LoggerFactory.getLogger(ZeroOneCarSocketProcessAdapt.class);
+    private static Logger logger = LoggerFactory.getLogger(SxoaQueryAccessControlInoutLogAdapt.class);
 
     public static final String GET_TOKEN = "/oauth/token";
     private static final String QUERY_ACCESS_CONTROL_LOG = "/v1.0/openrecord/page";
