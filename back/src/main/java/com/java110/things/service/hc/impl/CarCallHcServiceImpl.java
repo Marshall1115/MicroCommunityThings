@@ -1,10 +1,14 @@
 package com.java110.things.service.hc.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.java110.things.adapt.car.CallCarServiceImpl;
+import com.java110.things.constant.SystemConstant;
 import com.java110.things.entity.app.AppAttrDto;
 import com.java110.things.entity.app.AppDto;
+import com.java110.things.entity.car.BarrierGateControlDto;
 import com.java110.things.entity.car.CarInoutDto;
 import com.java110.things.entity.community.CommunityDto;
+import com.java110.things.entity.machine.MachineDto;
 import com.java110.things.exception.Result;
 import com.java110.things.exception.ServiceException;
 import com.java110.things.factory.HttpFactory;
@@ -12,6 +16,8 @@ import com.java110.things.service.app.IAppService;
 import com.java110.things.service.community.ICommunityService;
 import com.java110.things.service.hc.ICarCallHcService;
 import com.java110.things.util.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -39,7 +45,7 @@ import java.util.Map;
  **/
 @Service
 public class CarCallHcServiceImpl implements ICarCallHcService {
-
+    Logger logger = LoggerFactory.getLogger(CallCarServiceImpl.class);
     @Autowired
     private ICommunityService communityServiceImpl;
 
@@ -147,6 +153,51 @@ public class CarCallHcServiceImpl implements ICarCallHcService {
 
         if (tmpResponseEntity.getStatusCode() != HttpStatus.OK) {
             throw new ServiceException(Result.SYS_ERROR, "上传车辆失败" + tmpResponseEntity.getBody());
+        }
+    }
+
+    @Override
+    @Async
+    public void carInoutPageInfo(BarrierGateControlDto barrierGateControlDto,String extBoxId, MachineDto machineDto) throws Exception{
+        CommunityDto communityDto = new CommunityDto();
+        communityDto.setCommunityId(machineDto.getCommunityId());
+        List<CommunityDto> communityDtos = communityServiceImpl.queryCommunitys(communityDto);
+        Assert.listOnlyOne(communityDtos, "小区不存在");
+
+        barrierGateControlDto.setExtCommunityId(communityDtos.get(0).getExtCommunityId());
+        barrierGateControlDto.setExtBoxId(extBoxId);
+        barrierGateControlDto.setExtMachineId(machineDto.getExtMachineId());
+        //上报第三方系统
+        AppDto appDto = new AppDto();
+        appDto.setAppId(communityDtos.get(0).getAppId());
+        List<AppDto> appDtos = appServiceImpl.getApp(appDto);
+
+        Assert.listOnlyOne(appDtos, "未找到应用信息");
+        AppAttrDto appAttrDto = appDtos.get(0).getAppAttr(AppAttrDto.SPEC_CD_OPEN_PARKING_AREA_DOOR_CONTROL_LOG);
+
+        if (appAttrDto == null) {
+            return;
+        }
+        String value = appAttrDto.getValue();
+        String upLoadAppId = "";
+        String securityCode = "";
+        appAttrDto = appDtos.get(0).getAppAttr(AppAttrDto.SPEC_CD_APP_ID);
+
+        if (appAttrDto != null) {
+            upLoadAppId = appAttrDto.getValue();
+        }
+
+        appAttrDto = appDtos.get(0).getAppAttr(AppAttrDto.SPEC_CD_SECURITY_CODE);
+        if (appAttrDto != null) {
+            securityCode = appAttrDto.getValue();
+        }
+
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put(SystemConstant.HTTP_APP_ID, upLoadAppId);
+        ResponseEntity<String> tmpResponseEntity = HttpFactory.exchange(restTemplate, value, JSONObject.toJSONString(barrierGateControlDto), headers, HttpMethod.POST, securityCode);
+        if (tmpResponseEntity.getStatusCode() != HttpStatus.OK) {
+            logger.error("执行结果失败" + tmpResponseEntity.getBody());
         }
     }
 }

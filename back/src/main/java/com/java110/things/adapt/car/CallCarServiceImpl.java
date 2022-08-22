@@ -81,6 +81,8 @@ public class CallCarServiceImpl implements ICallCarService {
     @Autowired
     private RestTemplate restTemplate;
 
+
+
     @Override
     public ResultParkingAreaTextDto ivsResult(String type, String carNum, MachineDto machineDto) throws Exception {
 
@@ -542,46 +544,10 @@ public class CallCarServiceImpl implements ICallCarService {
 
         BarrierGateControlWebSocketServer.sendInfo(barrierGateControlDto.toString(), extBoxId);
 
-        CommunityDto communityDto = new CommunityDto();
-        communityDto.setCommunityId(machineDto.getCommunityId());
-        List<CommunityDto> communityDtos = communityServiceImpl.queryCommunitys(communityDto);
-        Assert.listOnlyOne(communityDtos, "小区不存在");
 
-        barrierGateControlDto.setExtCommunityId(communityDtos.get(0).getExtCommunityId());
-        barrierGateControlDto.setExtBoxId(extBoxId);
-        barrierGateControlDto.setExtMachineId(machineDto.getExtMachineId());
-        //上报第三方系统
-        AppDto appDto = new AppDto();
-        appDto.setAppId(communityDtos.get(0).getAppId());
-        List<AppDto> appDtos = appServiceImpl.getApp(appDto);
-
-        Assert.listOnlyOne(appDtos, "未找到应用信息");
-        AppAttrDto appAttrDto = appDtos.get(0).getAppAttr(AppAttrDto.SPEC_CD_OPEN_PARKING_AREA_DOOR_CONTROL_LOG);
-
-        if (appAttrDto == null) {
-            return;
-        }
-        String value = appAttrDto.getValue();
-        String upLoadAppId = "";
-        String securityCode = "";
-        appAttrDto = appDtos.get(0).getAppAttr(AppAttrDto.SPEC_CD_APP_ID);
-
-        if (appAttrDto != null) {
-            upLoadAppId = appAttrDto.getValue();
-        }
-
-        appAttrDto = appDtos.get(0).getAppAttr(AppAttrDto.SPEC_CD_SECURITY_CODE);
-        if (appAttrDto != null) {
-            securityCode = appAttrDto.getValue();
-        }
+        carCallHcServiceImpl.carInoutPageInfo(barrierGateControlDto,extBoxId,machineDto);
 
 
-        Map<String, String> headers = new HashMap<>();
-        headers.put(SystemConstant.HTTP_APP_ID, upLoadAppId);
-        ResponseEntity<String> tmpResponseEntity = HttpFactory.exchange(restTemplate, value, JSONObject.toJSONString(barrierGateControlDto), headers, HttpMethod.POST, securityCode);
-        if (tmpResponseEntity.getStatusCode() != HttpStatus.OK) {
-            logger.error("执行结果失败" + tmpResponseEntity.getBody());
-        }
     }
 
 }

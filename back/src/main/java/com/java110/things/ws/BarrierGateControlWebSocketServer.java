@@ -144,7 +144,7 @@ public class BarrierGateControlWebSocketServer {
      * 发送设备监控信息
      */
     public static void sendInfo(String message, String boxId) throws IOException {
-        logger.info("发送消息到:" + boxId + "，报文:" + message);
+       // logger.info("发送消息到:" + boxId + "，报文:" + message);
         for(BarrierGateControlWebSocketServer server : webSocketMap.values()){
             if(boxId.equals(server.boxId)){
                 webSocketMap.get(server.clientId).sendMessage(message);

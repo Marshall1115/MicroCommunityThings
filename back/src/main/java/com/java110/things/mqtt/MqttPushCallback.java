@@ -44,13 +44,16 @@ public class MqttPushCallback implements MqttCallbackExtended {
         log.error("连接断开", cause);
         while (true) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(3000);
                 // 重新连接
                 client.connect(option);
-                break;
+                //break;
             } catch (Exception e) {
-                e.printStackTrace();
-                continue;
+               // e.printStackTrace();
+               //continue;
+            }
+            if(client.isConnected()){
+                break;
             }
         }
     }

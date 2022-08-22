@@ -39,8 +39,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -86,11 +86,17 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
      */
     @Override
     public void mqttMessageArrived(String topic, String s) {
-        try {
-            s = new String(s.getBytes(StandardCharsets.UTF_8),"GBK");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+        System.out.println("s=" + s);
+//        try {
+//            System.out.println("s=" + new String(s.getBytes(StandardCharsets.UTF_8), "GB2312"));
+//            s = new String(s.getBytes(StandardCharsets.UTF_8), "GBK");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+        System.out.println("s utf-8 =" + s);
+
+
         JSONObject paramIn = JSONObject.parseObject(s);
         if (!paramIn.containsKey("AlarmInfoPlate")) {
             return;
@@ -147,12 +153,13 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
     private void doResult(JSONObject reqData, MachineDto machineDto) {
 
         try {
+            Date startTime = DateUtil.getCurrentDate();
             JSONObject plateResult = reqData.getJSONObject("result").getJSONObject("PlateResult");
             String type = plateResult.getString("type");
             String license = plateResult.getString("license");
             if (plateResult.containsKey("imagePath")) {
-                String imagePath = ImageFactory.getBase64ByImgUrl(MappingCacheFactory.getValue("OSS_URL") + plateResult.getString("imagePath"));
-                machineDto.setPhotoJpg(imagePath);
+                //String imagePath = ImageFactory.getBase64ByImgUrl(MappingCacheFactory.getValue("OSS_URL") + plateResult.getString("imagePath"));
+                machineDto.setPhotoJpg(MappingCacheFactory.getValue("OSS_URL") + plateResult.getString("imagePath"));
             }
 
             ResultParkingAreaTextDto resultParkingAreaTextDto = callCarServiceImpl.ivsResult(type, license, machineDto);
@@ -161,6 +168,7 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
             JinjieScreenMqttFactory.downloadTempTexts(machineDto, 2, resultParkingAreaTextDto.getText2());
             JinjieScreenMqttFactory.downloadTempTexts(machineDto, 3, resultParkingAreaTextDto.getText3());
             JinjieScreenMqttFactory.downloadTempTexts(machineDto, 4, resultParkingAreaTextDto.getText4());
+            System.out.println("------------------------------------------------------耗时：" + (DateUtil.getCurrentDate().getTime() - startTime.getTime()));
 
             if (ResultParkingAreaTextDto.CODE_CAR_IN_SUCCESS == resultParkingAreaTextDto.getCode()
                     || ResultParkingAreaTextDto.CODE_MONTH_CAR_SUCCESS == resultParkingAreaTextDto.getCode()
@@ -170,9 +178,9 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
                     || ResultParkingAreaTextDto.CODE_TEMP_CAR_OUT_SUCCESS == resultParkingAreaTextDto.getCode()
                     || ResultParkingAreaTextDto.CODE_CAR_OUT_SUCCESS == resultParkingAreaTextDto.getCode()
             ) {
-                return; //不开门
+                openDoor(machineDto, null);
             }
-            openDoor(machineDto, null);
+
 
         } catch (Exception e) {
             logger.error("开门异常", e);

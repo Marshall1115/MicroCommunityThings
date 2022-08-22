@@ -1,7 +1,9 @@
 package com.java110.things.service.hc;
 
 import com.alibaba.fastjson.JSONObject;
+import com.java110.things.entity.car.BarrierGateControlDto;
 import com.java110.things.entity.car.CarInoutDto;
+import com.java110.things.entity.machine.MachineDto;
 import com.java110.things.entity.response.ResultDto;
 
 /**
@@ -26,4 +28,6 @@ public interface ICarCallHcService {
     void carInout(CarInoutDto carInoutDto) throws Exception;
 
     void notifyTempCarFeeOrder(CarInoutDto carInoutDto) throws Exception;
+
+    void carInoutPageInfo(BarrierGateControlDto barrierGateControlDto,String extBoxId, MachineDto machineDto) throws Exception;
 }
