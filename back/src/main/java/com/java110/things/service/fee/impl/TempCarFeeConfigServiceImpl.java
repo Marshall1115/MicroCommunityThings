@@ -19,7 +19,6 @@ import com.java110.things.service.hc.ICarCallHcService;
 import com.java110.things.service.machine.IMachineService;
 import com.java110.things.service.parkingArea.IParkingAreaService;
 import com.java110.things.util.Assert;
-import com.java110.things.util.BeanConvertUtil;
 import com.java110.things.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -175,23 +174,35 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         machineDto.setLocationObjId(carDto.getExtPaId());
         machineDto.setLocationType(MachineDto.LOCATION_TYPE_PARKING_AREA);
         List<MachineDto> machineDtos = machineService.queryMachines(machineDto);
-        if (machineDtos == null || machineDtos.size() < 1) {
-            return new ResultDto(ResultDto.ERROR, "设备不存在");
+        TempCarPayOrderDto tempCarPayOrderDto = null;
+        if (machineDtos != null && machineDtos.size() > 0) {
+            tempCarPayOrderDto = CarProcessFactory.getCarImpl(machineDtos.get(0).getHmId()).getNeedPayOrder(machineDtos.get(0), carDto);
+            if (tempCarPayOrderDto == null) {
+                return new ResultDto(ResultDto.ERROR, "查询失败");
+            }
+            JSONObject data = JSONObject.parseObject(JSONObject.toJSONString(tempCarPayOrderDto));
+            data.put("inTime", DateUtil.getFormatTimeString(tempCarPayOrderDto.getInTime(), DateUtil.DATE_FORMATE_STRING_A));
+            data.put("queryTime", DateUtil.getFormatTimeString(tempCarPayOrderDto.getQueryTime(), DateUtil.DATE_FORMATE_STRING_A));
+            return new ResultDto(ResultDto.SUCCESS, ResultDto.SUCCESS_MSG, data);
         }
         //这里预留 调用自己的 算费系统算费 暂不实现
-        TempCarPayOrderDto tempCarPayOrderDto = null;
-        if (MachineDto.MACHINE_TYPE_CAR.equals(machineDtos.get(0).getMachineTypeCd())) {
-            tempCarPayOrderDto = getCustomeTempCarFeeOrder(carDto, machineDtos.get(0));
-        } else {
-            tempCarPayOrderDto = CarProcessFactory.getCarImpl(machineDtos.get(0).getHmId()).getNeedPayOrder(machineDtos.get(0), carDto);
+        machineDto = new MachineDto();
+        machineDto.setExtPaId(carDto.getExtPaId());
+        //machineDto.setLocationType(MachineDto.LOCATION_TYPE_PARKING_AREA);
+        machineDtos = machineService.queryBoxMachines(machineDto);
+
+        if (machineDtos == null && machineDtos.size() < 1) {
+            return new ResultDto(ResultDto.ERROR, "未找到设备信息");
         }
+
+        tempCarPayOrderDto = getCustomeTempCarFeeOrder(carDto, machineDtos.get(0));
 
         if (tempCarPayOrderDto == null) {
             return new ResultDto(ResultDto.ERROR, "查询失败");
         }
         JSONObject data = JSONObject.parseObject(JSONObject.toJSONString(tempCarPayOrderDto));
-        data.put("inTime", DateUtil.getFormatTimeString(tempCarPayOrderDto.getInTime(),DateUtil.DATE_FORMATE_STRING_A));
-        data.put("queryTime", DateUtil.getFormatTimeString(tempCarPayOrderDto.getQueryTime(),DateUtil.DATE_FORMATE_STRING_A));
+        data.put("inTime", DateUtil.getFormatTimeString(tempCarPayOrderDto.getInTime(), DateUtil.DATE_FORMATE_STRING_A));
+        data.put("queryTime", DateUtil.getFormatTimeString(tempCarPayOrderDto.getQueryTime(), DateUtil.DATE_FORMATE_STRING_A));
         return new ResultDto(ResultDto.SUCCESS, ResultDto.SUCCESS_MSG, data);
 
     }
@@ -222,7 +233,6 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         if (carInoutDtos == null || carInoutDtos.size() == 0) {
             return null;
         }
-
 
 
         TempCarFeeConfigDto tempCarFeeConfigDto = new TempCarFeeConfigDto();

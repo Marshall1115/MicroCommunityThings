@@ -50,6 +50,13 @@ public interface IMachineService {
      * @throws Exception
      */
     List<MachineDto> queryMachines(MachineDto machineDto) ;
+    /**
+     * 获取设备信息
+     * @param machineDto 设备信息
+     * @return
+     * @throws Exception
+     */
+    List<MachineDto> queryBoxMachines(MachineDto machineDto) ;
 
     /**
      * 删除设备

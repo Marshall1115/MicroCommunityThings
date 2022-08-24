@@ -68,6 +68,24 @@ public class MachineServiceImpl implements IMachineService {
         machineDtoList = machineServiceDao.getMachines(machineDto);
         return machineDtoList;
     }
+    /**
+     * 查询设备信息
+     *
+     * @param machineDto 设备信息
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<MachineDto> queryBoxMachines(MachineDto machineDto) {
+        int page = machineDto.getPage();
+
+        if (page != PageDto.DEFAULT_PAGE) {
+            machineDto.setPage((page - 1) * machineDto.getRow());
+        }
+        List<MachineDto> machineDtoList = null;
+        machineDtoList = machineServiceDao.queryBoxMachines(machineDto);
+        return machineDtoList;
+    }
 
     /**
      * 查询设备信息

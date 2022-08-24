@@ -34,6 +34,15 @@ public interface IMachineServiceDao {
     List<MachineDto> getMachines(MachineDto machineDto);
 
     /**
+     * 查询设备信息
+     *
+     * @param machineDto 设备信息
+     * @return
+     */
+    List<MachineDto> queryBoxMachines(MachineDto machineDto);
+
+
+    /**
      * 查询设备总记录数
      *
      * @param machineDto 设备信息

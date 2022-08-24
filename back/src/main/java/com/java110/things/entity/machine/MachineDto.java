@@ -52,6 +52,7 @@ public class MachineDto extends PageDto implements Serializable {
     private String direction;
     private String thirdMachineId;
     private String wsUrl;
+    private String extPaId;
 
 
     private List<MachineAttrDto> machineAttrDtos;
@@ -244,5 +245,13 @@ public class MachineDto extends PageDto implements Serializable {
 
     public void setPhotoJpg(String photoJpg) {
         this.photoJpg = photoJpg;
+    }
+
+    public String getExtPaId() {
+        return extPaId;
+    }
+
+    public void setExtPaId(String extPaId) {
+        this.extPaId = extPaId;
     }
 }

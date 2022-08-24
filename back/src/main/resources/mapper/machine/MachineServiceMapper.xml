@@ -91,6 +91,84 @@
         </if>
 
     </select>
+    <select id="queryBoxMachines" parameterType="com.java110.things.entity.machine.MachineDto"
+            resultType="com.java110.things.entity.machine.MachineDto">
+        select
+        t.machine_id machineId,
+        t.machine_code machineCode,
+        t.machine_version machineVersion,
+        t.machine_name machineName,
+        t.machine_type_cd machineTypeCd,
+        t.machine_ip machineIp,
+        t.machine_mac machineMac,
+        t.oem,
+        t.ext_machine_id extMachineId,
+        t.community_id communityId,
+        t.hm_id hmId,
+        t.heartbeat_time heartbeatTime,
+        t.location_type locationType,
+        t.location_obj_id locationObjId,
+        t.direction,
+        t.third_machine_id thirdMachineId
+        from machine t
+        left join parking_box pb on t.location_obj_id = pb.ext_box_id and pb.status_cd = '0'
+        left join parking_box_area pba on pb.box_id = pba.box_id and pba.status_cd = '0'
+        left join parking_area pa on pba.pa_id = pa.pa_id and pa.status_cd = '0'
+        where t.status_cd = '0'
+        and pa.ext_pa_id = #{extPaId}
+        <if test="machineId != null and machineId != ''">
+            and t.machine_id = #{machineId}
+        </if>
+        <if test="machineCode != null and machineCode != ''">
+            and t.machine_code = #{machineCode}
+        </if>
+        <if test="machineVersion != null and machineVersion != ''">
+            and t.machine_version = #{machineVersion}
+        </if>
+        <if test="machineName != null and machineName != ''">
+            and t.machine_name = #{machineName}
+        </if>
+        <if test="machineTypeCd != null and machineTypeCd != ''">
+            and t.machine_type_cd = #{machineTypeCd}
+        </if>
+        <if test="machineIp != null and machineIp != ''">
+            and t.machine_ip = #{machineIp}
+        </if>
+        <if test="machineMac != null and machineMac != ''">
+            and t.machine_mac = #{machineMac}
+        </if>
+        <if test="oem != null and oem != ''">
+            and t.oem = #{oem}
+        </if>
+        <if test="extMachineId != null and extMachineId != ''">
+            and t.ext_machine_id = #{extMachineId}
+        </if>
+        <if test="communityId != null and communityId != ''">
+            and t.community_id = #{communityId}
+        </if>
+        <if test="hmId != null and hmId != ''">
+            and t.hm_id = #{hmId}
+        </if>
+        <if test="locationType != null and locationType != ''">
+            and t.location_type = #{locationType}
+        </if>
+        <if test="locationObjId != null and locationObjId != ''">
+            and t.location_obj_id = #{locationObjId}
+        </if>
+        <if test="direction != null and direction != ''">
+            and t.direction = #{direction}
+        </if>
+        <if test="thirdMachineId != null and thirdMachineId != ''">
+            and t.third_machine_id = #{thirdMachineId}
+        </if>
+        and t.status_cd = '0'
+        order by t.create_time desc
+        <if test="page != -1 and page != null ">
+            limit #{page}, #{row}
+        </if>
+
+    </select>
+
 
     <select id="getMachineCount" parameterType="com.java110.things.entity.machine.MachineDto" resultType="long">
         select
