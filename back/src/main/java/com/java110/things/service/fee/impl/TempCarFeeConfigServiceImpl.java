@@ -231,7 +231,7 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         List<CarInoutDto> carInoutDtos = carInoutServiceImpl.queryCarInout(carInoutDto);
 
         if (carInoutDtos == null || carInoutDtos.size() == 0) {
-            return null;
+            throw new IllegalArgumentException("未查询到进场记录");
         }
 
 
@@ -241,7 +241,7 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         List<TempCarFeeConfigDto> tempCarFeeConfigDtos = tempCarFeeConfigServiceImpl.queryTempCarFeeConfigs(tempCarFeeConfigDto);
 
         if (tempCarFeeConfigDtos == null || tempCarFeeConfigDtos.size() < 1) {
-            return null;
+            throw new IllegalArgumentException("未查询到临时车费用规则");
         }
 
         IComputeTempCarFee computeTempCarFee = ApplicationContextFactory.getBean(tempCarFeeConfigDtos.get(0).getRuleId(), IComputeTempCarFee.class);
