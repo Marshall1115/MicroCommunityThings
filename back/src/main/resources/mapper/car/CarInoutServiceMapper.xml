@@ -107,7 +107,7 @@
             <if test="statusCd != null and statusCd != ''">
                 t.status_cd = #{statusCd},
             </if>
-            <if test="state != null and inoutType != ''">
+            <if test="state != null and state != ''">
                 t.state = #{state},
             </if>
             <if test="payTime != null">

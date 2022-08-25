@@ -177,7 +177,7 @@ public class JinjieScreenMqttFactory {
             //演示 红色 绿色
             byte[] color = line % 2 == 0 ? COLOR_RED : COLOR_GREEN;
             // 设置  TWID + ETM + ETS + DM + DT + EXM + EXS + FINDEX + DRS + TC[4] + BC[4] + TL[2] + TEXT[...]
-            byte[] tmpDate = new byte[]{(byte) line, 0x01, 0x01, 0x00, 0x05, 0x01, 0x01, 0x03, 0x01};
+            byte[] tmpDate = new byte[]{(byte) line, 0x01, 0x01, 0x00, 0x10, 0x01, 0x01, 0x03, 0x01};
             tmpDate = ArrayUtils.addAll(tmpDate, color); //tc
             tmpDate = ArrayUtils.addAll(tmpDate, GB_COLOR); //BC
             tmpDate = ArrayUtils.addAll(tmpDate, intCovertByte(msg.getBytes("GBK").length));
@@ -358,6 +358,8 @@ public class JinjieScreenMqttFactory {
         serialData.add(serialDataObj);
         ZhenshiMqttSend.sendCmd(machineDto, paramIn.toJSONString());
     }
+
+
 
 
     /**

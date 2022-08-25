@@ -44,9 +44,21 @@ public interface ICarMachineProcess {
      * @param machineDto 硬件信息
      */
     void openDoor(MachineDto machineDto, ParkingAreaTextDto parkingAreaTextDto);
+    /**
+     * 道闸开门
+     *
+     * @param machineDto 硬件信息
+     */
+    void closeDoor(MachineDto machineDto, ParkingAreaTextDto parkingAreaTextDto);
 
     void sendKeepAlive(MachineDto machineDto);
 
 
     void mqttMessageArrived(String topic, String s);
+
+    /**
+     * 手动触发 识别
+     * @param machineDto
+     */
+    void manualTrigger(MachineDto machineDto);
 }

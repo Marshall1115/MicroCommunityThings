@@ -180,6 +180,11 @@ public class HuangfengWebSocketCarMachineAdapt extends BaseMachineAdapt implemen
         dealCmd(paramIn, machineDtos.get(0));
     }
 
+    @Override
+    public void manualTrigger(MachineDto machineDto) {
+
+    }
+
     private void dealCmd(JSONObject reqData, MachineDto machineDto) {
         String cmd = reqData.getString("cmd");
         switch (cmd) {
@@ -278,6 +283,40 @@ public class HuangfengWebSocketCarMachineAdapt extends BaseMachineAdapt implemen
      */
     @Override
     public void openDoor(MachineDto machineDto, ParkingAreaTextDto parkingAreaTextDto) {
+        JSONObject paramIn = new JSONObject();
+        paramIn.put("cmd", "Spa.Control");
+        paramIn.put("packageID", DateUtil.getCurrentDate().getTime());
+        paramIn.put("devNO", machineDto.getMachineCode());
+        paramIn.put("devIP", machineDto.getMachineIp());
+        paramIn.put("time", DateUtil.getNow(DateUtil.DATE_FORMATE_STRING_A));
+        JSONObject data = new JSONObject();
+        data.put("cmdName", "SetLCDItems");
+        data.put("template", 1);
+        data.put("adID", 1);
+        if (parkingAreaTextDto == null) {
+            data.put("items", "1,欢迎光临, , , ");
+            data.put("voice", "26:欢迎光临");
+            data.put("action", 1);
+            paramIn.put("data", data);
+            HuangfengWebSocketServer.sendInfo(HuangfengAuth.encryptData(paramIn).toJSONString(), machineDto.getMachineCode());
+            return;
+        }
+    }
+    /***
+     * JinjieScreenMqttFactory.pay(machineDto, resultParkingAreaTextDto.getVoice());
+     *             JinjieScreenMqttFactory.downloadTempTexts(machineDto, 1, resultParkingAreaTextDto.getText1());
+     *             JinjieScreenMqttFactory.downloadTempTexts(machineDto, 2, resultParkingAreaTextDto.getText2());
+     *             JinjieScreenMqttFactory.downloadTempTexts(machineDto, 3, resultParkingAreaTextDto.getText3());
+     *             JinjieScreenMqttFactory.downloadTempTexts(machineDto, 4, resultParkingAreaTextDto.getText4());
+     *
+     *             if (ResultDto.SUCCESS != resultParkingAreaTextDto.getCode()) {
+     *                 return; //不开门
+     *             }
+     * @param machineDto 硬件信息
+     * @param parkingAreaTextDto
+     */
+    @Override
+    public void closeDoor(MachineDto machineDto, ParkingAreaTextDto parkingAreaTextDto) {
         JSONObject paramIn = new JSONObject();
         paramIn.put("cmd", "Spa.Control");
         paramIn.put("packageID", DateUtil.getCurrentDate().getTime());
