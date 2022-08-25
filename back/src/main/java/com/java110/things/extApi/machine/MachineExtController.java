@@ -324,11 +324,14 @@ public class MachineExtController extends BaseController implements OnProcessLis
      * @return
      */
     private JSONObject uploadcarout(MachineDto machineDto, JSONObject acceptJson) throws Exception {
+
+        String paId = "";
+
         //查询是否有入场数据
         CarInoutDto carInoutDto = new CarInoutDto();
         carInoutDto.setCarNum(acceptJson.getString("carNum"));
         carInoutDto.setPaId(machineDto.getLocationObjId());
-        carInoutDto.setState(CarInoutDto.STATE_IN);
+        carInoutDto.setStates(new String[]{CarInoutDto.STATE_IN,CarInoutDto.STATE_PAY});
         carInoutDto.setInoutType(CarInoutDto.INOUT_TYPE_IN);
         List<CarInoutDto> carInoutDtos = carInoutServiceImpl.queryCarInout(carInoutDto);
 
