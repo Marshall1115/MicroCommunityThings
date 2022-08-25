@@ -224,6 +224,29 @@ public class MachineExtController extends BaseController implements OnProcessLis
 
         return ResultDto.createResponseEntity(result);
     }
+    /**
+     * 远程开门
+     * <p>
+     *
+     * @param reqParam {
+     *                 "extMachineId": "702020042194860039"
+     *                 }
+     * @return 成功或者失败
+     * @throws Exception
+     */
+    @RequestMapping(path = "/closeDoor", method = RequestMethod.POST)
+    public ResponseEntity<String> closeDoor(@RequestBody String reqParam) throws Exception {
+
+        JSONObject reqJson = JSONObject.parseObject(reqParam);
+
+        Assert.hasKeyAndValue(reqJson, "machineCode", "未包含外部设备编码");
+        Assert.hasKeyAndValue(reqJson, "taskId", "未包含任务ID");
+
+        MachineDto machineDto = BeanConvertUtil.covertBean(reqJson, MachineDto.class);
+        ResultDto result = machineServiceImpl.closeDoor(machineDto, null);
+
+        return ResultDto.createResponseEntity(result);
+    }
 
     /**
      * 获取二维码

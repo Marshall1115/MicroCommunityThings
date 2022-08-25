@@ -84,6 +84,14 @@ public interface IMachineService {
     ResultDto openDoor(MachineDto machineDto, ParkingAreaTextDto parkingAreaTextDto) throws Exception;
 
     /**
+     * 开门
+     * @param machineDto 设备信息
+     * @return
+     * @throws Exception
+     */
+    ResultDto closeDoor(MachineDto machineDto, ParkingAreaTextDto parkingAreaTextDto) throws Exception;
+
+    /**
      * 保存设备属性信息
      * @param machineAttrDto 设备信息
      * @return

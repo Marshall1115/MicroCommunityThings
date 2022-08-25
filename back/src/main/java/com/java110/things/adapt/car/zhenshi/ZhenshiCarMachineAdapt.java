@@ -247,6 +247,23 @@ public class ZhenshiCarMachineAdapt extends BaseMachineAdapt implements ICarMach
         JinjieScreenFactory.downloadTempTexts(machineDto, 2, parkingAreaTextDto.getText3());
         JinjieScreenFactory.downloadTempTexts(machineDto, 3, parkingAreaTextDto.getText4());
     }
+    @Override
+    public void closeDoor(MachineDto machineDto, ParkingAreaTextDto parkingAreaTextDto) {
+        // 发送开闸命令
+        String triggerCmd = "{\"cmd\":\"ioctl\",\"io\" :0,\"value\":2,\"delay\":500}";
+        ZhenshiByteToString.sendCmd(machineDto, triggerCmd);
+
+        if (parkingAreaTextDto == null) {
+            JinjieScreenFactory.pay(machineDto, "欢迎光临");
+            JinjieScreenFactory.downloadTempTexts(machineDto, 0, "欢迎光临");
+            return;
+        }
+        JinjieScreenFactory.pay(machineDto, parkingAreaTextDto.getVoice());
+        JinjieScreenFactory.downloadTempTexts(machineDto, 0, parkingAreaTextDto.getText1());
+        JinjieScreenFactory.downloadTempTexts(machineDto, 1, parkingAreaTextDto.getText2());
+        JinjieScreenFactory.downloadTempTexts(machineDto, 2, parkingAreaTextDto.getText3());
+        JinjieScreenFactory.downloadTempTexts(machineDto, 3, parkingAreaTextDto.getText4());
+    }
 
     @Override
     public void sendKeepAlive(MachineDto machineDto) {
@@ -256,6 +273,11 @@ public class ZhenshiCarMachineAdapt extends BaseMachineAdapt implements ICarMach
 
     @Override
     public void mqttMessageArrived(String topic, String s) {
+
+    }
+
+    @Override
+    public void manualTrigger(MachineDto machineDto) {
 
     }
 }

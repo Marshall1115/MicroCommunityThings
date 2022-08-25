@@ -12,6 +12,7 @@ import com.java110.things.entity.machine.MachineDto;
 import com.java110.things.entity.parkingArea.ParkingAreaDto;
 import com.java110.things.entity.response.ResultDto;
 import com.java110.things.factory.ApplicationContextFactory;
+import com.java110.things.factory.CarMachineProcessFactory;
 import com.java110.things.factory.CarProcessFactory;
 import com.java110.things.service.car.ICarInoutService;
 import com.java110.things.service.fee.ITempCarFeeConfigService;
@@ -20,6 +21,7 @@ import com.java110.things.service.machine.IMachineService;
 import com.java110.things.service.parkingArea.IParkingAreaService;
 import com.java110.things.util.Assert;
 import com.java110.things.util.DateUtil;
+import com.java110.things.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -231,7 +233,7 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         List<CarInoutDto> carInoutDtos = carInoutServiceImpl.queryCarInout(carInoutDto);
 
         if (carInoutDtos == null || carInoutDtos.size() == 0) {
-            return null;
+            throw new IllegalArgumentException("未查询到进场记录");
         }
 
 
@@ -241,7 +243,7 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         List<TempCarFeeConfigDto> tempCarFeeConfigDtos = tempCarFeeConfigServiceImpl.queryTempCarFeeConfigs(tempCarFeeConfigDto);
 
         if (tempCarFeeConfigDtos == null || tempCarFeeConfigDtos.size() < 1) {
-            return null;
+            throw new IllegalArgumentException("未查询到临时车费用规则");
         }
 
         IComputeTempCarFee computeTempCarFee = ApplicationContextFactory.getBean(tempCarFeeConfigDtos.get(0).getRuleId(), IComputeTempCarFee.class);
@@ -326,6 +328,18 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         carInoutDto.setMachineCode(machineDto.getMachineCode());
         carInoutDto.setCommunityId(carInoutDtos.get(0).getCommunityId());
         carCallHcServiceImpl.notifyTempCarFeeOrder(carInoutDto);
+
+        //场内二维码支付
+        if(StringUtil.isEmpty(tempCarPayOrderDto.getExtMachineId())){
+            return new ResultDto(ResultDto.SUCCESS, "支付成功");
+        }
+        machineDto = new MachineDto();
+        machineDto.setExtMachineId(tempCarPayOrderDto.getExtMachineId());
+        List<MachineDto> machineDtos = machineService.queryMachines(machineDto);
+
+        Assert.listOnlyOne(machineDtos,"设备不存在");
+        //门口二维码支付
+        CarMachineProcessFactory.getCarImpl(machineDtos.get(0).getHmId()).manualTrigger(machineDtos.get(0));
 
         return new ResultDto(ResultDto.SUCCESS, "支付成功");
     }

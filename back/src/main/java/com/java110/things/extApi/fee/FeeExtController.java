@@ -287,6 +287,10 @@ public class FeeExtController {
         tempCarPayOrderDto.setAmount(reqJson.getDouble("amount"));
         tempCarPayOrderDto.setPayTime(DateUtil.getDateFromString(reqJson.getString("payTime"),DateUtil.DATE_FORMATE_STRING_A));
         tempCarPayOrderDto.setPayType(reqJson.getString("payType"));
+
+        if(reqJson.containsKey("extMachineId")){
+            tempCarPayOrderDto.setExtMachineId(reqJson.getString("extMachineId"));
+        }
         ResultDto tempResultDto = tempCarFeeConfigServiceImpl.notifyTempCarFeeOrder(tempCarPayOrderDto);
         return ResultDto.createResponseEntity(tempResultDto);
     }

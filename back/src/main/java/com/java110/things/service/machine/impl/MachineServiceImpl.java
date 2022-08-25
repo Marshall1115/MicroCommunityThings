@@ -68,6 +68,7 @@ public class MachineServiceImpl implements IMachineService {
         machineDtoList = machineServiceDao.getMachines(machineDto);
         return machineDtoList;
     }
+
     /**
      * 查询设备信息
      *
@@ -292,6 +293,23 @@ public class MachineServiceImpl implements IMachineService {
         } else if (MachineDto.MACHINE_TYPE_CAR.equals(machineDto.getMachineTypeCd())) {
             CarMachineProcessFactory.getCarImpl(machineDto.getHmId()).openDoor(machineDto, parkingAreaTextDto);
         }
+        JSONObject data = new JSONObject();
+        if (StringUtil.isEmpty(machineDto.getTaskId())) {
+            data.put("taskId", machineDto.getTaskId());
+        }
+        return new ResultDto(ResponseConstant.SUCCESS, ResponseConstant.SUCCESS_MSG, data);
+    }
+
+    @Override
+    public ResultDto closeDoor(MachineDto machineDto, ParkingAreaTextDto parkingAreaTextDto) throws Exception {
+        List<MachineDto> machineDtoList = machineServiceDao.getMachines(machineDto);
+        if (machineDtoList == null || machineDtoList.size() < 1) {
+            throw new IllegalArgumentException("设备不存在");
+        }
+        machineDto = machineDtoList.get(0);
+
+        CarMachineProcessFactory.getCarImpl(machineDto.getHmId()).closeDoor(machineDto, parkingAreaTextDto);
+
         JSONObject data = new JSONObject();
         if (StringUtil.isEmpty(machineDto.getTaskId())) {
             data.put("taskId", machineDto.getTaskId());
