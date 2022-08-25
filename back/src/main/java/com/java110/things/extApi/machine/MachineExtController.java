@@ -23,6 +23,8 @@ import com.java110.things.entity.car.BarrierGateControlDto;
 import com.java110.things.entity.car.CarInoutDto;
 import com.java110.things.entity.community.CommunityDto;
 import com.java110.things.entity.machine.MachineDto;
+import com.java110.things.entity.parkingArea.ParkingAreaDto;
+import com.java110.things.entity.parkingArea.ParkingBoxDto;
 import com.java110.things.entity.parkingArea.ResultParkingAreaTextDto;
 import com.java110.things.entity.response.ResultDto;
 import com.java110.things.entity.sip.Device;
@@ -32,6 +34,7 @@ import com.java110.things.factory.RedisCacheFactory;
 import com.java110.things.service.car.ICarInoutService;
 import com.java110.things.service.community.ICommunityService;
 import com.java110.things.service.machine.IMachineService;
+import com.java110.things.service.parkingArea.IParkingAreaService;
 import com.java110.things.sip.Server;
 import com.java110.things.sip.SipLayer;
 import com.java110.things.sip.TCPServer;
@@ -87,6 +90,9 @@ public class MachineExtController extends BaseController implements OnProcessLis
 
     @Autowired
     private ConfigProperties configProperties;
+
+    @Autowired
+    private IParkingAreaService parkingAreaServiceImpl;
 
     private MessageManager mMessageManager = MessageManager.getInstance();
 
@@ -350,10 +356,22 @@ public class MachineExtController extends BaseController implements OnProcessLis
 
         String paId = "";
 
+        //查询 岗亭
+        ParkingBoxDto parkingBoxDto = new ParkingBoxDto();
+        parkingBoxDto.setExtBoxId(machineDto.getLocationObjId());
+        parkingBoxDto.setCommunityId(machineDto.getCommunityId());
+        List<ParkingAreaDto> parkingAreaDtos = parkingAreaServiceImpl.queryParkingAreasByBox(parkingBoxDto);
+        //Assert.listOnlyOne(parkingAreaDtos, "停车场不存在");
+        if (parkingAreaDtos == null || parkingAreaDtos.size() < 1) {
+            throw new IllegalArgumentException("停车场不存在");
+        }
+
+        paId = parkingAreaDtos.get(0).getPaId();
+
         //查询是否有入场数据
         CarInoutDto carInoutDto = new CarInoutDto();
         carInoutDto.setCarNum(acceptJson.getString("carNum"));
-        carInoutDto.setPaId(machineDto.getLocationObjId());
+        carInoutDto.setPaId(paId);
         carInoutDto.setStates(new String[]{CarInoutDto.STATE_IN,CarInoutDto.STATE_PAY});
         carInoutDto.setInoutType(CarInoutDto.INOUT_TYPE_IN);
         List<CarInoutDto> carInoutDtos = carInoutServiceImpl.queryCarInout(carInoutDto);
@@ -375,7 +393,7 @@ public class MachineExtController extends BaseController implements OnProcessLis
         carInoutDto.setInoutType(CarInoutDto.INOUT_TYPE_OUT);
         carInoutDto.setMachineCode(machineDto.getMachineCode());
         carInoutDto.setOpenTime(DateUtil.getNow(DateUtil.DATE_FORMATE_STRING_A));
-        carInoutDto.setPaId(machineDto.getLocationObjId());
+        carInoutDto.setPaId(paId);
         carInoutDto.setState("3");
         carInoutDto.setRemark("手工出场");
         if (acceptJson.containsKey("payCharge")) {
@@ -405,6 +423,21 @@ public class MachineExtController extends BaseController implements OnProcessLis
      * @return
      */
     private JSONObject uploadcarin(MachineDto machineDto, JSONObject acceptJson) throws Exception {
+
+        String paId = "";
+
+        //查询 岗亭
+        ParkingBoxDto parkingBoxDto = new ParkingBoxDto();
+        parkingBoxDto.setExtBoxId(machineDto.getLocationObjId());
+        parkingBoxDto.setCommunityId(machineDto.getCommunityId());
+        List<ParkingAreaDto> parkingAreaDtos = parkingAreaServiceImpl.queryParkingAreasByBox(parkingBoxDto);
+        //Assert.listOnlyOne(parkingAreaDtos, "停车场不存在");
+        if (parkingAreaDtos == null || parkingAreaDtos.size() < 1) {
+            throw new IllegalArgumentException("停车场不存在");
+        }
+
+        paId = parkingAreaDtos.get(0).getPaId();
+
         //2.0 手工进场
         CarInoutDto carInoutDto = new CarInoutDto();
         carInoutDto.setCarNum(acceptJson.getString("carNum"));
@@ -415,7 +448,7 @@ public class MachineExtController extends BaseController implements OnProcessLis
         carInoutDto.setInoutType(CarInoutDto.INOUT_TYPE_OUT);
         carInoutDto.setMachineCode(machineDto.getMachineCode());
         carInoutDto.setOpenTime(DateUtil.getNow(DateUtil.DATE_FORMATE_STRING_A));
-        carInoutDto.setPaId(machineDto.getLocationObjId());
+        carInoutDto.setPaId(paId);
         carInoutDto.setState("1");
         carInoutDto.setInoutType(CarInoutDto.INOUT_TYPE_IN);
         carInoutDto.setRemark("手工进场");
