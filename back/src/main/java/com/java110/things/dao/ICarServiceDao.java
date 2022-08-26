@@ -52,7 +52,7 @@ public interface ICarServiceDao {
     /**
      * 删除指令
      *
-     * @param carDto 指令id
+     * @param carDto 指令idsdf
      * @return 返回影响记录数
      */
     int delete(CarDto carDto);
