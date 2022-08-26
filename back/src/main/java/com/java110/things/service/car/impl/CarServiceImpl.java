@@ -206,7 +206,7 @@ public class CarServiceImpl implements ICarService {
         machineDto.setLocationType(MachineDto.LOCATION_TYPE_PARKING_AREA);
         List<MachineDto> machineDtos = machineService.queryMachines(machineDto);
         if (machineDtos == null || machineDtos.size() < 1) {
-            return new ResultDto(ResultDto.ERROR, "设备不存在");
+            return new ResultDto(ResultDto.SUCCESS,"成功");
         }
 
         if(MachineDto.MACHINE_TYPE_CAR.equals(machineDtos.get(0).getMachineTypeCd())){
