@@ -465,7 +465,7 @@ public class CallCarServiceImpl implements ICallCarService {
             sendInfo(barrierGateControlDto, machineDto.getLocationObjId(), machineDto);
             //保存 进场记录
             saveCarInLog(carNum, type, machineDto, parkingAreaDtos, CarInoutDto.STATE_IN_FAIL, "此车为黑名单车辆" + carNum + ",禁止通行");
-            return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_BLACK, "此车为黑名单车辆", carNum, "禁止通行", "", "此车为黑名单车辆," + carNum + ",禁止通行", carNum);
+            return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_BLACK,  carNum, "禁止通行","", "",  carNum + ",禁止通行", carNum);
         }
 
         //判断车辆是否为月租车
