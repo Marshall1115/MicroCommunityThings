@@ -229,6 +229,17 @@ public class ParkingBoxServiceImpl implements IParkingBoxService {
         }
 
         for (ParkingBoxAreaDto parkingBoxAreaDto : parkingBoxAreaDtos) {
+
+            ParkingAreaDto tmpParkingAreaDto = new ParkingAreaDto();
+            tmpParkingAreaDto.setExtPaId(parkingBoxAreaDto.getPaId());
+            List<ParkingAreaDto> parkingAreaDtos = parkingAreaServiceImpl.queryParkingAreas(tmpParkingAreaDto);
+
+            if (parkingAreaDtos == null || parkingAreaDtos.size() < 1) {
+                continue;
+            }
+            parkingBoxAreaDto.setBaId(SeqUtil.getId());
+            parkingBoxAreaDto.setPaId(parkingAreaDtos.get(0).getPaId());
+            parkingBoxAreaDto.setCommunityId(parkingAreaDtos.get(0).getCommunityId());
             parkingBoxAreaDto.setBoxId(parkingBoxDto.getBoxId());
             parkingBoxAreaServiceDao.saveParkingBoxArea(parkingBoxAreaDto);
         }

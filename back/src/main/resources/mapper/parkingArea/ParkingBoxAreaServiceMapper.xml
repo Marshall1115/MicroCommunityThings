@@ -94,7 +94,14 @@
     </update>
 
     <delete id="delete" parameterType="com.java110.things.entity.parkingArea.ParkingBoxAreaDto">
-        delete from parking_box_area where ba_id = #{baId}
+        delete from parking_box_area
+        where 1=1
+        <if test="baId != null and baId != ''">
+            and ba_id = #{baId}
+        </if>
+        <if test="boxId != null and boxId != ''">
+            and box_id = #{boxId}
+        </if>
     </delete>
 
 </mapper>
