@@ -42,6 +42,36 @@ public class TempCarFeeFactory {
      * @param carInoutDto
      * @return
      */
+    public static long getTempCarCeilMin(CarInoutDto carInoutDto) {
+
+        //支付时间是否超过15分钟
+        Date payTime = null;
+        double min = 0.0;
+        try {
+            //不是支付完成 状态
+            if (CarInoutDto.STATE_PAY.equals(carInoutDto.getState())) {
+                payTime = carInoutDto.getPayTime();
+            } else {
+                payTime = DateUtil.getDateFromString(carInoutDto.getOpenTime(), DateUtil.DATE_FORMATE_STRING_A);
+            }
+            Date nowTime = DateUtil.getCurrentDate();
+            //支付完成超过15分钟
+
+            min = (nowTime.getTime() - payTime.getTime()) / (60 * 1000);
+
+            return new Double(Math.ceil(min)).longValue();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    /**
+     * 判断 用户是支付完成
+     *
+     * @param carInoutDto
+     * @return
+     */
     public static long getTempCarMin(CarInoutDto carInoutDto) {
 
         //支付时间是否超过15分钟
@@ -55,7 +85,7 @@ public class TempCarFeeFactory {
             }
             Date nowTime = DateUtil.getCurrentDate();
             //支付完成超过15分钟
-            return (nowTime.getTime() - payTime.getTime()) / (60 * 1000);
+            return  (nowTime.getTime() - payTime.getTime()) / (60 * 1000);
         } catch (ParseException e) {
             e.printStackTrace();
         }
