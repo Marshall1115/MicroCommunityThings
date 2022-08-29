@@ -378,7 +378,7 @@ public class MachineExtController extends BaseController implements OnProcessLis
 
         if (carInoutDtos != null && carInoutDtos.size() > 0) {
             carInoutDto.setState(CarInoutDto.STATE_OUT);
-            carInoutDto.setPayType(CarInoutDto.PAY_TYPE_CASH);
+            carInoutDto.setPayType(acceptJson.containsKey("payType")?acceptJson.getString("payType"):CarInoutDto.PAY_TYPE_CASH);
             carInoutDto.setPayCharge(acceptJson.getString("amount"));
             carInoutDto.setRealCharge(acceptJson.getString("amount"));
             carInoutDto.setPayTime(DateUtil.getCurrentDate());
