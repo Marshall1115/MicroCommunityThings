@@ -122,6 +122,9 @@
             <if test="payType != null and payType != ''">
                 t.pay_type = #{payType},
             </if>
+            <if test="newCarNum != null and newCarNum != ''">
+                and t.car_num = #{newCarNum}
+            </if>
         </trim>
         where 1=1
         <if test="inoutId != null and inoutId != ''">

@@ -181,7 +181,7 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
 
             JinjieScreenMqttFactory.pay(machineDto, resultParkingAreaTextDto.getVoice());
             JinjieScreenMqttFactory.downloadTempTexts(machineDto, 0, resultParkingAreaTextDto.getText1());
-            JinjieScreenMqttFactory.downloadTempTexts(machineDto, 1, resultParkingAreaTextDto.getText2());
+            JinjieScreenMqttFactory.downloadTempTexts(machineDto, 1, resultParkingAreaTextDto.getText2(),(byte) 0x00,(byte) 0x03);
             JinjieScreenMqttFactory.downloadTempTexts(machineDto, 2, resultParkingAreaTextDto.getText3());
             JinjieScreenMqttFactory.downloadTempTexts(machineDto, 3, resultParkingAreaTextDto.getText4());
             System.out.println("------------------------------------------------------耗时：" + (DateUtil.getCurrentDate().getTime() - startTime.getTime()));

@@ -25,6 +25,7 @@ public class CarInoutDto extends PageDto implements Serializable {
     private String inoutId;
     private String communityId;
     private String carNum;
+    private String newCarNum;
     private String carType;
     private String openTime;
     private String gateName;
@@ -211,5 +212,13 @@ public class CarInoutDto extends PageDto implements Serializable {
 
     public void setPaIds(String[] paIds) {
         this.paIds = paIds;
+    }
+
+    public String getNewCarNum() {
+        return newCarNum;
+    }
+
+    public void setNewCarNum(String newCarNum) {
+        this.newCarNum = newCarNum;
     }
 }

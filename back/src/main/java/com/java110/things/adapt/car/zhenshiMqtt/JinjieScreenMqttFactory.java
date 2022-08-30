@@ -167,7 +167,7 @@ public class JinjieScreenMqttFactory {
         }
     }
 
-    public static void downloadTempTexts(MachineDto machineDto, int line, String msg) {
+    public static void downloadTempTexts(MachineDto machineDto, int line, String msg,byte dt,byte drs) {
         if (StringUtil.isEmpty(msg)) {
             return;
         }
@@ -177,7 +177,7 @@ public class JinjieScreenMqttFactory {
             //演示 红色 绿色
             byte[] color = line % 2 == 0 ? COLOR_RED : COLOR_GREEN;
             // 设置  TWID + ETM + ETS + DM + DT + EXM + EXS + FINDEX + DRS + TC[4] + BC[4] + TL[2] + TEXT[...]
-            byte[] tmpDate = new byte[]{(byte) line, 0x01, 0x01, 0x00, 0x10, 0x01, 0x01, 0x03, 0x01};
+            byte[] tmpDate = new byte[]{(byte) line, 0x01, 0x01, 0x00, dt, 0x01, 0x01, 0x03, drs};
             tmpDate = ArrayUtils.addAll(tmpDate, color); //tc
             tmpDate = ArrayUtils.addAll(tmpDate, GB_COLOR); //BC
             tmpDate = ArrayUtils.addAll(tmpDate, intCovertByte(msg.getBytes("GBK").length));
@@ -191,6 +191,11 @@ public class JinjieScreenMqttFactory {
         } catch (Exception e) {
             logger.error("发送文件失败", e);
         }
+
+    }
+
+    public static void downloadTempTexts(MachineDto machineDto, int line, String msg) {
+        downloadTempTexts(machineDto,line,msg,(byte)0x10,(byte)0x01);
 
     }
 

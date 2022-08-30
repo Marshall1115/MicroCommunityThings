@@ -19,10 +19,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.java110.things.Controller.BaseController;
 import com.java110.things.entity.car.CarBlackWhiteDto;
 import com.java110.things.entity.car.CarDto;
+import com.java110.things.entity.car.CarInoutDto;
 import com.java110.things.entity.community.CommunityDto;
 import com.java110.things.entity.parkingArea.ParkingAreaDto;
 import com.java110.things.entity.response.ResultDto;
 import com.java110.things.service.car.ICarBlackWhiteService;
+import com.java110.things.service.car.ICarInoutService;
 import com.java110.things.service.car.ICarService;
 import com.java110.things.service.community.ICommunityService;
 import com.java110.things.service.parkingArea.IParkingAreaService;
@@ -60,6 +62,10 @@ public class CarExtController extends BaseController {
 
     @Autowired
     IParkingAreaService parkingAreaServiceImpl;
+
+    @Autowired
+    private ICarInoutService carInoutServiceImpl;
+
 
     /**
      * 添加车辆信息
@@ -324,5 +330,43 @@ public class CarExtController extends BaseController {
 
         return ResultDto.createResponseEntity(result);
     }
+
+    @RequestMapping(path = "/updateCarInoutCarNum", method = RequestMethod.POST)
+    public ResponseEntity<String> updateCarInoutCarNum(@RequestBody String reqParam) throws Exception {
+
+        JSONObject reqJson = JSONObject.parseObject(reqParam);
+
+        Assert.hasKeyAndValue(reqJson, "carNum", "未包含车辆编码");
+        Assert.hasKeyAndValue(reqJson, "oldCarNum", "未包含车辆编码");
+        Assert.hasKeyAndValue(reqJson, "extPaId", "未包含外部外部停车场ID");
+        Assert.hasKeyAndValue(reqJson, "taskId", "未包含任务ID");
+
+
+        ParkingAreaDto parkingAreaDto = new ParkingAreaDto();
+        parkingAreaDto.setExtPaId(reqJson.getString("extPaId"));
+        List<ParkingAreaDto> parkingAreaDtos = parkingAreaServiceImpl.queryParkingAreas(parkingAreaDto);
+
+        Assert.listOnlyOne(parkingAreaDtos, "未找到停车场信息");
+
+
+        CarInoutDto carInoutDto = new CarInoutDto();
+        carInoutDto.setCarNum(reqJson.getString("oldCarNum"));
+        carInoutDto.setPaId(parkingAreaDtos.get(0).getPaId());
+        carInoutDto.setStates(new String[]{CarInoutDto.STATE_IN,CarInoutDto.STATE_REPAY});
+        List<CarInoutDto> carInoutDtos = carInoutServiceImpl.queryCarInout(carInoutDto);
+
+
+        if(carInoutDtos == null || carInoutDtos.size()<1){
+            return ResultDto.error("不存在进场数据");
+        }
+
+        CarInoutDto carInoutDto1 = new CarInoutDto();
+        carInoutDto1.setInoutId(carInoutDtos.get(0).getInoutId());
+        carInoutDto1.setNewCarNum(reqJson.getString("carNum"));
+        carInoutServiceImpl.updateCarInout(carInoutDto1);
+
+        return ResultDto.success();
+    }
+
 
 }
