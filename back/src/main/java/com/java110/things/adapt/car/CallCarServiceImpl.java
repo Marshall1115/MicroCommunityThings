@@ -287,16 +287,17 @@ public class CallCarServiceImpl implements ICallCarService {
 
         BarrierGateControlDto barrierGateControlDto
                 = new BarrierGateControlDto(BarrierGateControlDto.ACTION_FEE_INFO, carNum, machineDto, result.getPayCharge(), carInoutDtos.get(0),
-                carNum + "停车" + result.getHours() + "小时," + result.getMin() + "分钟,请缴费" + result.getPayCharge() + "元", "开门失败");
+                carNum + "停车" + result.getHours() + "小时" + result.getMin() + "分钟,请缴费" + result.getPayCharge() + "元", "开门失败");
         sendInfo(barrierGateControlDto, machineDto.getLocationObjId(), machineDto);
 
         if (parkingAreaTextCacheDto != null) {
             saveCarOutLog(carNum, machineDto, parkingAreaDtos, CarInoutDto.STATE_IN_FAIL, carNum + "停车" + result.getHours() + "小时" + result.getMin() + "分钟,请缴费" + result.getPayCharge() + "元");
             return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_OUT_ERROR, parkingAreaTextCacheDto, carNum);
         }
+        //分钟
         ResultParkingAreaTextDto resultParkingAreaTextDto = new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_OUT_ERROR,
                 "停车" + result.getHours() + "时", result.getMin() + "分", "请交费", result.getPayCharge() + "元",
-                carNum + ",停车" + result.getHours() + "小时," + result.getMin() + "分钟,请交费" + result.getPayCharge() + "元", carNum);
+                carNum + ",停车" + result.getHours() + "小时" + result.getMin() + "分钟,请交费" + result.getPayCharge() + "元", carNum);
 
         resultParkingAreaTextDto.setHours(result.getHours());
         resultParkingAreaTextDto.setMin(result.getMin());

@@ -24,6 +24,7 @@ import com.java110.things.entity.car.CarInoutDto;
 import com.java110.things.entity.community.CommunityDto;
 import com.java110.things.entity.machine.MachineDto;
 import com.java110.things.entity.parkingArea.ParkingAreaDto;
+import com.java110.things.entity.parkingArea.ParkingBoxAreaDto;
 import com.java110.things.entity.parkingArea.ParkingBoxDto;
 import com.java110.things.entity.parkingArea.ResultParkingAreaTextDto;
 import com.java110.things.entity.response.ResultDto;
@@ -360,6 +361,7 @@ public class MachineExtController extends BaseController implements OnProcessLis
         ParkingBoxDto parkingBoxDto = new ParkingBoxDto();
         parkingBoxDto.setExtBoxId(machineDto.getLocationObjId());
         parkingBoxDto.setCommunityId(machineDto.getCommunityId());
+        parkingBoxDto.setDefaultArea(ParkingBoxAreaDto.DEFAULT_AREA_TRUE);
         List<ParkingAreaDto> parkingAreaDtos = parkingAreaServiceImpl.queryParkingAreasByBox(parkingBoxDto);
         //Assert.listOnlyOne(parkingAreaDtos, "停车场不存在");
         if (parkingAreaDtos == null || parkingAreaDtos.size() < 1) {
@@ -430,6 +432,7 @@ public class MachineExtController extends BaseController implements OnProcessLis
         ParkingBoxDto parkingBoxDto = new ParkingBoxDto();
         parkingBoxDto.setExtBoxId(machineDto.getLocationObjId());
         parkingBoxDto.setCommunityId(machineDto.getCommunityId());
+        parkingBoxDto.setDefaultArea(ParkingBoxAreaDto.DEFAULT_AREA_TRUE);
         List<ParkingAreaDto> parkingAreaDtos = parkingAreaServiceImpl.queryParkingAreasByBox(parkingBoxDto);
         //Assert.listOnlyOne(parkingAreaDtos, "停车场不存在");
         if (parkingAreaDtos == null || parkingAreaDtos.size() < 1) {
