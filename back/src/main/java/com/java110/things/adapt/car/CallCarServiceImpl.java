@@ -219,9 +219,9 @@ public class CallCarServiceImpl implements ICallCarService {
 
         if(day == -2){
             ResultParkingAreaTextDto resultParkingAreaTextDto
-                    = new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_OUT_ERROR,carNum, "月租车,已过期,请扫码,缴费", "","", carNum+",月租车,已过期,请扫码,缴费", carNum);
+                    = new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_OUT_ERROR,carNum, "月租车,已过期,请缴费", "","", carNum+",月租车,已过期,请缴费", carNum);
             resultParkingAreaTextDto.setDay(0);
-            saveCarOutLog(carNum, machineDto, parkingAreaDtos, CarInoutDto.STATE_IN_FAIL, carNum+",月租车,已过期,请扫码,缴费");
+            saveCarOutLog(carNum, machineDto, parkingAreaDtos, CarInoutDto.STATE_IN_FAIL, carNum+",月租车,已过期,请缴费");
             return resultParkingAreaTextDto;
         }
 
