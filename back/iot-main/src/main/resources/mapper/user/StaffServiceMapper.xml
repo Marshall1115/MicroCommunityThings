@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.java110.core.dao.IStaffServiceDao">
+
+    <insert id="saveStaff" parameterType="com.java110.entity.user.StaffDto">
+        INSERT INTO staff
+            (`staff_id`, `staff_name`, `department_id`, `department_name`, `face1`, `face2`, `face3`,ext_staff_id)
+        values
+        (
+            #{staffId},
+            #{staffName},
+            #{departmentId},
+            #{departmentName},
+            #{face1},
+            #{face2},
+            #{face3},
+            #{extStaffId}
+        )
+    </insert>
+
+
+    <select id="getStaffs" parameterType="com.java110.entity.user.StaffDto"
+            resultType="com.java110.entity.user.StaffDto">
+        SELECT
+        u.`staff_id` staffId, u.`staff_name` staffName, u.`department_id` departmentId,
+        u.`department_name` departmentName, u.`face1`, u.`face2`,u.`face3`,u.ext_staff_id extStaffId
+        FROM
+        staff u
+        WHERE
+        1=1
+        <if test="staffName != null and staffName != ''">
+            and u.staff_name like '%${staffName}%'
+        </if>
+        <if test="staffId != null and staffId != ''">
+            and u.staff_id = #{staffId}
+        </if>
+        <if test="extStaffId != null and extStaffId != ''">
+            and u.ext_staff_id = #{extStaffId}
+        </if>
+        <if test="departmentId != null and departmentId != ''">
+            and u.department_id = #{departmentId}
+        </if>
+        and u.status_cd = '0'
+        <if test="page != -1 and page != null ">
+            limit #{page}, #{row}
+        </if>
+    </select>
+
+    <select id="getStaffCount" parameterType="com.java110.entity.user.StaffDto" resultType="long">
+        select
+        count(1) count
+        FROM
+        staff u
+        WHERE
+        1=1
+        <if test="staffName != null and staffName != ''">
+            and u.staff_name like '%${staffName}%'
+        </if>
+        <if test="staffId != null and staffId != ''">
+            and u.staff_id = #{staffId}
+        </if>
+        <if test="extStaffId != null and extStaffId != ''">
+            and u.ext_staff_id = #{extStaffId}
+        </if>
+        <if test="departmentId != null and departmentId != ''">
+            and u.department_id = #{departmentId}
+        </if>
+        and u.status_cd = '0'
+    </select>
+
+
+    <update id="updateStaff" parameterType="com.java110.entity.user.StaffDto">
+        update staff
+        <set>
+            <if test="staffName != null and staffName != ''">
+                 staff_name = #{staffName},
+            </if>
+            <if test="departmentId != null and departmentId != ''">
+                 department_id = #{departmentId},
+            </if>
+            <if test="departmentName != null and departmentName != ''">
+                department_name = #{departmentName},
+            </if>
+            <if test="statusCd != null and statusCd != ''">
+                status_cd = #{statusCd},
+            </if>
+            <if test="face1 != null">`face1` = #{face1},</if>
+            <if test="face2 != null">`face2` = #{face2},</if>
+            <if test="face3 != null">`face3` = #{face3}</if>
+
+        </set>
+        where 1=1
+        <if test="staffId != null and staffId != ''">
+            and staff_id = #{staffId}
+        </if>
+        <if test="extStaffId != null and extStaffId != ''">
+            and ext_staff_id = #{extStaffId}
+        </if>
+    </update>
+
+
+    <select id="getDepartments" parameterType="com.java110.entity.user.StaffDto"
+            resultType="com.java110.entity.user.StaffDto">
+        select distinct t.department_id departmentId,t.department_name departmentName
+        from staff t
+        where 1=1
+        <if test="departmentId != null and departmentId != ''">
+            and department_id = #{departmentId}
+        </if>
+         group by t.department_id
+    </select>
+</mapper>

@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.java110.core.dao.IMachineServiceDao">
+
+    <select id="get" parameterType="string" resultType="Map">
+        select * from u_user
+    </select>
+
+    <insert id="saveMachine" parameterType="com.java110.entity.machine.MachineDto">
+        INSERT INTO
+        machine (machine_id, machine_code, machine_version, machine_name, machine_type_cd, machine_ip,
+        machine_mac,oem,ext_machine_id,community_id,hm_id,location_type,location_obj_id,heartbeat_time,direction,third_machine_id)
+        VALUES (#{machineId}, #{machineCode}, #{machineVersion}, #{machineName}, #{machineTypeCd}, #{machineIp},
+        #{machineMac},#{oem},#{extMachineId},#{communityId},#{hmId},#{locationType},#{locationObjId},#{heartbeatTime},
+        #{direction},#{thirdMachineId})
+    </insert>
+
+    <!--
+        查询设备信息
+    -->
+    <select id="getMachines" parameterType="com.java110.entity.machine.MachineDto"
+            resultType="com.java110.entity.machine.MachineDto">
+        select
+        t.machine_id machineId,
+        t.machine_code machineCode,
+        t.machine_version machineVersion,
+        t.machine_name machineName,
+        t.machine_type_cd machineTypeCd,
+        t.machine_ip machineIp,
+        t.machine_mac machineMac,
+        t.oem,
+        t.ext_machine_id extMachineId,
+        t.community_id communityId,
+        t.hm_id hmId,
+        t.heartbeat_time heartbeatTime,
+        t.location_type locationType,
+        t.location_obj_id locationObjId,
+        t.direction,
+        t.third_machine_id thirdMachineId
+        from machine t
+        where 1=1
+        <if test="machineId != null and machineId != ''">
+            and t.machine_id = #{machineId}
+        </if>
+        <if test="machineCode != null and machineCode != ''">
+            and t.machine_code = #{machineCode}
+        </if>
+        <if test="machineVersion != null and machineVersion != ''">
+            and t.machine_version = #{machineVersion}
+        </if>
+        <if test="machineName != null and machineName != ''">
+            and t.machine_name = #{machineName}
+        </if>
+        <if test="machineTypeCd != null and machineTypeCd != ''">
+            and t.machine_type_cd = #{machineTypeCd}
+        </if>
+        <if test="machineIp != null and machineIp != ''">
+            and t.machine_ip = #{machineIp}
+        </if>
+        <if test="machineMac != null and machineMac != ''">
+            and t.machine_mac = #{machineMac}
+        </if>
+        <if test="oem != null and oem != ''">
+            and t.oem = #{oem}
+        </if>
+        <if test="extMachineId != null and extMachineId != ''">
+            and t.ext_machine_id = #{extMachineId}
+        </if>
+        <if test="communityId != null and communityId != ''">
+            and t.community_id = #{communityId}
+        </if>
+        <if test="hmId != null and hmId != ''">
+            and t.hm_id = #{hmId}
+        </if>
+        <if test="locationType != null and locationType != ''">
+            and t.location_type = #{locationType}
+        </if>
+        <if test="locationObjId != null and locationObjId != ''">
+            and t.location_obj_id = #{locationObjId}
+        </if>
+        <if test="direction != null and direction != ''">
+            and t.direction = #{direction}
+        </if>
+        <if test="thirdMachineId != null and thirdMachineId != ''">
+            and t.third_machine_id = #{thirdMachineId}
+        </if>
+        and t.status_cd = '0'
+        order by t.create_time desc
+        <if test="page != -1 and page != null ">
+            limit #{page}, #{row}
+        </if>
+
+    </select>
+    <select id="queryBoxMachines" parameterType="com.java110.entity.machine.MachineDto"
+            resultType="com.java110.entity.machine.MachineDto">
+        select
+        t.machine_id machineId,
+        t.machine_code machineCode,
+        t.machine_version machineVersion,
+        t.machine_name machineName,
+        t.machine_type_cd machineTypeCd,
+        t.machine_ip machineIp,
+        t.machine_mac machineMac,
+        t.oem,
+        t.ext_machine_id extMachineId,
+        t.community_id communityId,
+        t.hm_id hmId,
+        t.heartbeat_time heartbeatTime,
+        t.location_type locationType,
+        t.location_obj_id locationObjId,
+        t.direction,
+        t.third_machine_id thirdMachineId
+        from machine t
+        left join parking_box pb on t.location_obj_id = pb.ext_box_id and pb.status_cd = '0'
+        left join parking_box_area pba on pb.box_id = pba.box_id and pba.status_cd = '0'
+        left join parking_area pa on pba.pa_id = pa.pa_id and pa.status_cd = '0'
+        where t.status_cd = '0'
+        and pa.ext_pa_id = #{extPaId}
+        <if test="machineId != null and machineId != ''">
+            and t.machine_id = #{machineId}
+        </if>
+        <if test="machineCode != null and machineCode != ''">
+            and t.machine_code = #{machineCode}
+        </if>
+        <if test="machineVersion != null and machineVersion != ''">
+            and t.machine_version = #{machineVersion}
+        </if>
+        <if test="machineName != null and machineName != ''">
+            and t.machine_name = #{machineName}
+        </if>
+        <if test="machineTypeCd != null and machineTypeCd != ''">
+            and t.machine_type_cd = #{machineTypeCd}
+        </if>
+        <if test="machineIp != null and machineIp != ''">
+            and t.machine_ip = #{machineIp}
+        </if>
+        <if test="machineMac != null and machineMac != ''">
+            and t.machine_mac = #{machineMac}
+        </if>
+        <if test="oem != null and oem != ''">
+            and t.oem = #{oem}
+        </if>
+        <if test="extMachineId != null and extMachineId != ''">
+            and t.ext_machine_id = #{extMachineId}
+        </if>
+        <if test="communityId != null and communityId != ''">
+            and t.community_id = #{communityId}
+        </if>
+        <if test="hmId != null and hmId != ''">
+            and t.hm_id = #{hmId}
+        </if>
+        <if test="locationType != null and locationType != ''">
+            and t.location_type = #{locationType}
+        </if>
+        <if test="locationObjId != null and locationObjId != ''">
+            and t.location_obj_id = #{locationObjId}
+        </if>
+        <if test="direction != null and direction != ''">
+            and t.direction = #{direction}
+        </if>
+        <if test="thirdMachineId != null and thirdMachineId != ''">
+            and t.third_machine_id = #{thirdMachineId}
+        </if>
+        and t.status_cd = '0'
+        order by t.create_time desc
+        <if test="page != -1 and page != null ">
+            limit #{page}, #{row}
+        </if>
+
+    </select>
+
+
+    <select id="getMachineCount" parameterType="com.java110.entity.machine.MachineDto" resultType="long">
+        select
+        count(1) count
+        from machine t
+        where 1=1
+        <if test="machineId != null and machineId != ''">
+            and t.machine_id = #{machineId}
+        </if>
+        <if test="machineCode != null and machineCode != ''">
+            and t.machine_code = #{machineCode}
+        </if>
+        <if test="machineVersion != null and machineVersion != ''">
+            and t.machine_version = #{machineVersion}
+        </if>
+        <if test="machineName != null and machineName != ''">
+            and t.machine_name = #{machineName}
+        </if>
+        <if test="machineTypeCd != null and machineTypeCd != ''">
+            and t.machine_type_cd = #{machineTypeCd}
+        </if>
+        <if test="machineIp != null and machineIp != ''">
+            and t.machine_ip = #{machineIp}
+        </if>
+        <if test="machineMac != null and machineMac != ''">
+            and t.machine_mac = #{machineMac}
+        </if>
+        <if test="oem != null and oem != ''">
+            and t.oem = #{oem}
+        </if>
+        <if test="extMachineId != null and extMachineId != ''">
+            and t.ext_machine_id = #{extMachineId}
+        </if>
+        <if test="communityId != null and communityId != ''">
+            and t.community_id = #{communityId}
+        </if>
+        <if test="hmId != null and hmId != ''">
+            and t.hm_id = #{hmId}
+        </if>
+        <if test="locationType != null and locationType != ''">
+            and t.location_type = #{locationType}
+        </if>
+        <if test="locationObjId != null and locationObjId != ''">
+            and t.location_obj_id = #{locationObjId}
+        </if>
+        <if test="direction != null and direction != ''">
+            and t.direction = #{direction}
+        </if>
+
+        and t.status_cd = '0'
+
+
+    </select>
+
+    <update id="updateMachine" parameterType="com.java110.entity.machine.MachineDto">
+        update machine t
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="machineId != null and machineId != ''">
+                t.machine_id = #{machineId},
+            </if>
+            <if test="machineCode != null and machineCode != ''">
+                t.machine_code = #{machineCode},
+            </if>
+            <if test="machineVersion != null and machineVersion != ''">
+                t.machine_version = #{machineVersion},
+            </if>
+            <if test="machineName != null and machineName != ''">
+                t.machine_name = #{machineName},
+            </if>
+            <if test="machineTypeCd != null and machineTypeCd != ''">
+                t.machine_type_cd = #{machineTypeCd},
+            </if>
+            <if test="machineIp != null and machineIp != ''">
+                t.machine_ip = #{machineIp},
+            </if>
+            <if test="machineMac != null and machineMac != ''">
+                t.machine_mac = #{machineMac},
+            </if>
+            <if test="statusCd != null and statusCd != ''">
+                t.status_cd = #{statusCd},
+            </if>
+            <if test="oem != null and oem != ''">
+                t.oem = #{oem},
+            </if>
+            <if test="extMachineId != null and extMachineId != ''">
+                t.ext_machine_id = #{extMachineId},
+            </if>
+            <if test="hmId != null and hmId != ''">
+                t.hm_id = #{hmId},
+            </if>
+            <if test="heartbeatTime != null and heartbeatTime != ''">
+                t.heartbeat_time = #{heartbeatTime},
+            </if>
+            <if test="locationType != null and locationType != ''">
+                t.location_type = #{locationType},
+            </if>
+            <if test="locationObjId != null and locationObjId != ''">
+                t.location_obj_id = #{locationObjId},
+            </if>
+            <if test="thirdMachineId != null and thirdMachineId != ''">
+                t.third_machine_id = #{thirdMachineId},
+            </if>
+            <if test="direction != null and direction != ''">
+                t.direction = #{direction},
+            </if>
+        </trim>
+        where 1=1
+        and t.status_cd = '0'
+        <if test="machineId != null and machineId != ''">
+            and t.machine_id = #{machineId}
+        </if>
+        <if test="communityId != null and communityId != ''">
+            and t.community_id = #{communityId}
+        </if>
+        <if test="extMachineId != null and extMachineId != ''">
+            and t.ext_machine_id = #{extMachineId}
+        </if>
+    </update>
+
+
+    <insert id="saveMachineAttr" parameterType="com.java110.entity.machine.MachineAttrDto">
+        INSERT INTO `machine_attrs` (`machine_id`, `community_id`, `attr_id`, `spec_cd`, `value`)
+        VALUES (#{machineId}, #{communityId}, #{attrId}, #{specCd}, #{value})
+    </insert>
+
+    <!--
+        查询设备信息
+    -->
+    <select id="getMachineAttrs" parameterType="com.java110.entity.machine.MachineAttrDto"
+            resultType="com.java110.entity.machine.MachineAttrDto">
+        select
+        t.machine_id machineId,
+        t.community_id communityId,
+        t.attr_id attrId,
+        t.spec_cd specCd,
+        t.value value
+        from machine_attrs t
+        where 1=1
+        <if test="machineId != null and machineId != ''">
+            and t.machine_id = #{machineId}
+        </if>
+        <if test="machineIds != null">
+            and t.machine_id in
+            <foreach collection="machineIds" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="communityId != null and communityId != ''">
+            and t.community_id = #{communityId}
+        </if>
+        <if test="attrId != null and attrId != ''">
+            and t.attr_id = #{attrId}
+        </if>
+        <if test="specCd != null and specCd != ''">
+            and t.spec_cd = #{specCd}
+        </if>
+        and t.status_cd = '0'
+        <if test="page != -1 and page != null ">
+            limit #{page}, #{row}
+        </if>
+
+    </select>
+
+    <select id="getMachineAttrCount" parameterType="com.java110.entity.machine.MachineAttrDto" resultType="long">
+        select
+        count(1) count
+        from machine_attrs t
+        where 1=1
+        <if test="machineId != null and machineId != ''">
+            and t.machine_id = #{machineId}
+        </if>
+        <if test="communityId != null and communityId != ''">
+            and t.community_id = #{communityId}
+        </if>
+        <if test="attrId != null and attrId != ''">
+            and t.attr_id = #{attrId}
+        </if>
+        <if test="specCd != null and specCd != ''">
+            and t.spec_cd = #{specCd}
+        </if>
+        and t.status_cd = '0'
+
+    </select>
+
+    <update id="updateMachineAttr" parameterType="com.java110.entity.machine.MachineDto">
+        update machine_attrs t
+        set t.value = #{value}
+        where 1=1
+        <if test="machineId != null and machineId != ''">
+            and t.machine_id = #{machineId}
+        </if>
+        <if test="communityId != null and communityId != ''">
+            and t.community_id = #{communityId}
+        </if>
+        <if test="attrId != null and attrId != ''">
+            and t.attr_id = #{attrId}
+        </if>
+        <if test="specCd != null and specCd != ''">
+            and t.spec_cd = #{specCd}
+        </if>
+        and t.status_cd = '0'
+    </update>
+
+</mapper>

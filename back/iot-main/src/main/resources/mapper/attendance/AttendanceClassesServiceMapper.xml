@@ -1,0 +1,696 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.java110.core.dao.IAttendanceClassesServiceDao">
+
+
+    <insert id="saveAttendanceClasses" parameterType="com.java110.entity.attendance.AttendanceClassesDto">
+        INSERT INTO attendance_classes(`classes_id`, `classes_name`, `time_offset`, `clock_count`, `clock_type`,
+        `clock_type_value`,`late_offset`,`leave_offset`,ext_classes_id)
+        values (
+        #{classesId},#{classesName},#{timeOffset},#{clockCount},#{clockType},#{clockTypeValue},#{lateOffset},#{leaveOffset},
+        #{extClassesId}
+        )
+    </insert>
+
+    <delete id="deleteAttendanceClasses" parameterType="string">
+		delete from attendance_classes where classes_id = #{value}
+	</delete>
+
+    <delete id="deleteAttendanceClassesAttr" parameterType="com.java110.entity.attendance.AttendanceClassesAttrDto">
+        delete from attendance_classes_attr where 1=1
+        <if test="attrId != null and attrId != ''">
+            and attr_id = #{attrId}
+        </if>
+        <if test="classesId != null and classesId != ''">
+            and classes_id = #{classesId}
+        </if>
+
+    </delete>
+
+
+    <!-- 查询定时任务数量 add by wuxw 2018-07-03 -->
+    <select id="getAttendanceClassesCount" parameterType="com.java110.entity.attendance.AttendanceClassesDto"
+            resultType="long">
+        select count(1) count
+        from attendance_classes t
+        where 1 =1
+        and t.status_cd= '0'
+        <if test="classesId !=null and classesId != ''">
+            and t.classes_id= #{classesId}
+        </if>
+        <if test="extClassesId !=null and extClassesId != ''">
+            and t.ext_classes_id= #{extClassesId}
+        </if>
+        <if test="createTime !=null and createTime != ''">
+            and t.create_time= #{createTime}
+        </if>
+    </select>
+
+
+    <!-- 查询定时任务信息 add by wuxw 2018-07-03 -->
+    <select id="getAttendanceClassess" parameterType="com.java110.entity.attendance.AttendanceClassesDto"
+            resultType="com.java110.entity.attendance.AttendanceClassesDto">
+        select t.classes_id classesId,t.create_time createTime,t.classes_name
+        classesName,t.status_cd statusCd,t.time_offset timeOffset,t.clock_count
+        clockCount,t.clock_type clockType,t.clock_type_value clockTypeValue,
+        t.late_offset lateOffset,t.leave_offset leaveOffset,t.ext_classes_id extClassesId
+        from attendance_classes t
+        where 1 =1
+        and t.status_cd= '0'
+        <if test="classesName !=null and classesName != ''">
+            and t.classes_name like '%${classesName}%'
+        </if>
+        <if test="classesId !=null and classesId != ''">
+            and t.classes_id= #{classesId}
+        </if>
+        <if test="extClassesId !=null and extClassesId != ''">
+            and t.ext_classes_id= #{extClassesId}
+        </if>
+        <if test="createTime !=null and createTime != ''">
+            and t.create_time= #{createTime}
+        </if>
+        order by t.create_time desc
+        <if test="page != -1 and page != null ">
+            limit #{page}, #{row}
+        </if>
+    </select>
+
+    <!-- 修改定时任务信息 add by wuxw 2018-07-03 -->
+    <update id="updateAttendanceClasses" parameterType="com.java110.entity.attendance.AttendanceClassesDto">
+        update attendance_classes t set t.status_cd = #{statusCd}
+        <if test="classesName !=null and classesName != ''">
+            , t.classes_name= #{classesName}
+        </if>
+        <if test="timeOffset !=null and timeOffset != ''">
+            , t.time_offset= #{timeOffset}
+        </if>
+        <if test="clockCount !=null and clockCount != ''">
+            , t.clock_count= #{clockCount}
+        </if>
+        <if test="clockTypeValue !=null and clockTypeValue != ''">
+            , t.clock_type_value= #{clockTypeValue}
+        </if>
+        <if test="lateOffset !=null and lateOffset != ''">
+            , t.late_offset= #{lateOffset}
+        </if>
+        <if test="leaveOffset !=null and leaveOffset != ''">
+            , t.leave_offset= #{leaveOffset}
+        </if>
+        where 1=1
+        <if test="classesId !=null and classesId != ''">
+            and t.classes_id= #{classesId}
+        </if>
+    </update>
+
+
+    <insert id="saveAttendanceClassesAttr"
+            parameterType="com.java110.entity.attendance.AttendanceClassesAttrDto">
+        INSERT INTO attendance_classes_attr
+        (`attr_id`, `classes_id`, `spec_cd`, `value`)
+        VALUES
+       (#{attrId},#{classesId},#{specCd},#{value})
+    </insert>
+
+
+    <!-- 查询定时任务信息 add by wuxw 2018-07-03 -->
+    <select id="getAttendanceClassesAttrs" parameterType="com.java110.entity.attendance.AttendanceClassesAttrDto"
+            resultType="com.java110.entity.attendance.AttendanceClassesAttrDto">
+        select t.attr_id attrId,t.create_time createTime,t.classes_id
+        classesId,t.status_cd statusCd,t.spec_cd specCd,t.value
+        from attendance_classes_attr t
+        where 1 =1
+        and t.status_cd= '0'
+        <if test="attrId !=null and attrId != ''">
+            and t.attr_id= #{attrId}
+        </if>
+        <if test="classesId !=null and classesId != ''">
+            and t.classes_id= #{classesId}
+        </if>
+        order by t.create_time desc
+        <if test="page != -1 and page != null ">
+            limit #{page}, #{row}
+        </if>
+    </select>
+
+    <!-- 查询定时任务数量 add by wuxw 2018-07-03 -->
+    <select id="getAttendanceClassesAttrCount"
+            parameterType="com.java110.entity.attendance.AttendanceClassesAttrDto" resultType="long">
+        select count(1) count
+        from attendance_classes_attr t
+        where 1 =1
+        and t.status_cd= '0'
+        <if test="attrId !=null and attrId != ''">
+            and t.attr_id= #{attrId}
+        </if>
+        <if test="classesId !=null and classesId != ''">
+            and t.classes_id= #{classesId}
+        </if>
+    </select>
+
+    <!-- 修改定时任务信息 add by wuxw 2018-07-03 -->
+    <update id="updateAttendanceClassesAttrDto"
+            parameterType="com.java110.entity.attendance.AttendanceClassesAttrDto">
+        update attendance_classes_attr t set t.status_cd = #{statusCd}
+        <if test="value !=null and value != ''">
+            , t.value= #{value}
+        </if>
+        where 1=1
+        <if test="attrId !=null and attrId != ''">
+            and t.attr_id= #{attrId}
+        </if>
+        <if test="classesId !=null and classesId != ''">
+            and t.classes_id= #{classesId}
+        </if>
+        <if test="specCd !=null and specCd != ''">
+            and t.spec_cd= #{specCd}
+        </if>
+
+    </update>
+
+
+    <insert id="saveAttendanceClassesStaff"
+            parameterType="com.java110.entity.attendance.AttendanceClassesStaffDto">
+        INSERT INTO attendance_classes_staff(`cs_id`, `classes_id`, `staff_id`, `staff_name`, `department_id`,
+        `department_name`)
+        values (
+        #{csId},#{classesId},#{staffId},#{staffName},#{departmentId},#{departmentName}
+        )
+    </insert>
+
+    <!-- 查询定时任务信息 add by wuxw 2018-07-03 -->
+    <select id="getAttendanceClassesStaffs"
+            parameterType="com.java110.entity.attendance.AttendanceClassesStaffDto"
+            resultType="com.java110.entity.attendance.AttendanceClassesStaffDto">
+        select t.cs_id csId,t.create_time createTime,t.classes_id classesId
+        ,t.status_cd statusCd,t.staff_id staffId,t.staff_name
+        staffName,t.department_id departmentId,t.department_name departmentName,ac.classes_name classesName
+        from attendance_classes_staff t,attendance_classes ac
+        where 1 =1
+        and t.status_cd= '0'
+        and t.classes_id = ac.classes_id
+        and ac.status_cd = '0'
+        <if test="staffId !=null and staffId != ''">
+            and t.staff_id= #{staffId}
+        </if>
+        <if test="createTime !=null and createTime != ''">
+            and t.create_time= #{createTime}
+        </if>
+        <if test="csId !=null and csId != ''">
+            and t.cs_id= #{csId}
+        </if>
+        <if test="classesId !=null and classesId != ''">
+            and t.classes_id= #{classesId}
+        </if>
+        order by t.create_time desc
+        <if test="page != -1 and page != null ">
+            limit #{page}, #{row}
+        </if>
+    </select>
+
+    <!-- 查询定时任务数量 add by wuxw 2018-07-03 -->
+    <select id="getAttendanceClassesStaffCount"
+            parameterType="com.java110.entity.attendance.AttendanceClassesStaffDto" resultType="long">
+        select count(1) count
+        from attendance_classes_staff t
+        where 1 =1
+        and t.status_cd= '0'
+        <if test="staffId !=null and staffId != ''">
+            and t.staff_id= #{staffId}
+        </if>
+        <if test="createTime !=null and createTime != ''">
+            and t.create_time= #{createTime}
+        </if>
+        <if test="csId !=null and csId != ''">
+            and t.cs_id= #{csId}
+        </if>
+        <if test="classesId !=null and classesId != ''">
+            and t.classes_id= #{classesId}
+        </if>
+    </select>
+
+    <!-- 修改定时任务信息 add by wuxw 2018-07-03 -->
+    <update id="updateAttendanceClassesStaffDto"
+            parameterType="com.java110.entity.attendance.AttendanceClassesStaffDto">
+        update attendance_classes_staff t set t.status_cd = #{statusCd}
+        where 1=1
+        <if test="staffId !=null and staffId != ''">
+            and t.staff_id= #{staffId}
+        </if>
+        <if test="createTime !=null and createTime != ''">
+            and t.create_time= #{createTime}
+        </if>
+        <if test="csId !=null and csId != ''">
+            and t.cs_id= #{csId}
+        </if>
+        <if test="classesId !=null and classesId != ''">
+            and t.classes_id= #{classesId}
+        </if>
+
+    </update>
+
+
+    <insert id="saveAttendanceClassesTask"
+            parameterType="com.java110.entity.attendance.AttendanceClassesTaskDto">
+        INSERT INTO attendance_classes_task
+        (`task_id`, `class_id`, `staff_id`, `task_year`, `task_month`, `task_day`, `state`)
+        values (
+        #{taskId},#{classId},#{staffId},#{taskYear},#{taskMonth},#{taskDay},#{state}
+        )
+    </insert>
+
+    <!-- 查询定时任务信息 add by wuxw 2018-07-03 -->
+    <select id="getAttendanceClassesTasks" parameterType="com.java110.entity.attendance.AttendanceClassesTaskDto"
+            resultType="com.java110.entity.attendance.AttendanceClassesTaskDto">
+        select t.task_id taskId,t.class_id classId,t.staff_id staffId,t.task_year
+        taskYear,t.task_month taskMonth,t.task_day taskDay,t.state,t.create_time createTime,t.status_cd statusCd
+        ,s.staff_name staffName,s.department_name departmentName,s.department_id departmentId
+        from attendance_classes_task t
+        left join staff s on t.staff_id = s.staff_id and s.status_cd = '0'
+        where 1 =1
+        and t.status_cd= '0'
+        <if test="staffName !=null and staffName != ''">
+            and s.staff_name like concat('%',#{staffName},'%')
+        </if>
+        <if test="departmentId !=null and departmentId != ''">
+            and s.department_id = #{departmentId}
+        </if>
+        <if test="taskId !=null and taskId != ''">
+            and t.task_id= #{taskId}
+        </if>
+        <if test="createTime !=null and createTime != ''">
+            and t.create_time= #{createTime}
+        </if>
+        <if test="classId !=null and classId != ''">
+            and t.class_id= #{classId}
+        </if>
+
+        <if test="staffId !=null and staffId != ''">
+            and t.staff_id= #{staffId}
+        </if>
+        <if test="taskYear !=null and taskYear != ''">
+            and t.task_year= #{taskYear}
+        </if>
+        <if test="taskMonth !=null and taskMonth != ''">
+            and t.task_month= #{taskMonth}
+        </if>
+        <if test="taskDay !=null and taskDay != ''">
+            and t.task_day= #{taskDay}
+        </if>
+        <if test="state !=null and state != ''">
+            and t.state= #{state}
+        </if>
+        <if test="states !=null ">
+            and t.state in
+            <foreach collection="states" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        order by t.create_time desc
+        <if test="page != -1 and page != null ">
+            limit #{page}, #{row}
+        </if>
+    </select>
+
+
+    <!-- 查询定时任务数量 add by wuxw 2018-07-03 -->
+    <select id="getAttendanceClassesTaskCount"
+            parameterType="com.java110.entity.attendance.AttendanceClassesTaskDto" resultType="long">
+        select count(1) count
+        from attendance_classes_task t
+        left join staff s on t.staff_id = s.staff_id and s.status_cd = '0'
+        where 1 =1
+        and t.status_cd= '0'
+        <if test="staffName !=null and staffName != ''">
+            and s.staff_name like concat('%',#{staffName},'%')
+        </if>
+        <if test="departmentId !=null and departmentId != ''">
+            and s.department_id = #{departmentId}
+        </if>
+        <if test="taskId !=null and taskId != ''">
+            and t.task_id= #{taskId}
+        </if>
+        <if test="createTime !=null and createTime != ''">
+            and t.create_time= #{createTime}
+        </if>
+        <if test="classId !=null and classId != ''">
+            and t.class_id= #{classId}
+        </if>
+        <if test="staffId !=null and staffId != ''">
+            and t.staff_id= #{staffId}
+        </if>
+        <if test="taskYear !=null and taskYear != ''">
+            and t.task_year= #{taskYear}
+        </if>
+        <if test="taskMonth !=null and taskMonth != ''">
+            and t.task_month= #{taskMonth}
+        </if>
+        <if test="taskDay !=null and taskDay != ''">
+            and t.task_day= #{taskDay}
+        </if>
+        <if test="state !=null and state != ''">
+            and t.state= #{state}
+        </if>
+    </select>
+
+    <!-- 修改定时任务信息 add by wuxw 2018-07-03 -->
+    <update id="updateAttendanceClassesTaskDto"
+            parameterType="com.java110.entity.attendance.AttendanceClassesTaskDto">
+        update attendance_classes_task t set t.status_cd = #{statusCd}
+        <if test="state !=null and state != ''">
+            , t.state= #{state}
+        </if>
+        where 1=1
+        <if test="taskId !=null and taskId != ''">
+            and t.task_id= #{taskId}
+        </if>
+        <if test="createTime !=null and createTime != ''">
+            and t.create_time= #{createTime}
+        </if>
+        <if test="classId !=null and classId != ''">
+            and t.class_id= #{classId}
+        </if>
+        <if test="staffId !=null and staffId != ''">
+            and t.staff_id= #{staffId}
+        </if>
+        <if test="taskYear !=null and taskYear != ''">
+            and t.task_year= #{taskYear}
+        </if>
+        <if test="taskMonth !=null and taskMonth != ''">
+            and t.task_month= #{taskMonth}
+        </if>
+        <if test="taskDay !=null and taskDay != ''">
+            and t.task_day= #{taskDay}
+        </if>
+        <if test="states !=null ">
+            and t.state in
+            <foreach collection="states" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+
+    </update>
+
+
+    <insert id="saveAttendanceClassesTaskAttr"
+            parameterType="com.java110.entity.attendance.AttendanceClassesTaskAttrDto">
+        INSERT INTO attendance_classes_task_attr
+        (`attr_id`, `task_id`, `spec_cd`, `value`)
+        VALUES
+        #{attrId},#{taskId},#{specCd},#{value}
+        )
+    </insert>
+
+    <!-- 查询定时任务信息 add by wuxw 2018-07-03 -->
+    <select id="getAttendanceClassesTaskAttrs"
+            parameterType="com.java110.entity.attendance.AttendanceClassesTaskAttrDto"
+            resultType="com.java110.entity.attendance.AttendanceClassesTaskAttrDto">
+        select t.attr_id attrId,t.create_time createTime,t.task_id
+        taskId,t.status_cd statusCd,t.spec_cd specCd,t.value
+        from attendance_classes_task_attr t
+        where 1 =1
+        and t.status_cd= '0'
+        <if test="attrId !=null and attrId != ''">
+            and t.attr_id= #{attrId}
+        </if>
+        <if test="taskId !=null and taskId != ''">
+            and t.task_id= #{taskId}
+        </if>
+        order by t.create_time desc
+        <if test="page != -1 and page != null ">
+            limit #{page}, #{row}
+        </if>
+    </select>
+
+    <!-- 查询定时任务数量 add by wuxw 2018-07-03 -->
+    <select id="getAttendanceClassesTaskAttrCount"
+            parameterType="com.java110.entity.attendance.AttendanceClassesTaskAttrDto" resultType="long">
+        select count(1) count
+        from attendance_classes_task_attr t
+        where 1 =1
+        and t.status_cd= '0'
+        <if test="attrId !=null and attrId != ''">
+            and t.attr_id= #{attrId}
+        </if>
+        <if test="taskId !=null and taskId != ''">
+            and t.task_id= #{taskId}
+        </if>
+    </select>
+
+    <!-- 修改定时任务信息 add by wuxw 2018-07-03 -->
+    <update id="updateAttendanceClassesTaskAttrDto"
+            parameterType="com.java110.entity.attendance.AttendanceClassesTaskAttrDto">
+        update attendance_classes_task_attr t set t.status_cd = #{statusCd}
+        <if test="value !=null and value != ''">
+            , t.value= #{value}
+        </if>
+        where 1=1
+        <if test="attrId !=null and attrId != ''">
+            and t.attr_id= #{attrId}
+        </if>
+        <if test="taskId !=null and taskId != ''">
+            and t.task_id= #{taskId}
+        </if>
+        <if test="specCd !=null and specCd != ''">
+            and t.spec_cd= #{specCd}
+        </if>
+
+    </update>
+
+
+    <insert id="saveAttendanceClassesTaskDetail"
+            parameterType="com.java110.entity.attendance.AttendanceClassesTaskDetailDto">
+        INSERT INTO attendance_classes_task_detail(`detail_id`, `task_id`, `spec_cd`, `value`, `check_time`, `state`,
+        `face_path`,`remark`)
+        VALUES
+        (#{detailId},#{taskId},#{specCd},#{value},#{checkTime},#{state},#{facePath},#{remark}
+        )
+    </insert>
+
+    <!-- 查询定时任务信息 add by wuxw 2018-07-03 -->
+    <select id="getAttendanceClassesTaskDetails"
+            parameterType="com.java110.entity.attendance.AttendanceClassesTaskDetailDto"
+            resultType="com.java110.entity.attendance.AttendanceClassesTaskDetailDto">
+        select t.detail_id detailId,t.create_time createTime,t.task_id
+        taskId,t.status_cd statusCd,t.spec_cd specCd,t.value,t.check_time checkTime,t.state,t.face_path
+        facePath,t.remark,td.name specName,td1.name stateName
+        from attendance_classes_task_detail t
+        left join t_dict td on t.spec_cd = td.status_cd and td.table_name = 'attendance_classes_task_detail' and
+        td.table_columns = 'spec_cd'
+        left join t_dict td1 on t.state = td1.status_cd and td1.table_name = 'attendance_classes_task_detail' and
+        td1.table_columns = 'state'
+        where 1 =1
+        and t.status_cd= '0'
+        <if test="detailId !=null and detailId != ''">
+            and t.detail_id= #{detailId}
+        </if>
+        <if test="state !=null and state != ''">
+            and t.state= #{state}
+        </if>
+        <if test="specCd !=null and specCd != ''">
+            and t.spec_cd= #{specCd}
+        </if>
+        <if test="taskId !=null and taskId != ''">
+            and t.task_id= #{taskId}
+        </if>
+        order by t.create_time desc
+        <if test="page != -1 and page != null ">
+            limit #{page}, #{row}
+        </if>
+    </select>
+
+    <!-- 查询定时任务数量 add by wuxw 2018-07-03 -->
+    <select id="getAttendanceClassesTaskDetailCount"
+            parameterType="com.java110.entity.attendance.AttendanceClassesTaskDetailDto" resultType="long">
+        select count(1) count
+        from attendance_classes_task_detail t
+        where 1 =1
+        and t.status_cd= '0'
+        <if test="detailId !=null and detailId != ''">
+            and t.detail_id= #{detailId}
+        </if>
+        <if test="state !=null and state != ''">
+            and t.state= #{state}
+        </if>
+        <if test="specCd !=null and specCd != ''">
+            and t.spec_cd= #{specCd}
+        </if>
+        <if test="taskId !=null and taskId != ''">
+            and t.task_id= #{taskId}
+        </if>
+    </select>
+    <!-- 修改定时任务信息 add by wuxw 2018-07-03 -->
+    <update id="updateAttendanceClassesTaskDetailDto"
+            parameterType="com.java110.entity.attendance.AttendanceClassesTaskDetailDto">
+        update attendance_classes_task_detail t set t.status_cd = #{statusCd}
+        <if test="checkTime !=null ">
+            , t.check_time= #{checkTime}
+        </if>
+        <if test="state !=null and state !=''">
+            , t.state= #{state}
+        </if>
+        <if test="remark !=null and remark !=''">
+            , t.remark= #{remark}
+        </if>
+        <if test="facePath !=null and facePath !=''">
+            , t.face_path= #{facePath}
+        </if>
+        where 1=1
+        <if test="detailId !=null and detailId != ''">
+            and t.detail_id= #{detailId}
+        </if>
+        <if test="taskId !=null and taskId != ''">
+            and t.task_id= #{taskId}
+        </if>
+        <if test="specCd !=null and specCd != ''">
+            and t.spec_cd= #{specCd}
+        </if>
+
+    </update>
+
+
+    <insert id="saveStaffAttendanceLog"
+            parameterType="com.java110.entity.attendance.StaffAttendanceLogDto">
+        INSERT INTO staff_attendance_log (`log_id`, `staff_id`, `clock_time`, `req_param`)
+        VALUES
+        (#{logId},#{staffId},#{clockTime},#{reqParam})
+    </insert>
+
+    <!-- 查询定时任务信息 add by wuxw 2018-07-03 -->
+    <select id="getStaffAttendanceLogs"
+            parameterType="com.java110.entity.attendance.StaffAttendanceLogDto"
+            resultType="com.java110.entity.attendance.StaffAttendanceLogDto">
+        select t.log_id logId,t.create_time createTime,t.staff_id staffId,t.clock_time clockTime,t.req_param reqParam,
+        s.staff_name staffName,s.department_name departmentName
+        from staff_attendance_log t
+        LEFT JOIN staff s on t.staff_id = s.staff_id and s.status_cd = '0'
+        where 1 =1
+        <if test="staffName !=null and staffName != ''">
+            and s.staff_name like concat('%',#{staffName},'%')
+        </if>
+        <if test="departmentId !=null and departmentId != ''">
+            and s.department_id = #{departmentId}
+        </if>
+        <if test="logId !=null and logId != ''">
+            and t.log_id= #{logId}
+        </if>
+        <if test="staffId !=null and staffId != ''">
+            and t.staff_id= #{staffId}
+        </if>
+        <if test="clockTime !=null ">
+            and t.clock_time= #{clockTime}
+        </if>
+
+        <if test="startDate !=null and endDate != null">
+            and t.clock_time &gt;= #{startDate}
+            and t.clock_time &lt;= #{endDate}
+        </if>
+        order by t.create_time desc
+        <if test="page != -1 and page != null ">
+            limit #{page}, #{row}
+        </if>
+    </select>
+
+    <!-- 查询定时任务数量 add by wuxw 2018-07-03 -->
+    <select id="getStaffAttendanceLogCount"
+            parameterType="com.java110.entity.attendance.StaffAttendanceLogDto" resultType="long">
+        select count(1) count
+        from staff_attendance_log t
+        LEFT JOIN staff s on t.staff_id = s.staff_id and s.status_cd = '0'
+        where 1 =1
+        <if test="staffName !=null and staffName != ''">
+            and s.staff_name like concat('%',#{staffName},'%')
+        </if>
+        <if test="departmentId !=null and departmentId != ''">
+            and s.department_id = #{departmentId}
+        </if>
+        <if test="logId !=null and logId != ''">
+            and t.log_id= #{logId}
+        </if>
+        <if test="staffId !=null and staffId != ''">
+            and t.staff_id= #{staffId}
+        </if>
+        <if test="clockTime !=null ">
+            and t.clock_time= #{clockTime}
+        </if>
+    </select>
+
+
+    <!-- 查询定时任务信息 add by wuxw 2018-07-03 -->
+    <select id="getMonthAttendanceCount" parameterType="com.java110.entity.attendance.AttendanceClassesTaskDto"
+            resultType="long">
+        select count(1) count from (
+        select t.staff_id
+        from attendance_classes_task t
+        left join staff s on t.staff_id = s.staff_id and s.status_cd = '0'
+        where 1 =1
+        and t.status_cd= '0'
+        <if test="staffName !=null and staffName != ''">
+            and s.staff_name like concat('%',#{staffName},'%')
+        </if>
+        <if test="departmentId !=null and departmentId != ''">
+            and s.department_id = #{departmentId}
+        </if>
+        <if test="taskId !=null and taskId != ''">
+            and t.task_id= #{taskId}
+        </if>
+        <if test="classId !=null and classId != ''">
+            and t.class_id= #{classId}
+        </if>
+        <if test="staffId !=null and staffId != ''">
+            and t.staff_id= #{staffId}
+        </if>
+        <if test="taskYear !=null and taskYear != ''">
+            and t.task_year= #{taskYear}
+        </if>
+        <if test="taskMonth !=null and taskMonth != ''">
+            and t.task_month= #{taskMonth}
+        </if>
+        group by t.staff_id
+        ) tt
+    </select>
+
+
+    <!-- 查询定时任务信息 add by wuxw 2018-07-03 -->
+    <select id="getMonthAttendance" parameterType="com.java110.entity.attendance.AttendanceClassesTaskDto"
+            resultType="com.java110.entity.attendance.AttendanceClassesTaskDto">
+        select t.task_id taskId,t.class_id classId,t.staff_id staffId,
+        s.staff_name staffName,s.department_name departmentName,
+        (select count(1) from attendance_classes_task_detail b where t.task_id = b.task_id and b.state = '10000')
+        noClockIn,
+        (select count(1) from attendance_classes_task_detail b where t.task_id = b.task_id and b.state = '30000')
+        clockIn,
+        (select count(1) from attendance_classes_task_detail b where t.task_id = b.task_id and b.state = '40000') late,
+        (select count(1) from attendance_classes_task_detail b where t.task_id = b.task_id and b.state = '50000') early,
+        (select count(1) from attendance_classes_task_detail b where t.task_id = b.task_id and b.state = '60000') free
+        from attendance_classes_task t
+        left join staff s on t.staff_id = s.staff_id and s.status_cd = '0'
+        where 1 =1
+        and t.status_cd= '0'
+        <if test="staffName !=null and staffName != ''">
+            and s.staff_name like concat('%',#{staffName},'%')
+        </if>
+        <if test="departmentId !=null and departmentId != ''">
+            and s.department_id = #{departmentId}
+        </if>
+        <if test="taskId !=null and taskId != ''">
+            and t.task_id= #{taskId}
+        </if>
+        <if test="classId !=null and classId != ''">
+            and t.class_id= #{classId}
+        </if>
+        <if test="staffId !=null and staffId != ''">
+            and t.staff_id= #{staffId}
+        </if>
+        <if test="taskYear !=null and taskYear != ''">
+            and t.task_year= #{taskYear}
+        </if>
+        <if test="taskMonth !=null and taskMonth != ''">
+            and t.task_month= #{taskMonth}
+        </if>
+        group by t.staff_id
+        <if test="page != -1 and page != null ">
+            limit #{page}, #{row}
+        </if>
+    </select>
+
+</mapper>

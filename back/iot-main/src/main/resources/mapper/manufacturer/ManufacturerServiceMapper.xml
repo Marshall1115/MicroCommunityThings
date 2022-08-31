@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.java110.core.dao.IManufacturerServiceDao">
+
+
+    <!--
+        查询设备信息
+    -->
+    <select id="getManufacturers" parameterType="com.java110.entity.manufacturer.ManufacturerDto"
+            resultType="com.java110.entity.manufacturer.ManufacturerDto">
+        SELECT
+        t.hm_id hmId,
+        t.hm_name hmName,
+        t.version,
+        t.protocol_impl protocolImpl,
+        t.hm_type hmType,
+        t.author,
+        t.link,
+        t.license,
+        t.prod_url prodUrl,
+        t.create_time createTime,
+        t.default_protocol defaultProtocol
+        FROM
+        hardware_manufacturer t
+        WHERE
+        1 = 1
+        <if test="hmId != null and hmId != ''">
+            AND t.hm_id = #{hmId}
+        </if>
+        <if test="hmName != null and hmName != ''">
+            AND t.hm_name = #{hmName}
+        </if>
+        <if test="version != null and version != ''">
+            AND t.version = #{version}
+        </if>
+        <if test="protocolImpl != null and protocolImpl != ''">
+            AND t.protocol_impl = #{protocolImpl}
+        </if>
+        <if test="hmType != null and hmType != ''">
+            AND t.hm_type = #{hmType}
+        </if>
+        <if test="defaultProtocol != null and defaultProtocol != ''">
+            AND t.default_protocol = #{defaultProtocol}
+        </if>
+        AND t.status_cd = '0'
+        order by t.create_time desc
+        <if test="page != -1 and page != null ">
+            limit #{page}, #{row}
+        </if>
+
+    </select>
+
+    <select id="getManufacturerCount" parameterType="com.java110.entity.manufacturer.ManufacturerDto"
+            resultType="long">
+        select
+        count(1) count
+        FROM
+        hardware_manufacturer t
+        WHERE
+        1 = 1
+        <if test="hmId != null and hmId != ''">
+            AND t.hm_id = #{hmId}
+        </if>
+        <if test="hmName != null and hmName != ''">
+            AND t.hm_name = #{hmName}
+        </if>
+        <if test="version != null and version != ''">
+            AND t.version = #{version}
+        </if>
+        <if test="protocolImpl != null and protocolImpl != ''">
+            AND t.protocol_impl = #{protocolImpl}
+        </if>
+        <if test="hmType != null and hmType != ''">
+            AND t.hm_type = #{hmType}
+        </if>
+        <if test="defaultProtocol != null and defaultProtocol != ''">
+            AND t.default_protocol = #{defaultProtocol}
+        </if>
+        AND t.status_cd = '0'
+
+    </select>
+
+    <update id="updateManufacturer" parameterType="com.java110.entity.manufacturer.ManufacturerDto"
+    >
+        update hardware_manufacturer t
+        set t.default_protocol = #{defaultProtocol}
+        where
+        1=1
+        <if test="hmType != null and hmType != ''">
+            AND t.hm_type = #{hmType}
+        </if>
+        <if test="hmId != null and hmId != ''">
+            AND t.hm_id = #{hmId}
+        </if>
+        AND t.status_cd = '0'
+    </update>
+
+
+    <select id="getManufacturerAttr" parameterType="com.java110.entity.manufacturer.ManufacturerAttrDto"
+            resultType="com.java110.entity.manufacturer.ManufacturerAttrDto">
+        SELECT
+        t.hm_id hmId,
+        t.attr_id attrId,
+        t.spec_cd specCd,
+        t.value value,
+        hm.hm_name hmName,
+        hm.version,
+        hm.protocol_impl protocolImpl,
+        hm.hm_type hmType,
+        hm.author,
+        hm.link,
+        hm.license,
+        hm.prod_url prodUrl,
+        hm.create_time createTime,
+        hm.default_protocol defaultProtocol
+        FROM
+        hardware_manufacturer_attr t
+        LEFT JOIN hardware_manufacturer hm on t.hm_id = hm.hm_id
+        WHERE
+        1 = 1
+        <if test="hmId != null and hmId != ''">
+            AND t.hm_id = #{hmId}
+        </if>
+        <if test="specCd != null and specCd != ''">
+            AND t.spec_cd = #{specCd}
+        </if>
+        <if test="attrId != null and attrId != ''">
+            AND t.attr_id = #{attrId}
+        </if>
+        <if test="value != null and value != ''">
+            AND t.value = #{value}
+        </if>
+        AND t.status_cd = '0'
+        AND hm.status_cd = '0'
+        order by t.create_time desc
+
+    </select>
+
+</mapper>
