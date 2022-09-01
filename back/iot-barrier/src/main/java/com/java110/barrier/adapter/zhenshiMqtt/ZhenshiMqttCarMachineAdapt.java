@@ -181,10 +181,22 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
             ResultParkingAreaTextDto resultParkingAreaTextDto = callCarServiceImpl.ivsResult(type, license, machineDto);
 
             JinjieScreenMqttFactory.pay(machineDto, resultParkingAreaTextDto.getVoice());
-            JinjieScreenMqttFactory.downloadTempTexts(machineDto, 0, resultParkingAreaTextDto.getText1());
-            JinjieScreenMqttFactory.downloadTempTexts(machineDto, 1, resultParkingAreaTextDto.getText2(),(byte) 0x00,(byte) 0x03);
-            JinjieScreenMqttFactory.downloadTempTexts(machineDto, 2, resultParkingAreaTextDto.getText3());
-            JinjieScreenMqttFactory.downloadTempTexts(machineDto, 3, resultParkingAreaTextDto.getText4());
+            if(!StringUtil.isEmpty(resultParkingAreaTextDto.getText1())) {
+                Thread.sleep(300); //这里停一秒
+                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 0, resultParkingAreaTextDto.getText1());
+            }
+            if(!StringUtil.isEmpty(resultParkingAreaTextDto.getText2())) {
+                Thread.sleep(300); //这里停一秒
+                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 1, resultParkingAreaTextDto.getText2(),(byte) 0x00,(byte) 0x03);
+            }
+            if(!StringUtil.isEmpty(resultParkingAreaTextDto.getText3())) {
+                Thread.sleep(300); //这里停一秒
+                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 2, resultParkingAreaTextDto.getText3());
+            }
+            if(!StringUtil.isEmpty(resultParkingAreaTextDto.getText4())) {
+                Thread.sleep(300); //这里停一秒
+                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 3, resultParkingAreaTextDto.getText4());
+            }
             System.out.println("------------------------------------------------------耗时：" + (DateUtil.getCurrentDate().getTime() - startTime.getTime()));
 
             if (ResultParkingAreaTextDto.CODE_CAR_IN_SUCCESS == resultParkingAreaTextDto.getCode()
