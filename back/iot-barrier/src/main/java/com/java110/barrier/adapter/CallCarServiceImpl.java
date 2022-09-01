@@ -197,7 +197,7 @@ public class CallCarServiceImpl implements ICallCarService {
                     = new BarrierGateControlDto(BarrierGateControlDto.ACTION_FEE_INFO, carNum, machineDto, 0, carInoutDtos.get(0), carNum + ",免费车辆", "开门成功");
             sendInfo(barrierGateControlDto, machineDto.getLocationObjId(), machineDto);
             saveCarOutLog(carNum, machineDto, parkingAreaDtos, CarInoutDto.STATE_OUT, carNum + ",免费车辆");
-            return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_FREE_CAR_OUT_SUCCESS,  carNum,"内部车,一路平安","",  "", carNum + ",免费车辆", carNum);
+            return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_FREE_CAR_OUT_SUCCESS,  carNum,"内部车,一路平安","",  "", carNum + ",内部车,一路平安", carNum);
         }
 
         //判断车辆是否为月租车
@@ -206,7 +206,7 @@ public class CallCarServiceImpl implements ICallCarService {
         replaceParkingAreaTextCache(parkingAreaTextCacheDto, carNum, "", "", "", day + "");
 
         //说明是--------------------------------------------------------------------月租车---------------------------------------------------------------
-        if (day > -1) {
+        if (day > 0) {
             BarrierGateControlDto barrierGateControlDto
                     = new BarrierGateControlDto(BarrierGateControlDto.ACTION_FEE_INFO, carNum, machineDto, 0, carInoutDtos.get(0), carNum + ",月租车剩余" + day + "天", "开门成功");
             sendInfo(barrierGateControlDto, machineDto.getLocationObjId(), machineDto);
@@ -413,7 +413,7 @@ public class CallCarServiceImpl implements ICallCarService {
 
         int day = DateUtil.differentDays(DateUtil.getCurrentDate(), carDtos.get(0).getEndTime());
 
-        if (day < 0) {
+        if (day <= 0) {
             return -2;
         }
         return day;
@@ -436,6 +436,7 @@ public class CallCarServiceImpl implements ICallCarService {
         carBlackWhiteDto.setPaIds(paIds.toArray(new String[paIds.size()]));
         carBlackWhiteDto.setCarNum(carNum);
         carBlackWhiteDto.setBlackWhite(CarBlackWhiteDto.BLACK_WHITE_WHITE);
+        carBlackWhiteDto.setHasValid("Y");
         List<CarBlackWhiteDto> blackWhiteDtos = carBlackWhiteServiceImpl.queryCarBlackWhites(carBlackWhiteDto);
 
         //白名单直接出场
@@ -470,6 +471,7 @@ public class CallCarServiceImpl implements ICallCarService {
         carBlackWhiteDto.setPaIds(paIds.toArray(new String[paIds.size()]));
         carBlackWhiteDto.setCarNum(carNum);
         carBlackWhiteDto.setBlackWhite(CarBlackWhiteDto.BLACK_WHITE_BLACK);
+        carBlackWhiteDto.setHasValid("Y");
         List<CarBlackWhiteDto> blackWhiteDtos = carBlackWhiteServiceImpl.queryCarBlackWhites(carBlackWhiteDto);
 
         //黑名单车辆不能进入
@@ -505,7 +507,7 @@ public class CallCarServiceImpl implements ICallCarService {
         //替换脚本中信息
         replaceParkingAreaTextCache(parkingAreaTextCacheDto, carNum, "", "", "", day + "");
         // 说明是月租车
-        if (day > -1) {
+        if (day > 0) {
             if (parkingAreaTextCacheDto != null) { //配置了缓存
                 BarrierGateControlDto barrierGateControlDto
                         = new BarrierGateControlDto(BarrierGateControlDto.ACTION_FEE_INFO, carNum, machineDto, "月租车," + carNum + ",欢迎光临", "开门成功");
@@ -529,6 +531,15 @@ public class CallCarServiceImpl implements ICallCarService {
             sendInfo(barrierGateControlDto, machineDto.getLocationObjId(), machineDto);
             saveCarInLog(carNum, type, machineDto, parkingAreaDtos, CarInoutDto.STATE_IN, carNum + ",欢迎光临");
             return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_IN_SUCCESS, "月租车",carNum, "欢迎光临",  "", carNum + ",欢迎光临", carNum);
+        }
+
+        //月租车 已过期时 可以进场 只是提示未 浙CS8417，月租车，已过期
+        if(day == -2){
+            BarrierGateControlDto barrierGateControlDto
+                    = new BarrierGateControlDto(BarrierGateControlDto.ACTION_FEE_INFO, carNum, machineDto, carNum + ",已过期", "开门成功");
+            sendInfo(barrierGateControlDto, machineDto.getLocationObjId(), machineDto);
+            saveCarInLog(carNum, type, machineDto, parkingAreaDtos, CarInoutDto.STATE_IN, carNum + ",已过期");
+            return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_IN_SUCCESS, "月租车",carNum, "已过期",  "", "月租车,"+carNum + ",已过期", carNum);
         }
 
         // 说明是临时车

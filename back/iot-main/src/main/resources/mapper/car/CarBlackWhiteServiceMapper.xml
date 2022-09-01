@@ -49,6 +49,11 @@
         <if test="extBwId != null and extBwId !=''">
             and t.ext_bw_id = #{extBwId}
         </if>
+        <if test="hasValid != null and hasValid !=''">
+            and t.start_time &gt; now()
+            and t.end_time &lt; now()
+        </if>
+
         order by t.create_time desc
         <if test="page != -1 and page != null ">
             limit #{page}, #{row}
@@ -91,6 +96,10 @@
         </if>
         <if test="extBwId != null and extBwId !=''">
             and t.ext_bw_id = #{extBwId}
+        </if>
+        <if test="hasValid != null and hasValid !=''">
+            and t.start_time &gt; now()
+            and t.end_time &lt; now()
         </if>
 
     </select>

@@ -26,6 +26,7 @@ public class CarBlackWhiteDto extends PageDto implements Serializable {
     private String[] paIds;
     private String extPaId;
     private String blackWhite;
+    private String hasValid;
 
 
     public String getBwId() {
@@ -130,5 +131,13 @@ public class CarBlackWhiteDto extends PageDto implements Serializable {
 
     public void setPaIds(String[] paIds) {
         this.paIds = paIds;
+    }
+
+    public String getHasValid() {
+        return hasValid;
+    }
+
+    public void setHasValid(String hasValid) {
+        this.hasValid = hasValid;
     }
 }
