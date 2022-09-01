@@ -285,6 +285,11 @@ public class FeeExtController {
         tempCarPayOrderDto.setExtPaId(reqJson.getString("extPaId"));
         tempCarPayOrderDto.setOrderId(reqJson.getString("orderId"));
         tempCarPayOrderDto.setAmount(reqJson.getDouble("amount"));
+        if(reqJson.containsKey("payCharge")) {
+            tempCarPayOrderDto.setPayCharge(reqJson.getDouble("payCharge"));
+        }else{
+            tempCarPayOrderDto.setPayCharge(reqJson.getDouble("amount"));
+        }
         tempCarPayOrderDto.setPayTime(DateUtil.getDateFromString(reqJson.getString("payTime"),DateUtil.DATE_FORMATE_STRING_A));
         tempCarPayOrderDto.setPayType(reqJson.getString("payType"));
 

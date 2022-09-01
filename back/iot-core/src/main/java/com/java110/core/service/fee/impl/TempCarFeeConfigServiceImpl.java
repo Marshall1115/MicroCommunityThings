@@ -319,7 +319,9 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         carInoutDto.setPayType(tempCarPayOrderDto.getPayType());
         carInoutDto.setPayTime(tempCarPayOrderDto.getPayTime());
         carInoutDto.setRealCharge(tempCarPayOrderDto.getAmount() + "");
-        carInoutDto.setPayCharge(tempCarPayOrderDto.getAmount() + "");
+        if(tempCarPayOrderDto.getPayCharge() != 0){
+            carInoutDto.setPayCharge(tempCarPayOrderDto.getPayCharge() + "");
+        }
         carInoutDto.setInoutId(tempCarPayOrderDto.getOrderId());
         carInoutServiceImpl.updateCarInout(carInoutDto);
 
