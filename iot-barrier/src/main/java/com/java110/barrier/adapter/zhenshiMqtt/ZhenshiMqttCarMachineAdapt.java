@@ -16,24 +16,23 @@
 package com.java110.barrier.adapter.zhenshiMqtt;
 
 import com.alibaba.fastjson.JSONObject;
-
 import com.java110.barrier.adapter.ICallCarService;
 import com.java110.barrier.adapter.zhenshi.ZhenshiByteToString;
 import com.java110.core.adapt.BaseMachineAdapt;
 import com.java110.core.adapt.ICallAccessControlService;
 import com.java110.core.adapt.barrier.ICarMachineProcess;
 import com.java110.core.constant.ResponseConstant;
-import com.java110.entity.cloud.MachineHeartbeatDto;
-import com.java110.entity.machine.MachineDto;
-import com.java110.entity.parkingArea.ParkingAreaTextDto;
-import com.java110.entity.parkingArea.ResultParkingAreaTextDto;
-import com.java110.entity.response.ResultDto;
 import com.java110.core.factory.MappingCacheFactory;
 import com.java110.core.factory.NotifyAccessControlFactory;
 import com.java110.core.service.machine.IMachineService;
 import com.java110.core.util.DateUtil;
 import com.java110.core.util.SeqUtil;
 import com.java110.core.util.StringUtil;
+import com.java110.entity.cloud.MachineHeartbeatDto;
+import com.java110.entity.machine.MachineDto;
+import com.java110.entity.parkingArea.ParkingAreaTextDto;
+import com.java110.entity.parkingArea.ResultParkingAreaTextDto;
+import com.java110.entity.response.ResultDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -181,19 +180,19 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
             ResultParkingAreaTextDto resultParkingAreaTextDto = callCarServiceImpl.ivsResult(type, license, machineDto);
 
             JinjieScreenMqttFactory.pay(machineDto, resultParkingAreaTextDto.getVoice());
-            if(!StringUtil.isEmpty(resultParkingAreaTextDto.getText1())) {
+            if (!StringUtil.isEmpty(resultParkingAreaTextDto.getText1())) {
                 Thread.sleep(300); //这里停一秒
                 JinjieScreenMqttFactory.downloadTempTexts(machineDto, 0, resultParkingAreaTextDto.getText1());
             }
-            if(!StringUtil.isEmpty(resultParkingAreaTextDto.getText2())) {
+            if (!StringUtil.isEmpty(resultParkingAreaTextDto.getText2())) {
                 Thread.sleep(300); //这里停一秒
-                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 1, resultParkingAreaTextDto.getText2(),(byte) 0x00,(byte) 0x03);
+                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 1, resultParkingAreaTextDto.getText2(), (byte) 0x00, (byte) 0x03);
             }
-            if(!StringUtil.isEmpty(resultParkingAreaTextDto.getText3())) {
+            if (!StringUtil.isEmpty(resultParkingAreaTextDto.getText3())) {
                 Thread.sleep(300); //这里停一秒
                 JinjieScreenMqttFactory.downloadTempTexts(machineDto, 2, resultParkingAreaTextDto.getText3());
             }
-            if(!StringUtil.isEmpty(resultParkingAreaTextDto.getText4())) {
+            if (!StringUtil.isEmpty(resultParkingAreaTextDto.getText4())) {
                 Thread.sleep(300); //这里停一秒
                 JinjieScreenMqttFactory.downloadTempTexts(machineDto, 3, resultParkingAreaTextDto.getText4());
             }
@@ -208,7 +207,7 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
                     || ResultParkingAreaTextDto.CODE_CAR_OUT_SUCCESS == resultParkingAreaTextDto.getCode()
             ) {
                 Thread.sleep(1000); //这里停一秒
-               // openDoor(machineDto, null);
+                // openDoor(machineDto, null);
                 String triggerCmd = "{\n" +
                         "    \"Response_AlarmInfoPlate\": {\n" +
                         "        \"channelNum\": 0,\n" +
@@ -219,7 +218,6 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
                         "}";
                 ZhenshiMqttSend.sendCmd(machineDto, triggerCmd);
             }
-
 
 
         } catch (Exception e) {
@@ -256,27 +254,47 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
 
     @Override
     public void openDoor(MachineDto machineDto, ParkingAreaTextDto parkingAreaTextDto) {
-        // 发送开闸命令
-        String triggerCmd = "{\n" +
-                "    \"Response_AlarmInfoPlate\": {\n" +
-                "        \"channelNum\": 0,\n" +
-                "        \"delay\": 1000,\n" +
-                "        \"info\": \"ok\",\n" +
-                "        \"msgId\": \"" + SeqUtil.getId() + "\"\n" +
-                "    }\n" +
-                "}";
-        ZhenshiMqttSend.sendCmd(machineDto, triggerCmd);
+        try {
+            // 发送开闸命令
+            String triggerCmd = "{\n" +
+                    "    \"Response_AlarmInfoPlate\": {\n" +
+                    "        \"channelNum\": 0,\n" +
+                    "        \"delay\": 1000,\n" +
+                    "        \"info\": \"ok\",\n" +
+                    "        \"msgId\": \"" + SeqUtil.getId() + "\"\n" +
+                    "    }\n" +
+                    "}";
+            ZhenshiMqttSend.sendCmd(machineDto, triggerCmd);
 
-        if (parkingAreaTextDto == null) {
-            JinjieScreenMqttFactory.pay(machineDto, "欢迎光临");
-            JinjieScreenMqttFactory.downloadTempTexts(machineDto, 0, "欢迎光临");
-            return;
+            if (parkingAreaTextDto == null) {
+                JinjieScreenMqttFactory.pay(machineDto, "欢迎光临");
+                Thread.sleep(300); //这里停一秒
+                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 0, "欢迎光临");
+                return;
+            }
+            JinjieScreenMqttFactory.pay(machineDto, parkingAreaTextDto.getVoice());
+            if (!StringUtil.isEmpty(parkingAreaTextDto.getText1())) {
+                Thread.sleep(300); //这里停一秒
+                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 0, parkingAreaTextDto.getText1());
+            }
+            if(!StringUtil.isEmpty(parkingAreaTextDto.getText2())){
+                Thread.sleep(300); //这里停一秒
+                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 1, parkingAreaTextDto.getText2(), (byte) 0x00, (byte) 0x03);
+
+            }
+            if(!StringUtil.isEmpty(parkingAreaTextDto.getText3())){
+                Thread.sleep(300); //这里停一秒
+                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 2, parkingAreaTextDto.getText3());
+
+            }
+            if(!StringUtil.isEmpty(parkingAreaTextDto.getText4())){
+                Thread.sleep(300); //这里停一秒
+                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 3, parkingAreaTextDto.getText4());
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        JinjieScreenMqttFactory.pay(machineDto, parkingAreaTextDto.getVoice());
-        JinjieScreenMqttFactory.downloadTempTexts(machineDto, 0, parkingAreaTextDto.getText1());
-        JinjieScreenMqttFactory.downloadTempTexts(machineDto, 1, parkingAreaTextDto.getText2());
-        JinjieScreenMqttFactory.downloadTempTexts(machineDto, 2, parkingAreaTextDto.getText3());
-        JinjieScreenMqttFactory.downloadTempTexts(machineDto, 3, parkingAreaTextDto.getText4());
     }
 
     @Override
