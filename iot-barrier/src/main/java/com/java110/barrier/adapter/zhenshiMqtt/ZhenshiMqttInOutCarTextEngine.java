@@ -152,6 +152,9 @@ public class ZhenshiMqttInOutCarTextEngine implements IInOutCarTextEngine {
         return new InOutCarTextDto(carNum, "车未入场", carNum + ",车未入场");
     }
 
+    public InOutCarTextDto blackCarOut(String carNum, MachineDto machineDto, String defaultPaId){
+        return new InOutCarTextDto(carNum, "禁止通行", carNum + ",禁止通行", "此车为黑名单车辆" + carNum + ",禁止通行");
+    }
     /**
      * 11.0出场：白名单出场
      * @param carNum

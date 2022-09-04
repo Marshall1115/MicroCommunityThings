@@ -43,4 +43,29 @@ public class JudgeWhiteCarEngine {
 
         return false;
     }
+
+    public Boolean judgeBlackCar(MachineDto machineDto, String carNum,
+                                 List<ParkingAreaDto> parkingAreaDtos,
+                                 String type, List<CarInoutDto> carInoutDtos) throws Exception {
+        List<String> paIds = new ArrayList<>();
+        for (ParkingAreaDto parkingAreaDto : parkingAreaDtos) {
+            paIds.add(parkingAreaDto.getPaId());
+        }
+        //1.0 判断是否为黑名单
+        CarBlackWhiteDto carBlackWhiteDto = new CarBlackWhiteDto();
+        carBlackWhiteDto.setCommunityId(machineDto.getCommunityId());
+        carBlackWhiteDto.setPaIds(paIds.toArray(new String[paIds.size()]));
+        carBlackWhiteDto.setCarNum(carNum);
+        carBlackWhiteDto.setBlackWhite(CarBlackWhiteDto.BLACK_WHITE_BLACK);
+        carBlackWhiteDto.setHasValid("Y");
+        List<CarBlackWhiteDto> blackWhiteDtos = carBlackWhiteServiceImpl.queryCarBlackWhites(carBlackWhiteDto);
+
+        //白名单直接出场
+        CarInoutDto carInoutDto = null;
+        if (blackWhiteDtos != null && blackWhiteDtos.size() > 0) {
+            return true;
+        }
+
+        return false;
+    }
 }

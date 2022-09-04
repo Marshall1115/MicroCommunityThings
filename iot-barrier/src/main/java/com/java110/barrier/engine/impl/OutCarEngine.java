@@ -66,6 +66,13 @@ public class OutCarEngine extends CarEngine implements IOutCarEngine {
             return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_NO_IN, inOutCarTextDto, carNum);
         }
 
+        //判断是否为黑名单
+        if (judgeWhiteCarEngine.judgeBlackCar(machineDto, carNum, parkingAreaDtos, type, carInoutDtos)) {
+            inOutCarTextDto = inOutCarTextEngine.blackCarOut(carNum, machineDto, getDefaultPaId(parkingAreaDtos));
+            saveCarOutInfo(carNum,machineDto,inOutCarTextDto,0,"开门失败",carInoutDtos.get(0),parkingAreaDtos, CarInoutDto.STATE_OUT);
+
+            return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_OUT_ERROR, inOutCarTextDto, carNum);
+        }
         //判断是否为白名单
         if (judgeWhiteCarEngine.judgeWhiteCar(machineDto, carNum, parkingAreaDtos, type, carInoutDtos)) {
             inOutCarTextDto = inOutCarTextEngine.whiteCarOut(carNum, machineDto, getDefaultPaId(parkingAreaDtos));
@@ -73,6 +80,8 @@ public class OutCarEngine extends CarEngine implements IOutCarEngine {
 
             return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_FREE_CAR_OUT_SUCCESS, inOutCarTextDto, carNum);
         }
+
+
 
         // 判断是否为出售车辆
         if (CarDto.LEASE_TYPE_SALE.equals(carDayDto.getLeaseType())) {
