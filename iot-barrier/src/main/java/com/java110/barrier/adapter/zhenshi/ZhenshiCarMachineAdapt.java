@@ -17,8 +17,10 @@ package com.java110.barrier.adapter.zhenshi;
 
 import com.alibaba.fastjson.JSONObject;
 import com.java110.barrier.adapter.ICallCarService;
+import com.java110.barrier.engine.IInOutCarTextEngine;
 import com.java110.core.adapt.BaseMachineAdapt;
 import com.java110.core.adapt.barrier.ICarMachineProcess;
+import com.java110.core.factory.ApplicationContextFactory;
 import com.java110.entity.machine.MachineAttrDto;
 import com.java110.entity.machine.MachineDto;
 import com.java110.entity.parkingArea.ParkingAreaTextDto;
@@ -172,8 +174,9 @@ public class ZhenshiCarMachineAdapt extends BaseMachineAdapt implements ICarMach
             String license = plateResult.getString("license");
 
             machineDto.setPhotoJpg(reqData.getString("photoJpg"));
+            IInOutCarTextEngine inOutCarTextEngine = ApplicationContextFactory.getBean("zhenshiInOutCarTextEngine", IInOutCarTextEngine.class);
 
-            ResultParkingAreaTextDto resultParkingAreaTextDto = callCarServiceImpl.ivsResult(type, license, machineDto);
+            ResultParkingAreaTextDto resultParkingAreaTextDto = callCarServiceImpl.ivsResult(type, license, machineDto,inOutCarTextEngine);
             JinjieScreenFactory.pay(machineDto, resultParkingAreaTextDto.getVoice());
             JinjieScreenFactory.downloadTempTexts(machineDto, 1, resultParkingAreaTextDto.getText1());
             JinjieScreenFactory.downloadTempTexts(machineDto, 2, resultParkingAreaTextDto.getText2());

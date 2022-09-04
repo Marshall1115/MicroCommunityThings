@@ -1,5 +1,4 @@
-package com.java110.barrier.adapter.zhenshiMqtt;
-
+package com.java110.barrier.adapter.daxiaohuangfeng;
 
 import com.java110.barrier.engine.IInOutCarTextEngine;
 import com.java110.entity.car.CarDayDto;
@@ -8,11 +7,8 @@ import com.java110.entity.machine.MachineDto;
 import com.java110.entity.parkingArea.InOutCarTextDto;
 import org.springframework.stereotype.Service;
 
-/**
- * 主要用户 回复语自定义
- */
 @Service
-public class ZhenshiMqttInOutCarTextEngine implements IInOutCarTextEngine {
+public class HuangfengInOutCarTextEngine implements IInOutCarTextEngine {
     /**
      * 1.0入场：黑名单禁止入场
      * @param carNum

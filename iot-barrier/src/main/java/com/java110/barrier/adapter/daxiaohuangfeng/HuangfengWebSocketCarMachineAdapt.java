@@ -18,10 +18,12 @@ package com.java110.barrier.adapter.daxiaohuangfeng;
 import com.alibaba.fastjson.JSONObject;
 import com.java110.barrier.adapter.ICallCarService;
 import com.java110.barrier.adapter.zhenshi.ZhenshiByteToString;
+import com.java110.barrier.engine.IInOutCarTextEngine;
 import com.java110.core.adapt.BaseMachineAdapt;
 import com.java110.core.adapt.ICallAccessControlService;
 import com.java110.core.adapt.barrier.ICarMachineProcess;
 import com.java110.core.constant.ResponseConstant;
+import com.java110.core.factory.ApplicationContextFactory;
 import com.java110.core.factory.ImageFactory;
 import com.java110.core.factory.NotifyAccessControlFactory;
 import com.java110.core.service.machine.IMachineService;
@@ -219,7 +221,9 @@ public class HuangfengWebSocketCarMachineAdapt extends BaseMachineAdapt implemen
                 machineDto.setPhotoJpg(imagePath);
             }
 
-            ResultParkingAreaTextDto resultParkingAreaTextDto = callCarServiceImpl.ivsResult(type, license, machineDto);
+            IInOutCarTextEngine inOutCarTextEngine = ApplicationContextFactory.getBean("huangfengInOutCarTextEngine", IInOutCarTextEngine.class);
+
+            ResultParkingAreaTextDto resultParkingAreaTextDto = callCarServiceImpl.ivsResult(type, license, machineDto,inOutCarTextEngine);
 
 
             if (ResultParkingAreaTextDto.CODE_CAR_IN_SUCCESS == resultParkingAreaTextDto.getCode()
