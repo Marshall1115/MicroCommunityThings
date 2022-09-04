@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface IInCarEngine {
 
-    ResultParkingAreaTextDto enterParkingArea(String type, String carNum, MachineDto machineDto, List<ParkingAreaDto> parkingAreaDtos) throws Exception;
+    ResultParkingAreaTextDto enterParkingArea(String type, String carNum, MachineDto machineDto, List<ParkingAreaDto> parkingAreaDtos,IInOutCarTextEngine inOutCarTextEngine) throws Exception;
 }

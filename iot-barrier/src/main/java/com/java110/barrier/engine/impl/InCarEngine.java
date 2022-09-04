@@ -46,14 +46,13 @@ public class InCarEngine extends CarEngine implements IInCarEngine {
      * @param machineDto 设备信息
      * @return
      */
-    public ResultParkingAreaTextDto enterParkingArea(String type, String carNum, MachineDto machineDto, List<ParkingAreaDto> parkingAreaDtos) throws Exception {
+    public ResultParkingAreaTextDto enterParkingArea(String type, String carNum, MachineDto machineDto, List<ParkingAreaDto> parkingAreaDtos,IInOutCarTextEngine inOutCarTextEngine) throws Exception {
 
 
         //1.0 判断是否为黑名单
         List<String> paIds = new ArrayList<>();
         for (ParkingAreaDto parkingAreaDto : parkingAreaDtos) {
             paIds.add(parkingAreaDto.getPaId());
-
         }
 
         CarBlackWhiteDto carBlackWhiteDto = new CarBlackWhiteDto();

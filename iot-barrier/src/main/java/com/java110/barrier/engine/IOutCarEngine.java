@@ -17,5 +17,5 @@ public interface IOutCarEngine {
      * @return
      * @throws Exception
      */
-    ResultParkingAreaTextDto outParkingArea(String type, String carNum, MachineDto machineDto, List<ParkingAreaDto> parkingAreaDtos) throws Exception;
+    ResultParkingAreaTextDto outParkingArea(String type, String carNum, MachineDto machineDto, List<ParkingAreaDto> parkingAreaDtos,IInOutCarTextEngine inOutCarTextEngine) throws Exception;
 }

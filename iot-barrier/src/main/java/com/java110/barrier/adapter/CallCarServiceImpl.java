@@ -1,6 +1,7 @@
 package com.java110.barrier.adapter;
 
 import com.java110.barrier.engine.IInCarEngine;
+import com.java110.barrier.engine.IInOutCarTextEngine;
 import com.java110.barrier.engine.IOutCarEngine;
 import com.java110.barrier.engine.SendInfoEngine;
 import com.java110.core.adapt.IComputeTempCarFee;
@@ -88,7 +89,7 @@ public class CallCarServiceImpl implements ICallCarService {
 
 
     @Override
-    public ResultParkingAreaTextDto ivsResult(String type, String carNum, MachineDto machineDto) throws Exception {
+    public ResultParkingAreaTextDto ivsResult(String type, String carNum, MachineDto machineDto, IInOutCarTextEngine inOutCarTextEngine) throws Exception {
 
 
         String machineDirection = machineDto.getDirection();
@@ -107,10 +108,10 @@ public class CallCarServiceImpl implements ICallCarService {
         sendInfoEngine.sendInfo(barrierGateControlDto, machineDto.getLocationObjId(), machineDto);
         switch (machineDirection) {
             case MachineDto.MACHINE_DIRECTION_ENTER: // 车辆进场
-                resultParkingAreaTextDto = inCarEngine.enterParkingArea(type, carNum, machineDto, parkingAreaDtos);
+                resultParkingAreaTextDto = inCarEngine.enterParkingArea(type, carNum, machineDto, parkingAreaDtos,inOutCarTextEngine);
                 break;
             case MachineDto.MACHINE_DIRECTION_OUT://车辆出场
-                resultParkingAreaTextDto = outCarEngine.outParkingArea(type, carNum, machineDto, parkingAreaDtos);
+                resultParkingAreaTextDto = outCarEngine.outParkingArea(type, carNum, machineDto, parkingAreaDtos,inOutCarTextEngine);
 //                if (resultParkingAreaTextDto.getCode()
 //                        == ResultParkingAreaTextDto.CODE_CAR_OUT_SUCCESS
 //                        || resultParkingAreaTextDto.getCode()
