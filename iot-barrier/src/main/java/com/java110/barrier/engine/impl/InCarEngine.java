@@ -70,6 +70,21 @@ public class InCarEngine extends CarEngine implements IInCarEngine {
             return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_BLACK, inOutCarTextDto, carNum);
         }
 
+        carBlackWhiteDto = new CarBlackWhiteDto();
+        carBlackWhiteDto.setCommunityId(machineDto.getCommunityId());
+        carBlackWhiteDto.setPaIds(paIds.toArray(new String[paIds.size()]));
+        carBlackWhiteDto.setCarNum(carNum);
+        carBlackWhiteDto.setBlackWhite(CarBlackWhiteDto.BLACK_WHITE_WHITE);
+        carBlackWhiteDto.setHasValid("Y");
+         blackWhiteDtos = carBlackWhiteServiceImpl.queryCarBlackWhites(carBlackWhiteDto);
+
+        //白名单车辆进场
+        if (blackWhiteDtos != null && blackWhiteDtos.size() > 0) {
+            inOutCarTextDto = inOutCarTextEngine.whiteCarCanIn(carNum, machineDto, getDefaultPaId(parkingAreaDtos));
+            saveCarInInfo(carNum, machineDto, inOutCarTextDto, "开门成功", type, parkingAreaDtos, CarInoutDto.STATE_IN);
+            return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_IN_SUCCESS, inOutCarTextDto, carNum);
+        }
+
         //判断车辆是否为月租车
         CarDayDto carDayDto = judgeOwnerCarEngine.judgeOwnerCar(machineDto, carNum, parkingAreaDtos);
         //判断车辆是否在 场内

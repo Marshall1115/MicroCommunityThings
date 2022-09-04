@@ -26,6 +26,18 @@ public class ZhenshiMqttInOutCarTextEngine implements IInOutCarTextEngine {
     }
 
     /**
+     * 1.0入场：白名单入场
+     * @param carNum
+     * @param machineDto
+     * @param paId
+     * @return
+     */
+    @Override
+    public InOutCarTextDto whiteCarCanIn(String carNum, MachineDto machineDto, String paId) {
+        return new InOutCarTextDto("内部车",carNum, "欢迎光临","", "内部车,"+carNum + ",欢迎光临");
+    }
+
+    /**
      * 2.0入场：车辆在场
      * @param carNum
      * @param machineDto

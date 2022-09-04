@@ -19,6 +19,16 @@ public interface IInOutCarTextEngine {
      */
     InOutCarTextDto blackCarCannotIn(String carNum, MachineDto machineDto, String paId);
 
+
+    /**
+     * 白名单车辆进入
+     * @param carNum
+     * @param machineDto
+     * @param defaultPaId
+     * @return
+     */
+    InOutCarTextDto whiteCarCanIn(String carNum, MachineDto machineDto, String defaultPaId);
+
     /**
      * 2.0 车辆已经在场
      * @param carNum
@@ -197,4 +207,5 @@ public interface IInOutCarTextEngine {
      * @return
      */
     InOutCarTextDto carOutNeedPayFee(String carNum, MachineDto machineDto, String defaultPaId, CarDayDto carDayDto, TempCarFeeResult result);
+
 }
