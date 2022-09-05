@@ -1,5 +1,6 @@
 package com.java110.gateway.mqtt;
 
+import com.java110.core.util.SeqUtil;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
@@ -47,6 +48,7 @@ public class MqttConfig {
     @ConditionalOnBean(name = "manufacturerServiceImpl")
     public MqttClient mqttClient() {
         MqttClient client = null;
+        clientId = SeqUtil.getId();
         try {
             client = new MqttClient(hostUrl, clientId, new MemoryPersistence());
             MqttConnectOptions option = new MqttConnectOptions();

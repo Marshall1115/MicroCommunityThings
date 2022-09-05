@@ -44,17 +44,58 @@ public class MqttPushCallback implements MqttCallbackExtended {
         log.error("连接断开", cause);
         while (true) {
             try {
-                Thread.sleep(3000);
+                if(client.isConnected()){
+                    log.debug("连接mqtt 成功");
+                    break;
+                }
+
                 // 重新连接
                 client.connect(option);
-                //break;
+
+                //client.reconnect();
+
+                //重新订阅消息
+                subscribeMqtt();
+                Thread.sleep(3000);
             } catch (Exception e) {
-               // e.printStackTrace();
+                e.printStackTrace();
                //continue;
             }
-            if(client.isConnected()){
-                break;
-            }
+
+        }
+    }
+
+    private void subscribeMqtt() {
+
+        // 臻识mqtt订阅
+        MqttFactory.subscribe("/device/push/result");
+        //注册伊兰度设备
+        IMachineService machineService = ApplicationContextFactory.getBean("machineServiceImpl", IMachineService.class);
+
+        MachineDto machineDto = new MachineDto();
+        machineDto.setHmId("3");
+        List<MachineDto> machineDtos = machineService.queryMachines(machineDto);
+        if (machineDtos == null || machineDtos.size() < 1) {
+            return;
+        }
+
+        for (MachineDto machineDto1 : machineDtos) {
+            MqttFactory.subscribe("face." + machineDto1.getMachineCode() + ".response");
+        }
+
+
+        IManufacturerService manufacturerServiceImpl = ApplicationContextFactory.getBean("manufacturerServiceImpl", IManufacturerService.class);
+        ManufacturerAttrDto tmpManufacturerDto = new ManufacturerAttrDto();
+        tmpManufacturerDto.setSpecCd(ManufacturerAttrDto.SPEC_TOPIC);
+        List<ManufacturerAttrDto> manufacturerAttrDtos = manufacturerServiceImpl.getManufacturerAttr(tmpManufacturerDto);
+
+        if (manufacturerAttrDtos == null || manufacturerAttrDtos.size() < 1) {
+            return;
+        }
+
+        //批量订阅
+        for (ManufacturerAttrDto manufacturerAttrDto : manufacturerAttrDtos) {
+            MqttFactory.subscribe(manufacturerAttrDto.getValue());
         }
     }
 
