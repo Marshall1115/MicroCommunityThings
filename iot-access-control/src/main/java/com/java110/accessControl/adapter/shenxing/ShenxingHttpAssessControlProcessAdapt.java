@@ -251,9 +251,9 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
         paramIn.put("card_number", userFaceDto.getIdNumber());
         paramIn.put("person_code", userFaceDto.getUserId() + "1");
 
-        JSONArray groupList = new JSONArray();
-        groupList.add(machineDto.getThirdMachineId().split("::")[1]);
-        paramIn.put("group_list", groupList);
+//        JSONArray groupList = new JSONArray();
+//        groupList.add(machineDto.getThirdMachineId().split("::")[1]);
+//        paramIn.put("group_list", groupList);
 
         JSONArray faceList = new JSONArray();
 
