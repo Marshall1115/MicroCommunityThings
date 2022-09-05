@@ -69,7 +69,7 @@ public class OutCarEngine extends CarEngine implements IOutCarEngine {
         //判断是否为黑名单
         if (judgeWhiteCarEngine.judgeBlackCar(machineDto, carNum, parkingAreaDtos, type, carInoutDtos)) {
             inOutCarTextDto = inOutCarTextEngine.blackCarOut(carNum, machineDto, getDefaultPaId(parkingAreaDtos));
-            saveCarOutInfo(carNum,machineDto,inOutCarTextDto,0,"开门失败",carInoutDtos.get(0),parkingAreaDtos, CarInoutDto.STATE_OUT);
+            saveCarOutInfo(carNum,machineDto,inOutCarTextDto,0,"开门失败",carInoutDtos.get(0),parkingAreaDtos, CarInoutDto.STATE_IN_FAIL);
 
             return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_OUT_ERROR, inOutCarTextDto, carNum);
         }
