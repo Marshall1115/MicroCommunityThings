@@ -356,7 +356,8 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
 
     @Override
     public void restartMachine(MachineDto machineDto) {
-        HttpEntity httpEntity = new HttpEntity("{}", ShenxingFactory.getHeader(machineDto.getMachineCode(), restTemplate));
+        JSONObject param = new JSONObject();
+        HttpEntity httpEntity = new HttpEntity(param, ShenxingFactory.getHeader(machineDto.getMachineCode(), restTemplate));
         ResponseEntity<String> responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_REBOOT , HttpMethod.GET, httpEntity, String.class);
         logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
         if (responseEntity.getStatusCode().value()  >= 400) {
@@ -367,7 +368,8 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
 
     @Override
     public void openDoor(MachineDto machineDto) {
-        HttpEntity httpEntity = new HttpEntity("{}", ShenxingFactory.getHeader(machineDto.getMachineCode(), restTemplate));
+        JSONObject param = new JSONObject();
+        HttpEntity httpEntity = new HttpEntity(param, ShenxingFactory.getHeader(machineDto.getMachineCode(), restTemplate));
         ResponseEntity<String> responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_OPEN_DOOR , HttpMethod.POST, httpEntity, String.class);
         logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
         if (responseEntity.getStatusCode().value()  >= 400) {
