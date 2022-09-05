@@ -4,9 +4,9 @@
 
     <insert id="saveCar" parameterType="com.java110.entity.car.CarDto">
         INSERT INTO car(`car_id`, `car_num`, `start_time`, `end_time`, `create_time`, `status_cd`,
-        `community_id`,ext_car_id,person_name,person_tel,pa_id,card_id)
+        `community_id`,ext_car_id,person_name,person_tel,pa_id,card_id,lease_type)
         VALUES (#{carId}, #{carNum}, #{startTime}, #{endTime}, #{createTime}, '0',
-        #{communityId},#{extCarId},#{personName},#{personTel},#{paId},#{cardId})
+        #{communityId},#{extCarId},#{personName},#{personTel},#{paId},#{cardId},#{leaseType})
     </insert>
 
     <!--
@@ -25,6 +25,7 @@
         t.person_tel personTel,
         t.pa_id paId,
         t.card_id cardId,
+        t.lease_type leaseType,
         pa.ext_pa_id extPaId
         from car t
         left join parking_area pa on t.pa_id = pa.pa_id and pa.status_cd = '0'
@@ -41,6 +42,9 @@
         </if>
         <if test="extCarId != null and extCarId != ''">
             and t.ext_car_id = #{extCarId}
+        </if>
+        <if test="leaseType != null and leaseType != ''">
+            and t.lease_type = #{leaseType}
         </if>
         <if test="paId != null and paId != ''">
             and t.pa_id = #{paId}
@@ -76,6 +80,9 @@
         <if test="extCarId != null and extCarId != ''">
             and t.ext_car_id = #{extCarId}
         </if>
+        <if test="leaseType != null and leaseType != ''">
+            and t.lease_type = #{leaseType}
+        </if>
         <if test="paId != null and paId != ''">
             and t.pa_id = #{extCarId}
         </if>
@@ -106,6 +113,9 @@
             </if>
             <if test="cardId != null and cardId != ''">
                 t.card_id = #{cardId},
+            </if>
+            <if test="leaseType != null and leaseType != ''">
+                t.lease_type = #{leaseType},
             </if>
         </trim>
         where 1=1

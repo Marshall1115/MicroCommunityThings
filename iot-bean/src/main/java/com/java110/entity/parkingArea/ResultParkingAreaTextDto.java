@@ -36,6 +36,16 @@ public class ResultParkingAreaTextDto extends ParkingAreaTextDto implements Seri
     public ResultParkingAreaTextDto() {
     }
 
+    public ResultParkingAreaTextDto(int code,InOutCarTextDto inOutCarTextDto,String carNum){
+        this.code = code;
+        this.setText1(inOutCarTextDto.getText1());
+        this.setText2(inOutCarTextDto.getText2());
+        this.setText3(inOutCarTextDto.getText3());
+        this.setText4(inOutCarTextDto.getText4());
+        this.setVoice(inOutCarTextDto.getVoice());
+        this.setCarNum(carNum);
+    }
+
 
     public ResultParkingAreaTextDto(int code, String text1, String text2, String text3, String text4, String voice, String carNum) {
         this.code = code;

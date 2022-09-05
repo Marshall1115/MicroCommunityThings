@@ -18,10 +18,12 @@ package com.java110.barrier.adapter.zhenshiMqtt;
 import com.alibaba.fastjson.JSONObject;
 import com.java110.barrier.adapter.ICallCarService;
 import com.java110.barrier.adapter.zhenshi.ZhenshiByteToString;
+import com.java110.barrier.engine.IInOutCarTextEngine;
 import com.java110.core.adapt.BaseMachineAdapt;
 import com.java110.core.adapt.ICallAccessControlService;
 import com.java110.core.adapt.barrier.ICarMachineProcess;
 import com.java110.core.constant.ResponseConstant;
+import com.java110.core.factory.ApplicationContextFactory;
 import com.java110.core.factory.MappingCacheFactory;
 import com.java110.core.factory.NotifyAccessControlFactory;
 import com.java110.core.service.machine.IMachineService;
@@ -59,6 +61,7 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
 
     @Autowired
     private ICallCarService callCarServiceImpl;
+
 
     @Override
     public void initCar() {
@@ -177,7 +180,9 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
                 machineDto.setPhotoJpg(MappingCacheFactory.getValue("OSS_URL") + plateResult.getString("imagePath"));
             }
 
-            ResultParkingAreaTextDto resultParkingAreaTextDto = callCarServiceImpl.ivsResult(type, license, machineDto);
+            IInOutCarTextEngine inOutCarTextEngine = ApplicationContextFactory.getBean("zhenshiMqttInOutCarTextEngine", IInOutCarTextEngine.class);
+
+            ResultParkingAreaTextDto resultParkingAreaTextDto = callCarServiceImpl.ivsResult(type, license, machineDto,inOutCarTextEngine);
 
             JinjieScreenMqttFactory.pay(machineDto, resultParkingAreaTextDto.getVoice());
             if (!StringUtil.isEmpty(resultParkingAreaTextDto.getText1())) {

@@ -1,6 +1,7 @@
 package com.java110.barrier.adapter;
 
 
+import com.java110.barrier.engine.IInOutCarTextEngine;
 import com.java110.entity.machine.MachineDto;
 import com.java110.entity.parkingArea.ResultParkingAreaTextDto;
 
@@ -41,6 +42,6 @@ public interface ICallCarService {
      *     msg:说明原因
      * }
      */
-    public ResultParkingAreaTextDto ivsResult(String type, String carNum, MachineDto machineDto) throws Exception;
+    public ResultParkingAreaTextDto ivsResult(String type, String carNum, MachineDto machineDto, IInOutCarTextEngine inOutCarTextEngine) throws Exception;
 
 }

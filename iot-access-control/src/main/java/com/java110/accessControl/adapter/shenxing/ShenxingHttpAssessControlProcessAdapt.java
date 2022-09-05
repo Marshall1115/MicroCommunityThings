@@ -7,7 +7,6 @@ import com.java110.core.adapt.ICallAccessControlService;
 import com.java110.core.factory.MappingCacheFactory;
 import com.java110.core.factory.NotifyAccessControlFactory;
 import com.java110.core.service.machine.IMachineService;
-import com.java110.core.thread.AddUpdateFace;
 import com.java110.core.util.DateUtil;
 import com.java110.core.util.SeqUtil;
 import com.java110.core.util.StringUtil;
@@ -22,8 +21,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
@@ -68,6 +71,7 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
 
 
     public static final String CMD_DELETE_FACE = "/api/persons/item/"; //删除人脸
+    public static final String CMD_GET_FACE = "/api/persons/item/"; //查询人脸
     public static final String CMD_RESET = "/device/reset"; //设备重置
 
 
@@ -117,7 +121,7 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
         ResponseEntity<String> responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + ADD_MACHINE, HttpMethod.POST, httpEntity, String.class);
         logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
         saveLog(SeqUtil.getId(), machineDto.getMachineId(), CMD_ADD_FACE_FIND, paramIn.toJSONString(), responseEntity.getBody());
-        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+        if (responseEntity.getStatusCode().value() >= 400) {
             throw new IllegalStateException("请求添加权限组失败" + responseEntity);
         }
 
@@ -135,9 +139,11 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
         paramIn.put("schedule_id", paramOut.getString("id"));
         //paramIn.put("request_id","");
         httpEntity = new HttpEntity(paramIn.toJSONString(), ShenxingFactory.getHeader(machineDto.getMachineCode(), restTemplate));
+
         responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + ADD_GROUP, HttpMethod.POST, httpEntity, String.class);
+
         logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
-        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+        if (responseEntity.getStatusCode().value() >= 400) {
             throw new IllegalStateException("请求添加权限组失败" + responseEntity);
         }
 
@@ -161,7 +167,7 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
         ResponseEntity<String> responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + DELETE_GROUP + extMachineIds[1], HttpMethod.DELETE, httpEntity, String.class);
         logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
         saveLog(SeqUtil.getId(), machineDto.getMachineId(), DELETE_GROUP, machineDto.getExtMachineId(), responseEntity.getBody());
-        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+        if (responseEntity.getStatusCode().value() >= 400) {
             throw new IllegalStateException("请求添加权限组失败" + responseEntity);
         }
 
@@ -175,7 +181,7 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
         responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + DELETE_MACHINE + extMachineIds[0], HttpMethod.DELETE, httpEntity, String.class);
         logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
         saveLog(SeqUtil.getId(), machineDto.getMachineId(), DELETE_MACHINE, machineDto.getExtMachineId(), responseEntity.getBody());
-        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+        if (responseEntity.getStatusCode().value() >= 400) {
             throw new IllegalStateException("请求添加权限组失败" + responseEntity);
         }
 
@@ -195,43 +201,20 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
 
     @Override
     public String getFace(MachineDto machineDto, UserFaceDto userFaceDto) {
-
-        String password = MappingCacheFactory.getValue(MappingCacheFactory.SYSTEM_DOMAIN, "ASSESS_PASSWORD");
-        String url = "http://" + machineDto.getMachineIp() + CMD_ADD_FACE_FIND;
-        JSONObject param = new JSONObject();
-        param.put("pass", password);
-        param.put("personId", userFaceDto.getUserId());
-        //添加人脸
-        HttpHeaders httpHeaders = new HttpHeaders();
-        HttpEntity httpEntity = new HttpEntity(param.toJSONString(), httpHeaders);
-        ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
+        HttpEntity httpEntity = new HttpEntity("", ShenxingFactory.getHeader(machineDto.getMachineCode(), restTemplate));
+        ResponseEntity<String> responseEntity = null;
+        try {
+            responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_GET_FACE + userFaceDto.getUserId(), HttpMethod.DELETE, httpEntity, String.class);
+        } catch (Exception e) {
+            return "-1";
+        }
         logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
-        saveLog(SeqUtil.getId(), machineDto.getMachineId(), CMD_ADD_FACE_FIND, param.toJSONString(), responseEntity.getBody());
-
-
-        if (HttpStatus.OK != responseEntity.getStatusCode()) {
-            return AddUpdateFace.MACHINE_HAS_NOT_FACE;
+        if (responseEntity.getStatusCode().value() >= 400) {
+            return "-1";
         }
 
-        JSONObject outParam = JSONObject.parseObject(responseEntity.getBody());
 
-        if (!outParam.containsKey("data")) {
-            return AddUpdateFace.MACHINE_HAS_NOT_FACE;
-        }
-
-        JSONArray data = outParam.getJSONArray("data");
-
-        if (data == null || data.size() < 1) {
-            return AddUpdateFace.MACHINE_HAS_NOT_FACE;
-        }
-
-        String personId = data.getJSONObject(0).getString("personId");
-
-        if (StringUtil.isEmpty(personId)) {
-            return AddUpdateFace.MACHINE_HAS_NOT_FACE;
-        }
-
-        return personId;
+        return userFaceDto.getUserId();
     }
 
     @Override
@@ -247,28 +230,32 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
         paramIn.put("person_code", userFaceDto.getUserId() + "1");
 
         JSONArray groupList = new JSONArray();
-        groupList.add(machineDto.getExtMachineId().split("::")[1]);
+        groupList.add(machineDto.getThirdMachineId().split("::")[1]);
         paramIn.put("group_list", groupList);
 
         JSONArray faceList = new JSONArray();
 
         JSONObject face = new JSONObject();
         face.put("idx", 1);
-        face.put("data", userFaceDto.getFaceBase64());
+        face.put("data", userFaceDto.getFaceBase64().replaceAll("\n", ""));
         faceList.add(face);
         paramIn.put("face_list", faceList);
         //paramIn.put("request_id","");
         HttpEntity httpEntity = new HttpEntity(paramIn.toJSONString(), ShenxingFactory.getHeader(machineDto.getMachineCode(), restTemplate));
-        ResponseEntity<String> responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_ADD_USER, HttpMethod.POST, httpEntity, String.class);
-        logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
-        if (responseEntity.getStatusCode() != HttpStatus.OK) {
-            throw new IllegalStateException("请求添加权限组失败" + responseEntity);
-        }
-
-        JSONObject paramOut = JSONObject.parseObject(responseEntity.getBody());
-
-        if (!paramOut.containsKey("id")) {
-            throw new IllegalStateException("添加人员失败" + responseEntity);
+        JSONObject paramOut = null;
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_ADD_USER, HttpMethod.POST, httpEntity, String.class);
+            logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
+            if (responseEntity.getStatusCode().value() >= 400) {
+                throw new IllegalStateException("请求人脸失败" + responseEntity);
+            }
+            paramOut = JSONObject.parseObject(responseEntity.getBody());
+            if (!paramOut.containsKey("id")) {
+                throw new IllegalStateException("添加人员失败" + responseEntity);
+            }
+        } catch (HttpStatusCodeException e) {
+            JSONObject errrors = JSONObject.parseObject(e.getResponseBodyAsString());
+            throw new IllegalStateException("添加人脸失败：" + errrors.getJSONArray("errors").getJSONObject(0).getString("detail"));
         }
 
         return new ResultDto(ResultDto.SUCCESS, "成功");
@@ -284,9 +271,9 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
         paramIn.put("card_number", userFaceDto.getIdNumber());
         paramIn.put("person_code", userFaceDto.getUserId() + "1");
 
-        JSONArray groupList = new JSONArray();
-        groupList.add(machineDto.getExtMachineId().split("::")[1]);
-        paramIn.put("group_list", groupList);
+//        JSONArray groupList = new JSONArray();
+//        groupList.add(machineDto.getThirdMachineId().split("::")[1]);
+//        paramIn.put("group_list", groupList);
 
         JSONArray faceList = new JSONArray();
 
@@ -297,17 +284,23 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
         paramIn.put("face_list", faceList);
         //paramIn.put("request_id","");
         HttpEntity httpEntity = new HttpEntity(paramIn.toJSONString(), ShenxingFactory.getHeader(machineDto.getMachineCode(), restTemplate));
-        ResponseEntity<String> responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_UPDATE_USER + userFaceDto.getUserId(), HttpMethod.PUT, httpEntity, String.class);
-        logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
-        if (responseEntity.getStatusCode() != HttpStatus.OK) {
-            throw new IllegalStateException("请求添加权限组失败" + responseEntity);
+        logger.debug("请求信息 ： " + httpEntity);
+        JSONObject paramOut = null;
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_UPDATE_USER + userFaceDto.getUserId(), HttpMethod.PUT, httpEntity, String.class);
+            logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
+            if (responseEntity.getStatusCode().value() >= 400) {
+                throw new IllegalStateException("请求添加权限组失败" + responseEntity);
+            }
+            paramOut = JSONObject.parseObject(responseEntity.getBody());
+            if (!paramOut.containsKey("id")) {
+                throw new IllegalStateException("添加人员失败" + responseEntity);
+            }
+        } catch (HttpStatusCodeException e) {
+            JSONObject errrors = JSONObject.parseObject(e.getResponseBodyAsString());
+            throw new IllegalStateException("修改人脸失败：" + errrors.getJSONArray("errors").getJSONObject(0).getString("detail"));
         }
 
-        JSONObject paramOut = JSONObject.parseObject(responseEntity.getBody());
-
-        if (!paramOut.containsKey("id")) {
-            throw new IllegalStateException("修改人员失败" + responseEntity);
-        }
 
         return new ResultDto(ResultDto.SUCCESS, "成功");
     }
@@ -315,10 +308,15 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
     @Override
     public ResultDto deleteFace(MachineDto machineDto, HeartbeatTaskDto heartbeatTaskDto) {
         HttpEntity httpEntity = new HttpEntity("", ShenxingFactory.getHeader(machineDto.getMachineCode(), restTemplate));
-        ResponseEntity<String> responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_DELETE_FACE + heartbeatTaskDto.getTaskinfo(), HttpMethod.DELETE, httpEntity, String.class);
-        logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
-        if (responseEntity.getStatusCode() != HttpStatus.OK) {
-            throw new IllegalStateException("请求删除人脸失败" + responseEntity);
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_DELETE_FACE + heartbeatTaskDto.getTaskinfo(), HttpMethod.DELETE, httpEntity, String.class);
+            logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
+            if (responseEntity.getStatusCode().value() >= 400) {
+                throw new IllegalStateException("请求删除人脸失败" + responseEntity);
+            }
+        } catch (HttpStatusCodeException e) {
+            JSONObject errrors = JSONObject.parseObject(e.getResponseBodyAsString());
+            throw new IllegalStateException("删除人脸失败：" + errrors.getJSONArray("errors").getJSONObject(0).getString("detail"));
         }
 
         return new ResultDto(ResultDto.SUCCESS, "成功");
@@ -356,10 +354,11 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
 
     @Override
     public void restartMachine(MachineDto machineDto) {
-        HttpEntity httpEntity = new HttpEntity("", ShenxingFactory.getHeader(machineDto.getMachineCode(), restTemplate));
-        ResponseEntity<String> responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_REBOOT , HttpMethod.GET, httpEntity, String.class);
+        JSONObject param = new JSONObject();
+        HttpEntity httpEntity = new HttpEntity(param.toJSONString(), ShenxingFactory.getHeader(machineDto.getMachineCode(), restTemplate));
+        ResponseEntity<String> responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_REBOOT, HttpMethod.GET, httpEntity, String.class);
         logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
-        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+        if (responseEntity.getStatusCode().value() >= 400) {
             throw new IllegalStateException("请求重启设备失败" + responseEntity);
         }
 
@@ -367,10 +366,13 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
 
     @Override
     public void openDoor(MachineDto machineDto) {
-        HttpEntity httpEntity = new HttpEntity("", ShenxingFactory.getHeader(machineDto.getMachineCode(), restTemplate));
-        ResponseEntity<String> responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_OPEN_DOOR , HttpMethod.POST, httpEntity, String.class);
-        logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
-        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+        JSONObject param = new JSONObject();
+        HttpEntity httpEntity = new HttpEntity(param.toJSONString(), ShenxingFactory.getHeader(machineDto.getMachineCode(), restTemplate));
+        logger.debug("请求信息 ： " + httpEntity);
+
+        ResponseEntity<String> responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_OPEN_DOOR, HttpMethod.POST, httpEntity, String.class);
+        logger.debug("，返回信息:" + responseEntity);
+        if (responseEntity.getStatusCode().value() >= 400) {
             throw new IllegalStateException("请求开门失败" + responseEntity);
         }
         saveLog(SeqUtil.getId(), machineDto.getMachineId(), CMD_OPEN_DOOR, "", responseEntity.getBody());
@@ -395,7 +397,7 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
                 }
             }
 
-            if(StringUtil.isEmpty(userName)){
+            if (StringUtil.isEmpty(userName)) {
                 userName = body.getString("person_name");
             }
 

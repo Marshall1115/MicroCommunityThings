@@ -20,7 +20,7 @@ public class ShenxingFactory {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Cookie", getToken(sxdmSn, outRestTemplate));
         httpHeaders.add("Content-Type", "application/json;charset=UTF-8");
-        httpHeaders.add("sxdmToken", token);
+        httpHeaders.add("sxdmToken",  MappingCacheFactory.getValue("sxdmToken"));
         httpHeaders.add("sxdmSn", sxdmSn);
        
         return httpHeaders;
@@ -36,7 +36,7 @@ public class ShenxingFactory {
         // 查询sign
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Content-Type", "application/json");
-        httpHeaders.add("sxdmToken", token);
+        httpHeaders.add("sxdmToken", MappingCacheFactory.getValue("sxdmToken"));
         httpHeaders.add("sxdmSn", sxdmSn);
         HttpEntity httpEntity = new HttpEntity("", httpHeaders);
         ResponseEntity<String> responseEntity = null;

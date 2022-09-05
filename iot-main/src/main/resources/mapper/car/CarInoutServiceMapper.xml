@@ -123,7 +123,7 @@
                 t.pay_type = #{payType},
             </if>
             <if test="newCarNum != null and newCarNum != ''">
-                and t.car_num = #{newCarNum}
+                 t.car_num = #{newCarNum},
             </if>
         </trim>
         where 1=1

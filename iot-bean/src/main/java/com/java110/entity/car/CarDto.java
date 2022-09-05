@@ -7,6 +7,12 @@ import java.util.Date;
 
 public class CarDto extends PageDto implements Serializable {
 
+    public static final String LEASE_TYPE_MONTH = "H"; // 月租车
+    public static final String LEASE_TYPE_SALE = "S"; // 出售车
+    public static final String LEASE_TYPE_INNER = "I"; //内部车
+    public static final String LEASE_TYPE_NO_MONEY = "NM"; //免费车
+    public static final String LEASE_TYPE_TEMP = "T"; //临时车
+
     private String carId;
     private String carNum;
     private Date startTime;
@@ -24,6 +30,11 @@ public class CarDto extends PageDto implements Serializable {
     private double cycles;
     private String cardId;
     private long parkingNum;
+
+
+    private String leaseType;
+
+    private String leaseTypeName;
 
 
     public String getCarId() {
@@ -160,5 +171,21 @@ public class CarDto extends PageDto implements Serializable {
 
     public void setPaIds(String[] paIds) {
         this.paIds = paIds;
+    }
+
+    public String getLeaseType() {
+        return leaseType;
+    }
+
+    public void setLeaseType(String leaseType) {
+        this.leaseType = leaseType;
+    }
+
+    public String getLeaseTypeName() {
+        return leaseTypeName;
+    }
+
+    public void setLeaseTypeName(String leaseTypeName) {
+        this.leaseTypeName = leaseTypeName;
     }
 }
