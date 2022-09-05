@@ -247,14 +247,15 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
             ResponseEntity<String> responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_ADD_USER, HttpMethod.POST, httpEntity, String.class);
             logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
             if (responseEntity.getStatusCode().value() >= 400) {
-                throw new IllegalStateException("请求添加权限组失败" + responseEntity);
+                throw new IllegalStateException("请求人脸失败" + responseEntity);
             }
             paramOut = JSONObject.parseObject(responseEntity.getBody());
             if (!paramOut.containsKey("id")) {
                 throw new IllegalStateException("添加人员失败" + responseEntity);
             }
         } catch (HttpStatusCodeException e) {
-            throw new IllegalStateException("请求添加权限组失败" + e.getResponseBodyAsString());
+            JSONObject errrors = JSONObject.parseObject(e.getResponseBodyAsString());
+            throw new IllegalStateException("添加人脸失败：" + errrors.getJSONArray("errors").getJSONObject(0).getString("detail"));
         }
 
         return new ResultDto(ResultDto.SUCCESS, "成功");
@@ -296,7 +297,8 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
                 throw new IllegalStateException("添加人员失败" + responseEntity);
             }
         } catch (HttpStatusCodeException e) {
-            throw new IllegalStateException("请求添加权限组失败" + e.getResponseBodyAsString());
+            JSONObject errrors = JSONObject.parseObject(e.getResponseBodyAsString());
+            throw new IllegalStateException("修改人脸失败：" + errrors.getJSONArray("errors").getJSONObject(0).getString("detail"));
         }
 
 
@@ -313,7 +315,8 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
                 throw new IllegalStateException("请求删除人脸失败" + responseEntity);
             }
         } catch (HttpStatusCodeException e) {
-            throw new IllegalStateException("请求添加权限组失败" + e.getResponseBodyAsString());
+            JSONObject errrors = JSONObject.parseObject(e.getResponseBodyAsString());
+            throw new IllegalStateException("删除人脸失败：" + errrors.getJSONArray("errors").getJSONObject(0).getString("detail"));
         }
 
         return new ResultDto(ResultDto.SUCCESS, "成功");
