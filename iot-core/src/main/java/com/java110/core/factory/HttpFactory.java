@@ -150,7 +150,7 @@ public class HttpFactory {
         } catch (Exception e) {
             responseEntity = new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         } finally {
-            logger.debug("请求地址为,{} 请求中心服务信息，{},中心服务返回信息，{}", url, httpEntity, responseEntity);
+            //logger.debug("请求地址为,{} 请求中心服务信息，{},中心服务返回信息，{}", url, httpEntity, responseEntity);
             Date endTime = DateUtil.getCurrentDate();
             saveTranLog(url, headers, param, responseEntity.getHeaders().toString(), responseEntity.getBody().toString(), startTime, endTime);
             return responseEntity;

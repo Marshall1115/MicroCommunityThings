@@ -40,7 +40,7 @@ public class MqttPushCallback implements MqttCallbackExtended {
 
     @Override
     public void connectionLost(Throwable cause) {
-        log.info("断开连接，建议重连" + this);
+        log.debug("断开连接，建议重连" + this);
         log.error("连接断开", cause);
         while (true) {
             try {
@@ -50,8 +50,7 @@ public class MqttPushCallback implements MqttCallbackExtended {
                 }
 
                 // 重新连接
-                client.connect(option);
-
+                 client.connect(option);
                 //client.reconnect();
 
                 //重新订阅消息
@@ -76,8 +75,8 @@ public class MqttPushCallback implements MqttCallbackExtended {
     @Override
     public void messageArrived(String topic, MqttMessage message) throws Exception {
         try {
-            log.info("Topic: " + topic);
-            log.info("Message: " + new String(message.getPayload()));
+            log.debug("====================================>Topic: " + topic);
+            log.debug("=====================================>Message: " + new String(message.getPayload()));
 
             //先去 topic 表中查询
             IManufacturerService manufacturerServiceImpl = ApplicationContextFactory.getBean("manufacturerServiceImpl", IManufacturerService.class);
@@ -242,6 +241,7 @@ public class MqttPushCallback implements MqttCallbackExtended {
             }
         }catch (Exception e){
             // 第一次启动会 异常 不关注
+            e.printStackTrace();
         }
     }
 }

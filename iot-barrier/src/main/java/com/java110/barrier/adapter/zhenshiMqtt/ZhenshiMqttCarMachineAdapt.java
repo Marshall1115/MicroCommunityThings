@@ -184,6 +184,9 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
 
             ResultParkingAreaTextDto resultParkingAreaTextDto = callCarServiceImpl.ivsResult(type, license, machineDto,inOutCarTextEngine);
 
+            System.out.println("------------------------------------------------------业务处理耗时：" + (DateUtil.getCurrentDate().getTime() - startTime.getTime()));
+
+
             JinjieScreenMqttFactory.pay(machineDto, resultParkingAreaTextDto.getVoice());
             if (!StringUtil.isEmpty(resultParkingAreaTextDto.getText1())) {
                 Thread.sleep(300); //这里停一秒
@@ -201,7 +204,6 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
                 Thread.sleep(300); //这里停一秒
                 JinjieScreenMqttFactory.downloadTempTexts(machineDto, 3, resultParkingAreaTextDto.getText4());
             }
-            System.out.println("------------------------------------------------------耗时：" + (DateUtil.getCurrentDate().getTime() - startTime.getTime()));
 
             if (ResultParkingAreaTextDto.CODE_CAR_IN_SUCCESS == resultParkingAreaTextDto.getCode()
                     || ResultParkingAreaTextDto.CODE_MONTH_CAR_SUCCESS == resultParkingAreaTextDto.getCode()

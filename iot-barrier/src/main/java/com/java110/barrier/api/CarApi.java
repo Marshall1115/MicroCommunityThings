@@ -137,7 +137,7 @@ public class CarApi extends BaseController {
 
             paramOut = new ResponseEntity<String>(java110CarProtocol.getContent(), HttpStatus.OK);
         } finally {
-            logger.debug("设备：" + machineCode + ",请求报文：" + reqJson + ",返回报文：" + paramOut);
+            //logger.debug("设备：" + machineCode + ",请求报文：" + reqJson + ",返回报文：" + paramOut);
         }
         return paramOut;
     }
@@ -171,7 +171,7 @@ public class CarApi extends BaseController {
 
             paramOut = new ResponseEntity<String>(java110CarProtocol.getContent(), HttpStatus.OK);
         } finally {
-            logger.debug("设备：" + machineCode + ",请求报文：" + reqJson + ",返回报文：" + paramOut);
+            //logger.debug("设备：" + machineCode + ",请求报文：" + reqJson + ",返回报文：" + paramOut);
         }
         return paramOut;
     }

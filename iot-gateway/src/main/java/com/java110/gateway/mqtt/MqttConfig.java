@@ -52,7 +52,7 @@ public class MqttConfig {
         try {
             client = new MqttClient(hostUrl, clientId, new MemoryPersistence());
             MqttConnectOptions option = new MqttConnectOptions();
-            option.setCleanSession(false);
+            option.setCleanSession(true);
             option.setUserName(username);
             option.setPassword(password.toCharArray());
             option.setConnectionTimeout(completionTimeout);

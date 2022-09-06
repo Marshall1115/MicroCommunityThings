@@ -3,6 +3,7 @@ package com.java110.barrier.adapter.zhenshiMqtt;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.java110.core.util.DateUtil;
 import com.java110.entity.machine.MachineDto;
 import com.java110.core.util.Base64Convert;
 import com.java110.core.util.StringUtil;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -89,6 +91,7 @@ public class JinjieScreenMqttFactory {
      * 播放声音
      */
     public static void pay(MachineDto machineDto, String msg) {
+        Date startTime = DateUtil.getCurrentDate();
         try {
             byte[] data = msg.getBytes("GBK");
             int textLen = data.length;
@@ -98,6 +101,7 @@ public class JinjieScreenMqttFactory {
         } catch (Exception e) {
             logger.error("发送语音失败", e);
         }
+        System.out.println("------------------------------------------------------发送语音耗时：" + (DateUtil.getCurrentDate().getTime() - startTime.getTime()));
     }
 
     public static void viewText(MachineDto machineDto, String[] msgs) {
@@ -195,8 +199,9 @@ public class JinjieScreenMqttFactory {
     }
 
     public static void downloadTempTexts(MachineDto machineDto, int line, String msg) {
+        Date startTime = DateUtil.getCurrentDate();
         downloadTempTexts(machineDto,line,msg,(byte)0x10,(byte)0x01);
-
+        System.out.println("------------------------------------------------------发送屏显耗时：" + (DateUtil.getCurrentDate().getTime() - startTime.getTime()));
     }
 
     /**
