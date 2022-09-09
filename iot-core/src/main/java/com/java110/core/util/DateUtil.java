@@ -423,6 +423,18 @@ public class DateUtil {
         return days;
     }
 
+    /**
+     * 通过时间秒毫秒数判断两个时间的间隔
+     * @param date1
+     * @param date2
+     * @return
+     */
+    public static int differentDaysUp(Date date1,Date date2)
+    {
+        double days = ((date2.getTime() - date1.getTime()) / (1000*3600*24*1.00));
+        return new Double(Math.ceil(days)).intValue();
+    }
+
 
     public static long getTime() {
         return new Date().getTime();

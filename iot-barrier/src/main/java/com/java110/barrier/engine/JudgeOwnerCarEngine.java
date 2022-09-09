@@ -33,7 +33,7 @@ public class JudgeOwnerCarEngine {
         if (carDtos == null || carDtos.size() < 1) {
             return new CarDayDto(carNum,CarDto.LEASE_TYPE_TEMP,-1);
         }
-        int day = DateUtil.differentDays(DateUtil.getCurrentDate(), carDtos.get(0).getEndTime());
+        int day = DateUtil.differentDaysUp(DateUtil.getCurrentDate(), carDtos.get(0).getEndTime());
         if (day <= 0) {
 
             return new CarDayDto(carNum,carDtos.get(0).getLeaseType(),-2);
