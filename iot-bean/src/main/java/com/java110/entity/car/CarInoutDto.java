@@ -46,6 +46,8 @@ public class CarInoutDto extends PageDto implements Serializable {
 
     private long min;
 
+    private String photoJpg;
+
     public String getInoutId() {
         return inoutId;
     }
@@ -220,5 +222,13 @@ public class CarInoutDto extends PageDto implements Serializable {
 
     public void setNewCarNum(String newCarNum) {
         this.newCarNum = newCarNum;
+    }
+
+    public String getPhotoJpg() {
+        return photoJpg;
+    }
+
+    public void setPhotoJpg(String photoJpg) {
+        this.photoJpg = photoJpg;
     }
 }

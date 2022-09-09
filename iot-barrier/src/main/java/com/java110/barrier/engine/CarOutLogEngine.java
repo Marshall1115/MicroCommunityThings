@@ -41,6 +41,7 @@ public class CarOutLogEngine extends CarEngine{
         carInoutDto.setPaId(getDefaultPaId(parkingAreaDtos));
         carInoutDto.setState(state);
         carInoutDto.setRemark(remark);
+        carInoutDto.setPhotoJpg(machineDto.getPhotoJpg());
         if (carInoutDtos != null && carInoutDtos.size() > 0) {
             carInoutDto.setPayCharge(carInoutDtos.get(0).getPayCharge());
             carInoutDto.setRealCharge(carInoutDtos.get(0).getRealCharge());

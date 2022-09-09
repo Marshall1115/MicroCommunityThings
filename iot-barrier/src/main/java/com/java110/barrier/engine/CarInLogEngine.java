@@ -43,6 +43,7 @@ public class CarInLogEngine extends CarEngine{
         carInoutDto.setPaId(getDefaultPaId(parkingAreaDtos));
         carInoutDto.setState(state);
         carInoutDto.setRemark(remark);
+        carInoutDto.setPhotoJpg(machineDto.getPhotoJpg());
         carInoutServiceImpl.saveCarInout(carInoutDto);
     }
 

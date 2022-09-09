@@ -93,6 +93,7 @@ public class CarCallHcServiceImpl implements ICarCallHcService {
         data.put("communityId", communityDtos.get(0).getExtCommunityId());
         data.put("state",carInoutDto.getState());
         data.put("remark",carInoutDto.getRemark());
+        data.put("photoJpg",carInoutDto.getPhotoJpg());
         if (CarInoutDto.INOUT_TYPE_IN.equals(carInoutDto.getInoutType())) {
             data.put("inTime", CarInoutDto.INOUT_TYPE_IN.equals(carInoutDto.getInoutType()) ? carInoutDto.getOpenTime() : "");
         } else {
