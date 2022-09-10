@@ -104,14 +104,24 @@ public class CallCarServiceImpl implements ICallCarService {
             throw new IllegalArgumentException("停车场不存在");
         }
 
+        if("无牌车".equals(carNum)){
+        }
+
         BarrierGateControlDto barrierGateControlDto = new BarrierGateControlDto(BarrierGateControlDto.ACTION_INOUT, carNum, machineDto);
         sendInfoEngine.sendInfo(barrierGateControlDto, machineDto.getLocationObjId(), machineDto);
         switch (machineDirection) {
             case MachineDto.MACHINE_DIRECTION_ENTER: // 车辆进场
-                resultParkingAreaTextDto = inCarEngine.enterParkingArea(type, carNum, machineDto, parkingAreaDtos,inOutCarTextEngine);
+                if("无牌车".equals(carNum)){
+                    resultParkingAreaTextDto = new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_IN_ERROR, "无牌车","请扫码入场","","","无牌车,请扫码入场", carNum);
+                }else {
+                    resultParkingAreaTextDto = inCarEngine.enterParkingArea(type, carNum, machineDto, parkingAreaDtos, inOutCarTextEngine);
+                }
                 break;
             case MachineDto.MACHINE_DIRECTION_OUT://车辆出场
-                resultParkingAreaTextDto = outCarEngine.outParkingArea(type, carNum, machineDto, parkingAreaDtos,inOutCarTextEngine);
+                if("无牌车".equals(carNum)){
+                    resultParkingAreaTextDto = new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_IN_ERROR, "无牌车","请扫码出场","","","无牌车,请扫码出场", carNum);
+                }else {
+                    resultParkingAreaTextDto = outCarEngine.outParkingArea(type, carNum, machineDto, parkingAreaDtos,inOutCarTextEngine);
 //                if (resultParkingAreaTextDto.getCode()
 //                        == ResultParkingAreaTextDto.CODE_CAR_OUT_SUCCESS
 //                        || resultParkingAreaTextDto.getCode()
@@ -123,6 +133,7 @@ public class CallCarServiceImpl implements ICallCarService {
 //                ) {
 //                    carOut(carNum, machineDto);
 //                }
+                }
                 break;
             default:
                 resultParkingAreaTextDto = new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_OUT_ERROR, "系统异常");
