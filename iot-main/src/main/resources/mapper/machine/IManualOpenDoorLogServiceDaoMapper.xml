@@ -7,7 +7,7 @@
     <insert id="saveManualOpenDoorLog" parameterType="com.java110.entity.openDoor.ManualOpenDoorLogDto">
         INSERT INTO manual_open_door_log(`log_id`, `staff_id`, `staff_name`, `ext_staff_id`, `machine_id`, `machine_name`, `ext_machine_id`,
         `photo_jpg`, community_id)
-        VALUES (#{logId}, #{staffId}, #{staffName}, #{extStaffId}, #{machineId}, #{machineName}, #{extMachineName}, #{photoJpg},#{communityId})
+        VALUES (#{logId}, #{staffId}, #{staffName}, #{extStaffId}, #{machineId}, #{machineName}, #{extMachineId}, #{photoJpg},#{communityId})
     </insert>
 
 

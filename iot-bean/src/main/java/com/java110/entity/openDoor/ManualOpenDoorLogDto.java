@@ -16,6 +16,8 @@ public class ManualOpenDoorLogDto extends PageDto implements Serializable {
     private String photoJpg;
     private String communityId;
 
+    private String boxId;
+
     public String getLogId() {
         return logId;
     }
@@ -86,5 +88,13 @@ public class ManualOpenDoorLogDto extends PageDto implements Serializable {
 
     public void setCommunityId(String communityId) {
         this.communityId = communityId;
+    }
+
+    public String getBoxId() {
+        return boxId;
+    }
+
+    public void setBoxId(String boxId) {
+        this.boxId = boxId;
     }
 }
