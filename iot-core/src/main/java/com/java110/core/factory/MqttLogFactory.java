@@ -42,14 +42,28 @@ public class MqttLogFactory {
 
         JSONObject alarmInfoPlateObj = paramIn.getJSONObject("AlarmInfoPlate");
 
-        String serialno = alarmInfoPlateObj.getString("serialno");
+        if (alarmInfoPlateObj.containsKey("heartbeat")) {
+            return "心跳";
+        }
+
+        if(!alarmInfoPlateObj.containsKey("result")){
+            return "其他业务";
+        }
+
+        JSONObject result = alarmInfoPlateObj.getJSONObject("result");
+
+        if(!result.containsKey("PlateResult")){
+            return "其他业务";
+        }
+
+        JSONObject plateResult = result.getJSONObject("PlateResult");
+
+        String serialno = plateResult.getString("license");
         if (StringUtil.isEmpty(serialno)) {
             return "其他业务";
         }
 
-        if (alarmInfoPlateObj.containsKey("heartbeat")) {
-            return "心跳";
-        }
+
 
         return serialno;
     }
