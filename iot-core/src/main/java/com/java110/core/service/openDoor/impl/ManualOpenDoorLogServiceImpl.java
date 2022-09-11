@@ -21,7 +21,7 @@ import java.util.List;
  * add by wuxw 2020/5/14
  **/
 
-@Service("openDoorServiceImpl")
+@Service("manualOpenDoorLogServiceImpl")
 public class ManualOpenDoorLogServiceImpl implements IManualOpenDoorLogService {
 
     @Autowired
