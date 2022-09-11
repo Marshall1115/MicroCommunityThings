@@ -2,26 +2,31 @@ package com.java110.core.service.fee.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.java110.core.adapt.IComputeTempCarFee;
-import com.java110.core.service.machine.IMachineService;
 import com.java110.core.constant.ResponseConstant;
 import com.java110.core.constant.SystemConstant;
 import com.java110.core.dao.ITempCarFeeConfigServiceDao;
+import com.java110.core.factory.ApplicationContextFactory;
+import com.java110.core.factory.CarMachineProcessFactory;
+import com.java110.core.factory.CarProcessFactory;
+import com.java110.core.factory.MappingCacheFactory;
+import com.java110.core.service.car.ICarInoutService;
+import com.java110.core.service.fee.ITempCarFeeConfigService;
+import com.java110.core.service.hc.ICarCallHcService;
+import com.java110.core.service.machine.IMachineService;
+import com.java110.core.service.parkingArea.IParkingAreaService;
+import com.java110.core.util.Assert;
+import com.java110.core.util.DateUtil;
+import com.java110.core.util.SeqUtil;
+import com.java110.core.util.StringUtil;
 import com.java110.entity.PageDto;
 import com.java110.entity.car.*;
 import com.java110.entity.fee.TempCarPayOrderDto;
 import com.java110.entity.machine.MachineDto;
 import com.java110.entity.parkingArea.ParkingAreaDto;
+import com.java110.entity.parkingArea.ParkingBoxAreaDto;
+import com.java110.entity.parkingArea.ParkingBoxDto;
+import com.java110.entity.parkingArea.ResultParkingAreaTextDto;
 import com.java110.entity.response.ResultDto;
-import com.java110.core.factory.ApplicationContextFactory;
-import com.java110.core.factory.CarMachineProcessFactory;
-import com.java110.core.factory.CarProcessFactory;
-import com.java110.core.service.car.ICarInoutService;
-import com.java110.core.service.fee.ITempCarFeeConfigService;
-import com.java110.core.service.hc.ICarCallHcService;
-import com.java110.core.service.parkingArea.IParkingAreaService;
-import com.java110.core.util.Assert;
-import com.java110.core.util.DateUtil;
-import com.java110.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -61,6 +66,9 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
 
     @Autowired
     private ICarCallHcService carCallHcServiceImpl;
+
+    @Autowired
+    IMachineService machineServiceImpl;
 
 
     /**
@@ -319,7 +327,7 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         carInoutDto.setPayType(tempCarPayOrderDto.getPayType());
         carInoutDto.setPayTime(tempCarPayOrderDto.getPayTime());
         carInoutDto.setRealCharge(tempCarPayOrderDto.getAmount() + "");
-        if(tempCarPayOrderDto.getPayCharge() != 0){
+        if (tempCarPayOrderDto.getPayCharge() != 0) {
             carInoutDto.setPayCharge(tempCarPayOrderDto.getPayCharge() + "");
         }
         carInoutDto.setInoutId(tempCarPayOrderDto.getOrderId());
@@ -332,18 +340,99 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         carCallHcServiceImpl.notifyTempCarFeeOrder(carInoutDto);
 
         //场内二维码支付
-        if(StringUtil.isEmpty(tempCarPayOrderDto.getExtMachineId())){
+        if (StringUtil.isEmpty(tempCarPayOrderDto.getExtMachineId())) {
             return new ResultDto(ResultDto.SUCCESS, "支付成功");
         }
         machineDto = new MachineDto();
         machineDto.setExtMachineId(tempCarPayOrderDto.getExtMachineId());
         List<MachineDto> machineDtos = machineService.queryMachines(machineDto);
+        Assert.listOnlyOne(machineDtos, "设备不存在");
+        machineDto = machineDtos.get(0);
 
-        Assert.listOnlyOne(machineDtos,"设备不存在");
-        //门口二维码支付
-        CarMachineProcessFactory.getCarImpl(machineDtos.get(0).getHmId()).manualTrigger(machineDtos.get(0));
+        String manualTriggerOrOpenDoor = MappingCacheFactory.getValue("manualTriggerOrOpenDoor");
+        if ("MANUAL_TRIGGER".equals(manualTriggerOrOpenDoor)) {
+            //门口二维码支付
+            CarMachineProcessFactory.getCarImpl(machineDtos.get(0).getHmId()).manualTrigger(machineDtos.get(0));
+        } else {
+            JSONObject param = new JSONObject();
+            param.put("carNum", carInoutDtos.get(0).getCarNum());
+            param.put("payCharge", tempCarPayOrderDto.getPayCharge());
+            param.put("amount", tempCarPayOrderDto.getAmount());
+            param.put("payType", tempCarPayOrderDto.getPayType());
+            uploadcarout(machineDto, param);
+            ResultParkingAreaTextDto parkingAreaTextDto
+                    = new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_OUT_SUCCESS, carInoutDtos.get(0).getCarNum(),
+                    "一路平安", "", "", carInoutDtos.get(0).getCarNum() + ",一路平安", carInoutDtos.get(0).getCarNum());
+            parkingAreaTextDto.setCarNum(carInoutDtos.get(0).getCarNum());
+            machineServiceImpl.openDoor(machineDto, parkingAreaTextDto);
+        }
 
         return new ResultDto(ResultDto.SUCCESS, "支付成功");
+    }
+
+
+    /**
+     * 出场上报
+     *
+     * @param machineDto
+     * @param acceptJson
+     * @return
+     */
+    private JSONObject uploadcarout(MachineDto machineDto, JSONObject acceptJson) throws Exception {
+
+        String paId = "";
+
+        //查询 岗亭
+        ParkingBoxDto parkingBoxDto = new ParkingBoxDto();
+        parkingBoxDto.setExtBoxId(machineDto.getLocationObjId());
+        parkingBoxDto.setCommunityId(machineDto.getCommunityId());
+        parkingBoxDto.setDefaultArea(ParkingBoxAreaDto.DEFAULT_AREA_TRUE);
+        List<ParkingAreaDto> parkingAreaDtos = parkingAreaServiceImpl.queryParkingAreasByBox(parkingBoxDto);
+        //Assert.listOnlyOne(parkingAreaDtos, "停车场不存在");
+        if (parkingAreaDtos == null || parkingAreaDtos.size() < 1) {
+            throw new IllegalArgumentException("停车场不存在");
+        }
+
+        paId = parkingAreaDtos.get(0).getPaId();
+
+        //查询是否有入场数据
+        CarInoutDto carInoutDto = new CarInoutDto();
+        carInoutDto.setCarNum(acceptJson.getString("carNum"));
+        carInoutDto.setPaId(paId);
+        carInoutDto.setStates(new String[]{CarInoutDto.STATE_IN, CarInoutDto.STATE_PAY});
+        carInoutDto.setInoutType(CarInoutDto.INOUT_TYPE_IN);
+        List<CarInoutDto> carInoutDtos = carInoutServiceImpl.queryCarInout(carInoutDto);
+
+        if (carInoutDtos != null && carInoutDtos.size() > 0) {
+            carInoutDto.setState(CarInoutDto.STATE_OUT);
+            carInoutServiceImpl.updateCarInout(carInoutDto);
+        }
+        carInoutDto = new CarInoutDto();
+        carInoutDto.setCarNum(acceptJson.getString("carNum"));
+        carInoutDto.setCarType("1");
+        carInoutDto.setCommunityId(machineDto.getCommunityId());
+        carInoutDto.setGateName(machineDto.getMachineName());
+        carInoutDto.setInoutId(SeqUtil.getId());
+        carInoutDto.setInoutType(CarInoutDto.INOUT_TYPE_OUT);
+        carInoutDto.setMachineCode(machineDto.getMachineCode());
+        carInoutDto.setOpenTime(DateUtil.getNow(DateUtil.DATE_FORMATE_STRING_A));
+        carInoutDto.setPaId(paId);
+        carInoutDto.setState("3");
+        carInoutDto.setRemark("岗亭口 扫码出场");
+        if (acceptJson.containsKey("payCharge")) {
+            carInoutDto.setPayCharge(acceptJson.getString("payCharge"));
+        } else {
+            carInoutDto.setPayCharge(acceptJson.getString("amount"));
+        }
+        carInoutDto.setRealCharge(acceptJson.getString("amount"));
+        carInoutDto.setPayType(acceptJson.getString("payType"));
+        carInoutDto.setMachineCode(machineDto.getMachineCode());
+        carInoutServiceImpl.saveCarInout(carInoutDto);
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("code", 0);
+        jsonObject.put("msg", "成功");
+        return jsonObject;
     }
 
 }

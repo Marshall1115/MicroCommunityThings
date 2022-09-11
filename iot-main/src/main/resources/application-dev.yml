@@ -8,7 +8,7 @@ jedis:
     host: dev.redis.java110.com
     port: 6379
     timeout: 3000
-    password: hc12345678
+    password: hc
 
 server :
   port : 9999
@@ -43,7 +43,7 @@ spring :
     database: 3
     host: dev.redis.java110.com
     port: 6379
-    password: hc12345678
+    password: hc
     pool:
       max-active: 300
       max-wait: 10000
@@ -52,9 +52,9 @@ spring :
       timeout: 0
 
   datasource:
-    username: hc_thing
-    password: wuxw2015
-    url: jdbc:mysql://things.homecommunity.cn:3306/hc_thing?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+    username: hc_things
+    password: hc_things12345678
+    url: jdbc:mysql://things.homecommunity.cn:3306/hc_things?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     initialSize: 5
