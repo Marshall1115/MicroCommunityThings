@@ -1,5 +1,6 @@
 package com.java110.core.service.machine;
 
+import com.alibaba.fastjson.JSONObject;
 import com.java110.entity.accessControl.UserFaceDto;
 import com.java110.entity.machine.MachineAttrDto;
 import com.java110.entity.machine.MachineDto;
@@ -80,7 +81,7 @@ public interface IMachineService {
      * @return
      * @throws Exception
      */
-    ResultDto openDoor(MachineDto machineDto, ParkingAreaTextDto parkingAreaTextDto) throws Exception;
+    ResultDto openDoor(MachineDto machineDto, ParkingAreaTextDto parkingAreaTextDto, JSONObject paramObj) throws Exception;
 
     /**
      * 开门

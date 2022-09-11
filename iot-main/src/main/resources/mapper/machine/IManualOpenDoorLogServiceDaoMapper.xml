@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.java110.core.dao.IManualOpenDoorLogServiceDao">
+
+
+    <!-- 保存开门记录 -->
+    <insert id="saveManualOpenDoorLog" parameterType="com.java110.entity.openDoor.ManualOpenDoorLogDto">
+        INSERT INTO manual_open_door_log(`log_id`, `staff_id`, `staff_name`, `ext_staff_id`, `machine_id`, `machine_name`, `ext_machine_id`,
+        `photo_jpg`, community_id)
+        VALUES (#{logId}, #{staffId}, #{staffName}, #{extStaffId}, #{machineId}, #{machineName}, #{extMachineName}, #{photoJpg},#{communityId})
+    </insert>
+
+
+    <insert id="updateManualOpenDoorLog" parameterType="com.java110.entity.openDoor.ManualOpenDoorLogDto">
+        update manual_open_door_log t
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="photoJpg != null and photoJpg != ''">
+                t.photo_jpg = #{photoJpg},
+            </if>
+        </trim>
+        where 1=1
+        <if test="logId != null and logId != ''">
+            and t.log_id = #{logId}
+        </if>
+    </insert>
+
+
+
+    <!--
+        查询开门信息
+    -->
+    <select id="getManualOpenDoorLogs" parameterType="com.java110.entity.openDoor.ManualOpenDoorLogDto"
+            resultType="com.java110.entity.openDoor.ManualOpenDoorLogDto">
+        select
+        t.log_id logId,
+        t.staff_id staffId,
+        t.staff_name staffName,
+        t.ext_staff_id extStaffId,
+        t.machine_id machineId,
+        t.machine_name machineName,
+        t.ext_machine_id extMachineId,
+        t.photo_jpg photoJpg,
+        t.community_id communityId,
+        m.direction
+        from manual_open_door_log t
+        left join machine m on m.machine_id = t.machine_id and m.status_cd = '0'
+        where 1=1
+        <if test="boxId != null and boxId != ''">
+            and m.location_obj_id = #{boxId}
+        </if>
+        <if test="staffId != null and staffId != ''">
+            and t.staff_id = #{staffId}
+        </if>
+        <if test="staffName != null and staffName != ''">
+            and t.staff_name like concat('%',#{staffName},'%')
+        </if>
+        <if test="extStaffId != null and extStaffId != ''">
+            and t.ext_staff_id = #{extStaffId}
+        </if>
+        <if test="communityId != null and communityId != ''">
+            and t.community_id = #{communityId}
+        </if>
+        <if test="extMachineId != null and extMachineId != ''">
+            and t.ext_machine_id = #{extMachineId}
+        </if>
+        order by t.create_time desc
+        <if test="page != -1 and page != null ">
+            limit #{page}, #{row}
+        </if>
+
+    </select>
+
+    <select id="getManualOpenDoorLogCount" parameterType="com.java110.entity.openDoor.ManualOpenDoorLogDto" resultType="long">
+        select
+        count(1) count
+        from manual_open_door_log t
+        left join machine m on m.machine_id = t.machine_id and m.status_cd = '0'
+        where 1=1
+        <if test="boxId != null and boxId != ''">
+            and m.location_obj_id = #{boxId}
+        </if>
+        <if test="staffId != null and staffId != ''">
+            and t.staff_id = #{staffId}
+        </if>
+        <if test="staffName != null and staffName != ''">
+            and t.staff_name like concat('%',#{staffName},'%')
+        </if>
+        <if test="extStaffId != null and extStaffId != ''">
+            and t.ext_staff_id = #{extStaffId}
+        </if>
+        <if test="communityId != null and communityId != ''">
+            and t.community_id = #{communityId}
+        </if>
+        <if test="extMachineId != null and extMachineId != ''">
+            and t.ext_machine_id = #{extMachineId}
+        </if>
+
+    </select>
+
+</mapper>

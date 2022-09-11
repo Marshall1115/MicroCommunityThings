@@ -26,6 +26,7 @@ import com.java110.core.util.SeqUtil;
 import com.java110.core.util.StringUtil;
 import com.java110.entity.machine.MachineAttrDto;
 import com.java110.entity.machine.MachineDto;
+import com.java110.entity.openDoor.ManualOpenDoorLogDto;
 import com.java110.entity.parkingArea.ParkingAreaTextDto;
 import com.java110.entity.parkingArea.ResultParkingAreaTextDto;
 import org.slf4j.Logger;
@@ -281,6 +282,11 @@ public class ZhenshiCarMachineAdapt extends BaseMachineAdapt implements ICarMach
 
     @Override
     public void manualTrigger(MachineDto machineDto) {
+
+    }
+
+    @Override
+    public void triggerImage(MachineDto machineDto, ManualOpenDoorLogDto manualOpenDoorLogDto) {
 
     }
 }

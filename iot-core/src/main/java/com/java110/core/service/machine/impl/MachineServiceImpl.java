@@ -6,11 +6,13 @@ import com.java110.core.constant.MachineConstant;
 import com.java110.core.constant.ResponseConstant;
 import com.java110.core.constant.SystemConstant;
 import com.java110.core.dao.IMachineServiceDao;
+import com.java110.core.service.openDoor.IManualOpenDoorLogService;
 import com.java110.entity.PageDto;
 import com.java110.entity.accessControl.UserFaceDto;
 import com.java110.entity.machine.MachineAttrDto;
 import com.java110.entity.machine.MachineCmdDto;
 import com.java110.entity.machine.MachineDto;
+import com.java110.entity.openDoor.ManualOpenDoorLogDto;
 import com.java110.entity.parkingArea.ParkingAreaTextDto;
 import com.java110.entity.response.ResultDto;
 import com.java110.core.factory.AccessControlProcessFactory;
@@ -49,6 +51,10 @@ public class MachineServiceImpl implements IMachineService {
 
     @Autowired
     private ICommunityService communityServiceImpl;
+
+
+    @Autowired
+    private IManualOpenDoorLogService manualOpenDoorLogServiceImpl;
 
     /**
      * 查询设备信息
@@ -281,7 +287,7 @@ public class MachineServiceImpl implements IMachineService {
     }
 
     @Override
-    public ResultDto openDoor(MachineDto machineDto, ParkingAreaTextDto parkingAreaTextDto) throws Exception {
+    public ResultDto openDoor(MachineDto machineDto, ParkingAreaTextDto parkingAreaTextDto,JSONObject paramObj) throws Exception {
         List<MachineDto> machineDtoList = machineServiceDao.getMachines(machineDto);
         if (machineDtoList == null || machineDtoList.size() < 1) {
             throw new IllegalArgumentException("设备不存在");
@@ -293,6 +299,24 @@ public class MachineServiceImpl implements IMachineService {
         } else if (MachineDto.MACHINE_TYPE_CAR.equals(machineDto.getMachineTypeCd())) {
             CarMachineProcessFactory.getCarImpl(machineDto.getHmId()).openDoor(machineDto, parkingAreaTextDto);
         }
+
+        if(paramObj.containsKey("extStaffId")) {
+            ManualOpenDoorLogDto manualOpenDoorLogDto = new ManualOpenDoorLogDto();
+            manualOpenDoorLogDto.setLogId(SeqUtil.getId());
+            manualOpenDoorLogDto.setMachineName(machineDto.getMachineName());
+            manualOpenDoorLogDto.setCommunityId(machineDto.getCommunityId());
+            manualOpenDoorLogDto.setExtMachineId(machineDto.getExtMachineId());
+            manualOpenDoorLogDto.setExtStaffId(paramObj.getString("extStaffId"));
+            manualOpenDoorLogDto.setMachineId(machineDto.getMachineId());
+            manualOpenDoorLogDto.setStaffId("-1");
+            manualOpenDoorLogDto.setStaffName(paramObj.getString("staffName"));
+            manualOpenDoorLogServiceImpl.saveManualOpenDoorLog(manualOpenDoorLogDto);
+
+            if(MachineDto.MACHINE_TYPE_CAR.equals(machineDto.getMachineTypeCd())){
+                CarMachineProcessFactory.getCarImpl(machineDto.getHmId()).triggerImage(machineDto,manualOpenDoorLogDto);
+            }
+        }
+
         JSONObject data = new JSONObject();
         if (StringUtil.isEmpty(machineDto.getTaskId())) {
             data.put("taskId", machineDto.getTaskId());

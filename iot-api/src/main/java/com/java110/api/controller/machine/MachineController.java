@@ -214,7 +214,7 @@ public class MachineController extends BaseController {
                 = new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_IN_SUCCESS,
                 "欢迎光临", "", "", "", "欢迎光临", "");
 
-        ResultDto resultDto = machineServiceImpl.openDoor(BeanConvertUtil.covertBean(paramObj, MachineDto.class), parkingAreaTextDto);
+        ResultDto resultDto = machineServiceImpl.openDoor(BeanConvertUtil.covertBean(paramObj, MachineDto.class), parkingAreaTextDto,paramObj);
         return super.createResponseEntity(resultDto);
     }
 
@@ -476,7 +476,7 @@ public class MachineController extends BaseController {
                     = new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_OUT_SUCCESS, paramObj.getString("carNum"),
                     "一路平安", "", "", paramObj.getString("carNum") + ",一路平安", paramObj.getString("carNum"));
         }
-        resultDto = machineServiceImpl.openDoor(machineDto, parkingAreaTextDto);
+        resultDto = machineServiceImpl.openDoor(machineDto, parkingAreaTextDto,paramObj);
 
         return super.createResponseEntity(resultDto);
     }

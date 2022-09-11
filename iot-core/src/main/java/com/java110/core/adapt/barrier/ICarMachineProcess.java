@@ -1,6 +1,7 @@
 package com.java110.core.adapt.barrier;
 
 import com.java110.entity.machine.MachineDto;
+import com.java110.entity.openDoor.ManualOpenDoorLogDto;
 import com.java110.entity.parkingArea.ParkingAreaTextDto;
 
 /**
@@ -61,4 +62,10 @@ public interface ICarMachineProcess {
      * @param machineDto
      */
     void manualTrigger(MachineDto machineDto);
+
+    /**
+     * 摄像头抓拍
+     * @param manualOpenDoorLogDto
+     */
+    void triggerImage(MachineDto machineDto,ManualOpenDoorLogDto manualOpenDoorLogDto);
 }

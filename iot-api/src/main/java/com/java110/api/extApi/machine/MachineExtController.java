@@ -16,12 +16,13 @@
 package com.java110.api.extApi.machine;
 
 import com.alibaba.fastjson.JSONObject;
-import com.java110.core.BaseController;
 import com.java110.api.ws.BarrierGateControlWebSocketServer;
+import com.java110.core.BaseController;
 import com.java110.core.entity.car.BarrierGateControlDto;
 import com.java110.core.service.car.ICarInoutService;
 import com.java110.core.service.community.ICommunityService;
 import com.java110.core.service.machine.IMachineService;
+import com.java110.core.service.openDoor.IManualOpenDoorLogService;
 import com.java110.core.service.parkingArea.IParkingAreaService;
 import com.java110.core.util.Assert;
 import com.java110.core.util.BeanConvertUtil;
@@ -31,6 +32,7 @@ import com.java110.entity.accessControl.UserFaceDto;
 import com.java110.entity.car.CarInoutDto;
 import com.java110.entity.community.CommunityDto;
 import com.java110.entity.machine.MachineDto;
+import com.java110.entity.openDoor.ManualOpenDoorLogDto;
 import com.java110.entity.parkingArea.ParkingAreaDto;
 import com.java110.entity.parkingArea.ParkingBoxAreaDto;
 import com.java110.entity.parkingArea.ParkingBoxDto;
@@ -75,6 +77,9 @@ public class MachineExtController extends BaseController {
 
     @Autowired
     private IVideoInnerService videoInnerServiceImpl;
+
+    @Autowired
+    private IManualOpenDoorLogService manualOpenDoorLogServiceImpl;
 
     /**
      * 添加设备信息
@@ -204,7 +209,7 @@ public class MachineExtController extends BaseController {
         Assert.hasKeyAndValue(reqJson, "taskId", "未包含任务ID");
 
         MachineDto machineDto = BeanConvertUtil.covertBean(reqJson, MachineDto.class);
-        ResultDto result = machineServiceImpl.openDoor(machineDto, null);
+        ResultDto result = machineServiceImpl.openDoor(machineDto, null, reqJson);
 
         return ResultDto.createResponseEntity(result);
     }
@@ -320,7 +325,7 @@ public class MachineExtController extends BaseController {
                     "一路平安", "", "", paramObj.getString("carNum") + ",一路平安", paramObj.getString("carNum"));
         }
         parkingAreaTextDto.setCarNum(paramObj.getString("carNum"));
-        resultDto = machineServiceImpl.openDoor(machineDto, parkingAreaTextDto);
+        resultDto = machineServiceImpl.openDoor(machineDto, parkingAreaTextDto, paramObj);
 
         return ResultDto.createResponseEntity(resultDto);
     }
@@ -498,6 +503,34 @@ public class MachineExtController extends BaseController {
 
         JSONObject paramIn = JSONObject.parseObject(reqParam);
         return videoInnerServiceImpl.bye(paramIn);
+    }
+
+    /**
+     * 查询手动开闸记录
+     *
+     * @return 成功或者失败
+     * @throws Exception
+     */
+    @RequestMapping(path = "/getManualOpenDoorLogs", method = RequestMethod.POST)
+    public ResponseEntity<String> getManualOpenDoorLogs(@RequestBody String reqParam) throws Exception {
+
+        JSONObject paramIn = JSONObject.parseObject(reqParam);
+
+        Assert.hasKeyAndValue(paramIn, "extCommunityId", "未包含小区");
+
+        CommunityDto communityDto = new CommunityDto();
+        communityDto.setExtCommunityId(paramIn.getString("extCommunityId"));
+        List<CommunityDto> communityDtos = communityServiceImpl.queryCommunitys(communityDto);
+
+        Assert.listOnlyOne(communityDtos, "未找到小区信息");
+
+
+        ManualOpenDoorLogDto manualOpenDoorLogDto = BeanConvertUtil.covertBean(paramIn, ManualOpenDoorLogDto.class);
+
+        manualOpenDoorLogDto.setCommunityId(communityDtos.get(0).getCommunityId());
+
+        ResultDto resultDto = manualOpenDoorLogServiceImpl.getManualOpenDoorLog(manualOpenDoorLogDto);
+        return super.createResponseEntity(resultDto);
     }
 
 

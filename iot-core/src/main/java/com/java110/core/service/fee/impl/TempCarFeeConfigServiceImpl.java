@@ -364,7 +364,7 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
                     = new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_OUT_SUCCESS, carInoutDtos.get(0).getCarNum(),
                     "一路平安", "", "", carInoutDtos.get(0).getCarNum() + ",一路平安", carInoutDtos.get(0).getCarNum());
             parkingAreaTextDto.setCarNum(carInoutDtos.get(0).getCarNum());
-            machineServiceImpl.openDoor(machineDto, parkingAreaTextDto);
+            machineServiceImpl.openDoor(machineDto, parkingAreaTextDto,new JSONObject());
         }
 
         return new ResultDto(ResultDto.SUCCESS, "支付成功");

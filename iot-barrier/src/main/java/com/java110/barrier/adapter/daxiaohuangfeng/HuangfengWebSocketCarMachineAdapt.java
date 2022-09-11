@@ -31,6 +31,7 @@ import com.java110.core.util.DateUtil;
 import com.java110.core.util.StringUtil;
 import com.java110.entity.cloud.MachineHeartbeatDto;
 import com.java110.entity.machine.MachineDto;
+import com.java110.entity.openDoor.ManualOpenDoorLogDto;
 import com.java110.entity.parkingArea.ParkingAreaTextDto;
 import com.java110.entity.parkingArea.ResultParkingAreaTextDto;
 import com.java110.entity.response.ResultDto;
@@ -184,6 +185,11 @@ public class HuangfengWebSocketCarMachineAdapt extends BaseMachineAdapt implemen
 
     @Override
     public void manualTrigger(MachineDto machineDto) {
+
+    }
+
+    @Override
+    public void triggerImage(MachineDto machineDto, ManualOpenDoorLogDto manualOpenDoorLogDto) {
 
     }
 

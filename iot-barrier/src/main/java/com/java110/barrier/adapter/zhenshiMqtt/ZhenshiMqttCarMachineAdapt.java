@@ -27,11 +27,13 @@ import com.java110.core.factory.ApplicationContextFactory;
 import com.java110.core.factory.MappingCacheFactory;
 import com.java110.core.factory.NotifyAccessControlFactory;
 import com.java110.core.service.machine.IMachineService;
+import com.java110.core.service.openDoor.IManualOpenDoorLogService;
 import com.java110.core.util.DateUtil;
 import com.java110.core.util.SeqUtil;
 import com.java110.core.util.StringUtil;
 import com.java110.entity.cloud.MachineHeartbeatDto;
 import com.java110.entity.machine.MachineDto;
+import com.java110.entity.openDoor.ManualOpenDoorLogDto;
 import com.java110.entity.parkingArea.ParkingAreaTextDto;
 import com.java110.entity.parkingArea.ResultParkingAreaTextDto;
 import com.java110.entity.response.ResultDto;
@@ -61,6 +63,9 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
 
     @Autowired
     private ICallCarService callCarServiceImpl;
+
+    @Autowired
+    private IManualOpenDoorLogService manualOpenDoorLogServiceImpl;
 
 
     @Override
@@ -99,6 +104,16 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
 
 
         JSONObject paramIn = JSONObject.parseObject(s);
+
+        //手工开门图片抓拍
+        if (paramIn.containsKey("cmd") && "TriggerImage".equals(paramIn.getString("cmd"))) {
+            ManualOpenDoorLogDto manualOpenDoorLogDto = new ManualOpenDoorLogDto();
+            manualOpenDoorLogDto.setLogId(paramIn.getString("msgId"));
+            manualOpenDoorLogDto.setPhotoJpg(MappingCacheFactory.getValue("OSS_URL") + paramIn.getString("oss_path"));
+            manualOpenDoorLogServiceImpl.updateManualOpenDoorLog(manualOpenDoorLogDto);
+            return;
+        }
+
         if (!paramIn.containsKey("AlarmInfoPlate")) {
             return;
         }
@@ -144,6 +159,19 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
                 "}");
         String taskId = SeqUtil.getId();
         ZhenshiMqttSend.sendCmd(taskId, "无", machineDto, data.toJSONString());
+    }
+
+    @Override
+    public void triggerImage(MachineDto machineDto, ManualOpenDoorLogDto manualOpenDoorLogDto) {
+        JSONObject data = JSONObject.parseObject("{\n" +
+                "\"Response_AlarmInfoPlate\": \n" +
+                "    {\n" +
+                "\"TriggerImage\":\"ok\",\n" +
+                "\"msgId\":\"" + manualOpenDoorLogDto.getLogId() + "\"\n" +
+                "    }\n" +
+                "}");
+        String taskId = SeqUtil.getId();
+        ZhenshiMqttSend.sendCmd(taskId, "手工开闸", machineDto, data.toJSONString());
     }
 
     private void dealCmd(String taskId, JSONObject reqData, MachineDto machineDto) {
@@ -292,7 +320,7 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
             }
             if (!StringUtil.isEmpty(parkingAreaTextDto.getText2())) {
                 Thread.sleep(300); //这里停一秒
-                JinjieScreenMqttFactory.downloadTempTexts(taskId,carNum, machineDto, 1, parkingAreaTextDto.getText2(), (byte) 0x00, (byte) 0x03);
+                JinjieScreenMqttFactory.downloadTempTexts(taskId, carNum, machineDto, 1, parkingAreaTextDto.getText2(), (byte) 0x00, (byte) 0x03);
 
             }
             if (!StringUtil.isEmpty(parkingAreaTextDto.getText3())) {
