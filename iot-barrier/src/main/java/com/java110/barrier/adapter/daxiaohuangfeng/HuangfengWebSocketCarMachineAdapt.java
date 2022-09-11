@@ -162,7 +162,7 @@ public class HuangfengWebSocketCarMachineAdapt extends BaseMachineAdapt implemen
      * @param s
      */
     @Override
-    public void mqttMessageArrived(String cmd, String s) {
+    public void mqttMessageArrived(String taskId,String cmd, String s) {
         JSONObject paramIn = JSONObject.parseObject(s);
 
         String machineCode = paramIn.getString("devNO");

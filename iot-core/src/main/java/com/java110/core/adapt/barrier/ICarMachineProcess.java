@@ -54,7 +54,7 @@ public interface ICarMachineProcess {
     void sendKeepAlive(MachineDto machineDto);
 
 
-    void mqttMessageArrived(String topic, String s);
+    void mqttMessageArrived(String taskId,String topic, String s);
 
     /**
      * 手动触发 识别

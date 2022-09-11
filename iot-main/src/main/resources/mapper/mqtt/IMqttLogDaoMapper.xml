@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.java110.core.dao.IMqttLogDao">
+
+    <insert id="saveMqttLog" parameterType="com.java110.entity.mqtt.MqttLogDto">
+        insert into `mqtt_log` (`mqtt_id`, `business_id`, `topic`, `context`, `remark`, `business_key`)
+        values (#{mqttId},#{businessId},#{topic},#{context},#{remark},#{businessKey})
+    </insert>
+
+</mapper>

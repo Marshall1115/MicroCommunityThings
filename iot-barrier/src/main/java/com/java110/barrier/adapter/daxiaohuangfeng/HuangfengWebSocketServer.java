@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.java110.core.adapt.barrier.ICarMachineProcess;
 import com.java110.core.factory.ApplicationContextFactory;
 import com.java110.core.util.DateUtil;
+import com.java110.core.util.SeqUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -87,7 +88,7 @@ public class HuangfengWebSocketServer {
         }
 
         ICarMachineProcess carMachineProcess = ApplicationContextFactory.getBean("huangfengWebSocketCarMachineAdapt", ICarMachineProcess.class);
-        carMachineProcess.mqttMessageArrived(cmd, message);
+        carMachineProcess.mqttMessageArrived(SeqUtil.getId(),cmd, message);
 
     }
 

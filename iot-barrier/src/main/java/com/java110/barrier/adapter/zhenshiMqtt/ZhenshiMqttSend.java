@@ -1,6 +1,7 @@
 package com.java110.barrier.adapter.zhenshiMqtt;
 
 import com.java110.core.factory.MqttFactory;
+import com.java110.core.factory.MqttLogFactory;
 import com.java110.entity.machine.MachineDto;
 
 /**
@@ -20,9 +21,11 @@ public class ZhenshiMqttSend {
      * @param cmd
      * @return
      */
-    public static boolean sendCmd(MachineDto machineDto, String cmd) {
+    public static boolean sendCmd(String taskId,String carNum, MachineDto machineDto, String cmd) {
         try {
             MqttFactory.publish(PUBLISH_TOPIC.replace(SN, machineDto.getMachineCode()), cmd);
+
+            MqttLogFactory.saveSendLog(taskId,carNum,PUBLISH_TOPIC.replace(SN, machineDto.getMachineCode()),cmd);
         } catch (Exception e) {
             System.out.println("Error:" + e.getMessage());
             return false;

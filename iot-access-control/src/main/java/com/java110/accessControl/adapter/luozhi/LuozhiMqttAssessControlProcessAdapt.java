@@ -241,7 +241,7 @@ public class LuozhiMqttAssessControlProcessAdapt extends DefaultAbstractAccessCo
     }
 
     @Override
-    public void mqttMessageArrived(String topic, String data) {
+    public void mqttMessageArrived(String taskId,String topic, String data) {
 
         JSONObject param = JSONObject.parseObject(data);
 

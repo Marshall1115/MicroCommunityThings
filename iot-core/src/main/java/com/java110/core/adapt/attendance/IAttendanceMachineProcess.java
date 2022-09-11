@@ -73,6 +73,6 @@ public interface IAttendanceMachineProcess {
      */
     String getDefaultResult();
 
-    void mqttMessageArrived(String topic, String data);
+    void mqttMessageArrived(String taskId,String topic, String data);
 
 }

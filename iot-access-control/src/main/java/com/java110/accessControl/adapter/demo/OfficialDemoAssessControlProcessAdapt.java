@@ -88,7 +88,7 @@ public class OfficialDemoAssessControlProcessAdapt extends DefaultAbstractAccess
     }
 
     @Override
-    public void mqttMessageArrived(String topic, String data) {
+    public void mqttMessageArrived(String taskId,String topic, String data) {
 
     }
 

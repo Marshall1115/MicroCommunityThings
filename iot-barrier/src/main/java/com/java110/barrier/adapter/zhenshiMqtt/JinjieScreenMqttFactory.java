@@ -3,10 +3,10 @@ package com.java110.barrier.adapter.zhenshiMqtt;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.java110.core.util.DateUtil;
-import com.java110.entity.machine.MachineDto;
 import com.java110.core.util.Base64Convert;
+import com.java110.core.util.DateUtil;
 import com.java110.core.util.StringUtil;
+import com.java110.entity.machine.MachineDto;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,27 +90,27 @@ public class JinjieScreenMqttFactory {
     /**
      * 播放声音
      */
-    public static void pay(MachineDto machineDto, String msg) {
+    public static void pay(String taskId, String carNum, MachineDto machineDto, String msg) {
         Date startTime = DateUtil.getCurrentDate();
         try {
             byte[] data = msg.getBytes("GBK");
             int textLen = data.length;
             byte[] datalength = {(byte) (1 + textLen), 0x01};
             data = ArrayUtils.addAll(datalength, data);
-            sendData(machineDto, CMD_PLAY, data);
+            sendData(taskId, carNum, machineDto, CMD_PLAY, data);
         } catch (Exception e) {
             logger.error("发送语音失败", e);
         }
         System.out.println("------------------------------------------------------发送语音耗时：" + (DateUtil.getCurrentDate().getTime() - startTime.getTime()));
     }
 
-    public static void viewText(MachineDto machineDto, String[] msgs) {
+    public static void viewText(String taskId, String carNum, MachineDto machineDto, String[] msgs) {
         List<String> tmpMsgs = new ArrayList<>();
         for (String msg : msgs) {
             tmpMsgs.add(msg);
         }
         try {
-            viewText(machineDto, tmpMsgs);
+            viewText(taskId, carNum, machineDto, tmpMsgs);
         } catch (Exception e) {
             logger.error("发送文字失败", e);
         }
@@ -165,13 +165,13 @@ public class JinjieScreenMqttFactory {
      * @param msgs
      * @throws UnsupportedEncodingException
      */
-    public static void downloadTempTexts(MachineDto machineDto, List<String> msgs) throws UnsupportedEncodingException {
+    public static void downloadTempTexts(String taskId, String carNum, MachineDto machineDto, List<String> msgs) throws UnsupportedEncodingException {
         for (int msgIndex = 0; msgIndex < msgs.size(); msgIndex++) {
-            downloadTempTexts(machineDto, msgIndex, msgs.get(msgIndex));
+            downloadTempTexts(taskId, carNum, machineDto, msgIndex, msgs.get(msgIndex));
         }
     }
 
-    public static void downloadTempTexts(MachineDto machineDto, int line, String msg,byte dt,byte drs) {
+    public static void downloadTempTexts(String taskId, String carNum, MachineDto machineDto, int line, String msg, byte dt, byte drs) {
         if (StringUtil.isEmpty(msg)) {
             return;
         }
@@ -191,16 +191,16 @@ public class JinjieScreenMqttFactory {
             byte[] datalength = {(byte) (textLen)};
             data = ArrayUtils.addAll(datalength, data);
 
-            sendData(machineDto, CMD_DOWNLOAD_TEMP_INFO, data);
+            sendData(taskId, carNum, machineDto, CMD_DOWNLOAD_TEMP_INFO, data);
         } catch (Exception e) {
             logger.error("发送文件失败", e);
         }
 
     }
 
-    public static void downloadTempTexts(MachineDto machineDto, int line, String msg) {
+    public static void downloadTempTexts(String taskId, String carNum, MachineDto machineDto, int line, String msg) {
         Date startTime = DateUtil.getCurrentDate();
-        downloadTempTexts(machineDto,line,msg,(byte)0x10,(byte)0x01);
+        downloadTempTexts(taskId, carNum, machineDto, line, msg, (byte) 0x10, (byte) 0x01);
         System.out.println("------------------------------------------------------发送屏显耗时：" + (DateUtil.getCurrentDate().getTime() - startTime.getTime()));
     }
 
@@ -232,7 +232,7 @@ public class JinjieScreenMqttFactory {
      * @param msgs
      * @throws UnsupportedEncodingException
      */
-    public static void viewText(MachineDto machineDto, List<String> msgs) throws UnsupportedEncodingException {
+    public static void viewText(String taskId, String carNum, MachineDto machineDto, List<String> msgs) throws UnsupportedEncodingException {
         byte[] data = new byte[]{0x00, 0x04};
         String msg = "";
         for (int msgIndex = 0; msgIndex < msgs.size(); msgIndex++) {
@@ -256,7 +256,7 @@ public class JinjieScreenMqttFactory {
         int textLen = data.length;
         byte[] datalength = new byte[]{(byte) (textLen)};
         data = ArrayUtils.addAll(datalength, data);
-        sendData(machineDto, CMD_VIEW_PLAY, data);
+        sendData(taskId, carNum, machineDto, CMD_VIEW_PLAY, data);
     }
 
     /**
@@ -281,7 +281,7 @@ public class JinjieScreenMqttFactory {
      * @param text
      * @throws UnsupportedEncodingException
      */
-    public static void viewTextAndPlay(MachineDto machineDto, List<String> msgs, String text) throws UnsupportedEncodingException {
+    public static void viewTextAndPlay(String taskId, String carNum, MachineDto machineDto, List<String> msgs, String text) throws UnsupportedEncodingException {
         byte[] data = new byte[]{0x00, 0x04};
         String msg = "";
         for (int msgIndex = 0; msgIndex < msgs.size(); msgIndex++) {
@@ -314,7 +314,7 @@ public class JinjieScreenMqttFactory {
         int textLen = data.length;
         byte[] datalength = {(byte) (textLen)};
         data = ArrayUtils.addAll(datalength, data);
-        sendData(machineDto, CMD_VIEW_PLAY, data);
+        sendData(taskId, carNum, machineDto, CMD_VIEW_PLAY, data);
     }
 
     public static void main(String[] args) throws UnsupportedEncodingException {
@@ -323,7 +323,7 @@ public class JinjieScreenMqttFactory {
         msgs.add("月租车");
         msgs.add("青AGK916");
         msgs.add("剩余天数152天");
-        viewTextAndPlay(null, msgs, "剩余天数152天");
+        viewTextAndPlay("", "", null, msgs, "剩余天数152天");
     }
 
 
@@ -334,7 +334,7 @@ public class JinjieScreenMqttFactory {
      * @param cmd
      * @param data
      */
-    private static void sendData(MachineDto machineDto, byte[] cmd, byte[] data) {
+    private static void sendData(String taskId, String carNum, MachineDto machineDto, byte[] cmd, byte[] data) {
         int textLen = data.length;
         if ((1 + textLen) >= 255) { //数据最大不能超过255长度
             throw new IllegalArgumentException("数据最大不能超过255长度");
@@ -366,10 +366,8 @@ public class JinjieScreenMqttFactory {
         serialDataObj.put("serialChannel", "1");
         JSONArray serialData = paramIn.getJSONObject("Response_AlarmInfoPlate").getJSONArray("serialData");
         serialData.add(serialDataObj);
-        ZhenshiMqttSend.sendCmd(machineDto, paramIn.toJSONString());
+        ZhenshiMqttSend.sendCmd(taskId, carNum, machineDto, paramIn.toJSONString());
     }
-
-
 
 
     /**

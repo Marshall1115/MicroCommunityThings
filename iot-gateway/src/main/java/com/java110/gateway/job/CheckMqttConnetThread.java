@@ -50,6 +50,8 @@ public class CheckMqttConnetThread implements Runnable {
             return ;
         }
 
+        logger.debug("mqtt 连接异常 重新连接");
+
         mqttClient.reconnect();
 
         MqttClientSubscribeFactory.subscribe();

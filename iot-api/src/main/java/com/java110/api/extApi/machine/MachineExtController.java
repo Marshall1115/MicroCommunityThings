@@ -319,6 +319,7 @@ public class MachineExtController extends BaseController {
                     = new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_OUT_SUCCESS, paramObj.getString("carNum"),
                     "一路平安", "", "", paramObj.getString("carNum") + ",一路平安", paramObj.getString("carNum"));
         }
+        parkingAreaTextDto.setCarNum(paramObj.getString("carNum"));
         resultDto = machineServiceImpl.openDoor(machineDto, parkingAreaTextDto);
 
         return ResultDto.createResponseEntity(resultDto);

@@ -2,14 +2,15 @@ package com.java110.gateway.mqtt;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.java110.entity.machine.MachineDto;
-import com.java110.entity.manufacturer.ManufacturerAttrDto;
-import com.java110.entity.manufacturer.ManufacturerDto;
 import com.java110.core.factory.*;
 import com.java110.core.service.machine.IMachineService;
 import com.java110.core.service.manufacturer.IManufacturerService;
 import com.java110.core.util.Assert;
+import com.java110.core.util.SeqUtil;
 import com.java110.core.util.StringUtil;
+import com.java110.entity.machine.MachineDto;
+import com.java110.entity.manufacturer.ManufacturerAttrDto;
+import com.java110.entity.manufacturer.ManufacturerDto;
 import org.eclipse.paho.client.mqttv3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,13 +45,13 @@ public class MqttPushCallback implements MqttCallbackExtended {
         log.error("连接断开", cause);
         while (true) {
             try {
-                if(client.isConnected()){
+                if (client.isConnected()) {
                     log.debug("连接mqtt 成功");
                     break;
                 }
 
                 // 重新连接
-                 client.connect(option);
+                client.connect(option);
                 //client.reconnect();
 
                 //重新订阅消息
@@ -58,13 +59,11 @@ public class MqttPushCallback implements MqttCallbackExtended {
                 Thread.sleep(3000);
             } catch (Exception e) {
                 e.printStackTrace();
-               //continue;
+                //continue;
             }
 
         }
     }
-
-
 
 
     @Override
@@ -77,6 +76,8 @@ public class MqttPushCallback implements MqttCallbackExtended {
         try {
             log.debug("====================================>Topic: " + topic);
             log.debug("=====================================>Message: " + new String(message.getPayload()));
+            String taskId = SeqUtil.getId();
+            MqttLogFactory.saveReceiveLog(taskId, topic, new String(message.getPayload()));
 
             //先去 topic 表中查询
             IManufacturerService manufacturerServiceImpl = ApplicationContextFactory.getBean("manufacturerServiceImpl", IManufacturerService.class);
@@ -87,25 +88,25 @@ public class MqttPushCallback implements MqttCallbackExtended {
 
             if (manufacturerAttrDtos == null || manufacturerAttrDtos.size() < 1) {
                 if ("/device/push/result".equals(topic)) { //臻识的摄像头
-                    CarMachineProcessFactory.getCarImpl("17").mqttMessageArrived(topic, new String(message.getPayload()));
+                    CarMachineProcessFactory.getCarImpl("17").mqttMessageArrived(taskId,topic, new String(message.getPayload()));
                 } else {
                     String hmId = getHmId(topic, message);
                     if ("18".contains(hmId)) {
-                        AttendanceProcessFactory.getAttendanceProcessImpl(hmId).mqttMessageArrived(topic, new String(message.getPayload()));
+                        AttendanceProcessFactory.getAttendanceProcessImpl(hmId).mqttMessageArrived(taskId,topic, new String(message.getPayload()));
                     } else {
-                        AccessControlProcessFactory.getAssessControlProcessImpl(getHmId(topic, message)).mqttMessageArrived(topic, new String(message.getPayload()));
+                        AccessControlProcessFactory.getAssessControlProcessImpl(getHmId(topic, message)).mqttMessageArrived(taskId,topic, new String(message.getPayload()));
                     }
                 }
                 return;
             }
 
-            for(ManufacturerAttrDto manufacturerAttrDto : manufacturerAttrDtos){
-                if(ManufacturerDto.HM_TYPE_ACCESS_CONTROL.equals(manufacturerAttrDto.getHmType())){
-                    AccessControlProcessFactory.getAssessControlProcessImpl(manufacturerAttrDto.getHmId()).mqttMessageArrived(topic, new String(message.getPayload()));
-                }else if(ManufacturerDto.HM_TYPE_CAR.equals(manufacturerAttrDto.getHmType())){
-                    CarMachineProcessFactory.getCarImpl(manufacturerAttrDto.getHmId()).mqttMessageArrived(topic, new String(message.getPayload()));
-                }else if(ManufacturerDto.HM_TYPE_ATTENDANCE.equals(manufacturerAttrDto.getHmType())){
-                    AttendanceProcessFactory.getAttendanceProcessImpl(manufacturerAttrDto.getHmId()).mqttMessageArrived(topic, new String(message.getPayload()));
+            for (ManufacturerAttrDto manufacturerAttrDto : manufacturerAttrDtos) {
+                if (ManufacturerDto.HM_TYPE_ACCESS_CONTROL.equals(manufacturerAttrDto.getHmType())) {
+                    AccessControlProcessFactory.getAssessControlProcessImpl(manufacturerAttrDto.getHmId()).mqttMessageArrived(taskId,topic, new String(message.getPayload()));
+                } else if (ManufacturerDto.HM_TYPE_CAR.equals(manufacturerAttrDto.getHmType())) {
+                    CarMachineProcessFactory.getCarImpl(manufacturerAttrDto.getHmId()).mqttMessageArrived(taskId,topic, new String(message.getPayload()));
+                } else if (ManufacturerDto.HM_TYPE_ATTENDANCE.equals(manufacturerAttrDto.getHmType())) {
+                    AttendanceProcessFactory.getAttendanceProcessImpl(manufacturerAttrDto.getHmId()).mqttMessageArrived(taskId,topic, new String(message.getPayload()));
                 }
             }
 
@@ -239,7 +240,7 @@ public class MqttPushCallback implements MqttCallbackExtended {
             for (ManufacturerAttrDto manufacturerAttrDto : manufacturerAttrDtos) {
                 MqttFactory.subscribe(manufacturerAttrDto.getValue());
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             // 第一次启动会 异常 不关注
             e.printStackTrace();
         }

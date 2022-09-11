@@ -86,7 +86,7 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
      * @param s
      */
     @Override
-    public void mqttMessageArrived(String topic, String s) {
+    public void mqttMessageArrived(String taskId, String topic, String s) {
 
         System.out.println("s=" + s);
 //        try {
@@ -126,7 +126,7 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
         } else {
             alarmInfoPlateObj.put("cmd", CMD_RESULT);
         }
-        dealCmd(alarmInfoPlateObj, machineDtos.get(0));
+        dealCmd(taskId, alarmInfoPlateObj, machineDtos.get(0));
     }
 
     /**
@@ -142,18 +142,18 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
                 "\"manualTrigger\" : \"ok\"" +
                 "}\n" +
                 "}");
-
-        ZhenshiMqttSend.sendCmd(machineDto, data.toJSONString());
+        String taskId = SeqUtil.getId();
+        ZhenshiMqttSend.sendCmd(taskId, "无", machineDto, data.toJSONString());
     }
 
-    private void dealCmd(JSONObject reqData, MachineDto machineDto) {
+    private void dealCmd(String taskId, JSONObject reqData, MachineDto machineDto) {
         String cmd = reqData.getString("cmd");
         switch (cmd) {
             case CMD_HEARTBEAT:
-                doHeartBeat(reqData, machineDto);
+                doHeartBeat(taskId, reqData, machineDto);
                 break;
             case CMD_RESULT:
-                doResult(reqData, machineDto);
+                doResult(taskId, reqData, machineDto);
                 break;
         }
     }
@@ -168,7 +168,7 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
      * @param reqData
      * @param machineDto
      */
-    private void doResult(JSONObject reqData, MachineDto machineDto) {
+    private void doResult(String taskId, JSONObject reqData, MachineDto machineDto) {
 
         try {
             Date startTime = DateUtil.getCurrentDate();
@@ -182,27 +182,27 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
 
             IInOutCarTextEngine inOutCarTextEngine = ApplicationContextFactory.getBean("zhenshiMqttInOutCarTextEngine", IInOutCarTextEngine.class);
 
-            ResultParkingAreaTextDto resultParkingAreaTextDto = callCarServiceImpl.ivsResult(type, license, machineDto,inOutCarTextEngine);
+            ResultParkingAreaTextDto resultParkingAreaTextDto = callCarServiceImpl.ivsResult(type, license, machineDto, inOutCarTextEngine);
 
             System.out.println("------------------------------------------------------业务处理耗时：" + (DateUtil.getCurrentDate().getTime() - startTime.getTime()));
 
 
-            JinjieScreenMqttFactory.pay(machineDto, resultParkingAreaTextDto.getVoice());
+            JinjieScreenMqttFactory.pay(taskId, license, machineDto, resultParkingAreaTextDto.getVoice());
             if (!StringUtil.isEmpty(resultParkingAreaTextDto.getText1())) {
                 Thread.sleep(300); //这里停一秒
-                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 0, resultParkingAreaTextDto.getText1());
+                JinjieScreenMqttFactory.downloadTempTexts(taskId, license, machineDto, 0, resultParkingAreaTextDto.getText1());
             }
             if (!StringUtil.isEmpty(resultParkingAreaTextDto.getText2())) {
                 Thread.sleep(300); //这里停一秒
-                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 1, resultParkingAreaTextDto.getText2(), (byte) 0x00, (byte) 0x03);
+                JinjieScreenMqttFactory.downloadTempTexts(taskId, license, machineDto, 1, resultParkingAreaTextDto.getText2(), (byte) 0x00, (byte) 0x03);
             }
             if (!StringUtil.isEmpty(resultParkingAreaTextDto.getText3())) {
                 Thread.sleep(300); //这里停一秒
-                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 2, resultParkingAreaTextDto.getText3());
+                JinjieScreenMqttFactory.downloadTempTexts(taskId, license, machineDto, 2, resultParkingAreaTextDto.getText3());
             }
             if (!StringUtil.isEmpty(resultParkingAreaTextDto.getText4())) {
                 Thread.sleep(300); //这里停一秒
-                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 3, resultParkingAreaTextDto.getText4());
+                JinjieScreenMqttFactory.downloadTempTexts(taskId, license, machineDto, 3, resultParkingAreaTextDto.getText4());
             }
 
             if (ResultParkingAreaTextDto.CODE_CAR_IN_SUCCESS == resultParkingAreaTextDto.getCode()
@@ -213,7 +213,7 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
                     || ResultParkingAreaTextDto.CODE_TEMP_CAR_OUT_SUCCESS == resultParkingAreaTextDto.getCode()
                     || ResultParkingAreaTextDto.CODE_CAR_OUT_SUCCESS == resultParkingAreaTextDto.getCode()
             ) {
-                Thread.sleep(1000); //这里停一秒
+                Thread.sleep(300); //这里停一秒
                 // openDoor(machineDto, null);
                 String triggerCmd = "{\n" +
                         "    \"Response_AlarmInfoPlate\": {\n" +
@@ -223,7 +223,7 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
                         "        \"msgId\": \"" + SeqUtil.getId() + "\"\n" +
                         "    }\n" +
                         "}";
-                ZhenshiMqttSend.sendCmd(machineDto, triggerCmd);
+                ZhenshiMqttSend.sendCmd(taskId, license, machineDto, triggerCmd);
             }
 
 
@@ -239,7 +239,7 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
      * @param reqData
      * @param machineDto
      */
-    private void doHeartBeat(JSONObject reqData, MachineDto machineDto) {
+    private void doHeartBeat(String taskId, JSONObject reqData, MachineDto machineDto) {
         try {
             String heartBeatTime = null;
             heartBeatTime = DateUtil.getNow(DateUtil.DATE_FORMATE_STRING_A);
@@ -271,32 +271,38 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
                     "        \"msgId\": \"" + SeqUtil.getId() + "\"\n" +
                     "    }\n" +
                     "}";
-            ZhenshiMqttSend.sendCmd(machineDto, triggerCmd);
+            String taskId = SeqUtil.getId();
+            String carNum = "手工开门";
+            if (parkingAreaTextDto != null && !StringUtil.isEmpty(parkingAreaTextDto.getCarNum())) {
+                carNum = parkingAreaTextDto.getCarNum();
+            }
+
+            ZhenshiMqttSend.sendCmd(taskId, carNum, machineDto, triggerCmd);
 
             if (parkingAreaTextDto == null) {
-                JinjieScreenMqttFactory.pay(machineDto, "欢迎光临");
+                JinjieScreenMqttFactory.pay(taskId, carNum, machineDto, "欢迎光临");
                 Thread.sleep(300); //这里停一秒
-                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 0, "欢迎光临");
+                JinjieScreenMqttFactory.downloadTempTexts(taskId, carNum, machineDto, 0, "欢迎光临");
                 return;
             }
-            JinjieScreenMqttFactory.pay(machineDto, parkingAreaTextDto.getVoice());
+            JinjieScreenMqttFactory.pay(taskId, carNum, machineDto, parkingAreaTextDto.getVoice());
             if (!StringUtil.isEmpty(parkingAreaTextDto.getText1())) {
                 Thread.sleep(300); //这里停一秒
-                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 0, parkingAreaTextDto.getText1());
+                JinjieScreenMqttFactory.downloadTempTexts(taskId, carNum, machineDto, 0, parkingAreaTextDto.getText1());
             }
-            if(!StringUtil.isEmpty(parkingAreaTextDto.getText2())){
+            if (!StringUtil.isEmpty(parkingAreaTextDto.getText2())) {
                 Thread.sleep(300); //这里停一秒
-                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 1, parkingAreaTextDto.getText2(), (byte) 0x00, (byte) 0x03);
+                JinjieScreenMqttFactory.downloadTempTexts(taskId,carNum, machineDto, 1, parkingAreaTextDto.getText2(), (byte) 0x00, (byte) 0x03);
 
             }
-            if(!StringUtil.isEmpty(parkingAreaTextDto.getText3())){
+            if (!StringUtil.isEmpty(parkingAreaTextDto.getText3())) {
                 Thread.sleep(300); //这里停一秒
-                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 2, parkingAreaTextDto.getText3());
+                JinjieScreenMqttFactory.downloadTempTexts(taskId, carNum, machineDto, 2, parkingAreaTextDto.getText3());
 
             }
-            if(!StringUtil.isEmpty(parkingAreaTextDto.getText4())){
+            if (!StringUtil.isEmpty(parkingAreaTextDto.getText4())) {
                 Thread.sleep(300); //这里停一秒
-                JinjieScreenMqttFactory.downloadTempTexts(machineDto, 3, parkingAreaTextDto.getText4());
+                JinjieScreenMqttFactory.downloadTempTexts(taskId, carNum, machineDto, 3, parkingAreaTextDto.getText4());
 
             }
         } catch (Exception e) {
@@ -315,7 +321,8 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
                 "        \"msgId\": \"" + SeqUtil.getId() + "\"\n" +
                 "    }\n" +
                 "}";
-        ZhenshiMqttSend.sendCmd(machineDto, triggerCmd);
+        String taskId = SeqUtil.getId();
+        ZhenshiMqttSend.sendCmd(taskId, "手动关门", machineDto, triggerCmd);
 
 //        if (parkingAreaTextDto == null) {
 //            JinjieScreenMqttFactory.pay(machineDto, "欢迎光临");

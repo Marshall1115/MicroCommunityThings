@@ -3,6 +3,12 @@ package com.java110.accessControl.adapter;
 import com.alibaba.fastjson.JSONObject;
 import com.java110.core.adapt.ICallAccessControlService;
 import com.java110.core.adapt.accessControl.IAssessControlProcess;
+import com.java110.core.factory.MappingCacheFactory;
+import com.java110.core.factory.NotifyAccessControlFactory;
+import com.java110.core.factory.RedisCacheFactory;
+import com.java110.core.util.DateUtil;
+import com.java110.core.util.SeqUtil;
+import com.java110.core.util.StringUtil;
 import com.java110.entity.accessControl.QRCodeDto;
 import com.java110.entity.accessControl.UserFaceDto;
 import com.java110.entity.fee.FeeDto;
@@ -12,12 +18,6 @@ import com.java110.entity.openDoor.OpenDoorDto;
 import com.java110.entity.response.ResultDto;
 import com.java110.entity.room.RoomDto;
 import com.java110.entity.user.UserAttrDto;
-import com.java110.core.factory.MappingCacheFactory;
-import com.java110.core.factory.NotifyAccessControlFactory;
-import com.java110.core.factory.RedisCacheFactory;
-import com.java110.core.util.DateUtil;
-import com.java110.core.util.SeqUtil;
-import com.java110.core.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +112,7 @@ public abstract class DefaultAbstractAccessControlAdapt implements IAssessContro
     }
 
     @Override
-    public void mqttMessageArrived(String topic, String data) {
+    public void mqttMessageArrived(String taskId, String topic, String data) {
 
     }
 

@@ -21,13 +21,13 @@ import com.java110.barrier.engine.IInOutCarTextEngine;
 import com.java110.core.adapt.BaseMachineAdapt;
 import com.java110.core.adapt.barrier.ICarMachineProcess;
 import com.java110.core.factory.ApplicationContextFactory;
+import com.java110.core.service.machine.IMachineService;
+import com.java110.core.util.SeqUtil;
+import com.java110.core.util.StringUtil;
 import com.java110.entity.machine.MachineAttrDto;
 import com.java110.entity.machine.MachineDto;
 import com.java110.entity.parkingArea.ParkingAreaTextDto;
 import com.java110.entity.parkingArea.ResultParkingAreaTextDto;
-import com.java110.core.service.machine.IMachineService;
-import com.java110.core.util.SeqUtil;
-import com.java110.core.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -176,7 +176,7 @@ public class ZhenshiCarMachineAdapt extends BaseMachineAdapt implements ICarMach
             machineDto.setPhotoJpg(reqData.getString("photoJpg"));
             IInOutCarTextEngine inOutCarTextEngine = ApplicationContextFactory.getBean("zhenshiInOutCarTextEngine", IInOutCarTextEngine.class);
 
-            ResultParkingAreaTextDto resultParkingAreaTextDto = callCarServiceImpl.ivsResult(type, license, machineDto,inOutCarTextEngine);
+            ResultParkingAreaTextDto resultParkingAreaTextDto = callCarServiceImpl.ivsResult(type, license, machineDto, inOutCarTextEngine);
             JinjieScreenFactory.pay(machineDto, resultParkingAreaTextDto.getVoice());
             JinjieScreenFactory.downloadTempTexts(machineDto, 1, resultParkingAreaTextDto.getText1());
             JinjieScreenFactory.downloadTempTexts(machineDto, 2, resultParkingAreaTextDto.getText2());
@@ -249,6 +249,7 @@ public class ZhenshiCarMachineAdapt extends BaseMachineAdapt implements ICarMach
         JinjieScreenFactory.downloadTempTexts(machineDto, 2, parkingAreaTextDto.getText3());
         JinjieScreenFactory.downloadTempTexts(machineDto, 3, parkingAreaTextDto.getText4());
     }
+
     @Override
     public void closeDoor(MachineDto machineDto, ParkingAreaTextDto parkingAreaTextDto) {
         // 发送开闸命令
@@ -274,7 +275,7 @@ public class ZhenshiCarMachineAdapt extends BaseMachineAdapt implements ICarMach
     }
 
     @Override
-    public void mqttMessageArrived(String topic, String s) {
+    public void mqttMessageArrived(String taskId, String topic, String s) {
 
     }
 

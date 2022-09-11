@@ -114,7 +114,7 @@ public class ZkAttendanceMachineProcessAdapt implements IAttendanceMachineProces
     }
 
     @Override
-    public void mqttMessageArrived(String topic, String data) {
+    public void mqttMessageArrived(String taskId,String topic, String data) {
 
         JSONObject param = JSONObject.parseObject(data);
 

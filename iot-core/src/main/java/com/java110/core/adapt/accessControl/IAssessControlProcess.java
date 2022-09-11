@@ -104,7 +104,7 @@ public interface IAssessControlProcess {
      * @param topic 主题
      * @param data  消息内容
      */
-    void mqttMessageArrived(String topic, String data) throws Exception;
+    void mqttMessageArrived(String taskId,String topic, String data) throws Exception;
 
 
     /**
