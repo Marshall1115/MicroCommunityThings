@@ -41,6 +41,7 @@
         t.ext_machine_id extMachineId,
         t.photo_jpg photoJpg,
         t.community_id communityId,
+        t.create_time createTime,
         m.direction
         from manual_open_door_log t
         left join machine m on m.machine_id = t.machine_id and m.status_cd = '0'

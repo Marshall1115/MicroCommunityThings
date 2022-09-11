@@ -18,6 +18,8 @@ public class ManualOpenDoorLogDto extends PageDto implements Serializable {
 
     private String boxId;
 
+    private String createTime;
+
     public String getLogId() {
         return logId;
     }
@@ -96,5 +98,13 @@ public class ManualOpenDoorLogDto extends PageDto implements Serializable {
 
     public void setBoxId(String boxId) {
         this.boxId = boxId;
+    }
+
+    public String getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(String createTime) {
+        this.createTime = createTime;
     }
 }
