@@ -306,7 +306,7 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
             }
 
             ZhenshiMqttSend.sendCmd(taskId, carNum, machineDto, triggerCmd);
-
+            Thread.sleep(300); //这里停一秒
             if (parkingAreaTextDto == null) {
                 JinjieScreenMqttFactory.pay(taskId, carNum, machineDto, "欢迎光临");
                 Thread.sleep(300); //这里停一秒
