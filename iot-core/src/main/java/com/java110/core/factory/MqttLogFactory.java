@@ -29,6 +29,24 @@ public class MqttLogFactory {
 
     }
 
+    /**
+     * {
+     * 	"AlarmInfoPlate": {
+     * 		"serialno": "69ee31dd-462720e8",
+     * 		"result": {
+     * 			"PlateResult": {
+     * 				"isoffline": 0,
+     * 				"plateid": 1624,
+     * 				"license": "粤S7Y12C",
+     * 					"type": 0
+     *                },
+     * 				"imagePath": "picture/0/69ee31dd-462720e8/20220912/04/20220912_041503_361.jpg"* 			}
+     *        }* 	}
+     * }
+     * @param topic
+     * @param param
+     * @return
+     */
     private static String getBusinessKey(String topic, String param) {
 
         if (!"/device/push/result".equals(topic)) {
