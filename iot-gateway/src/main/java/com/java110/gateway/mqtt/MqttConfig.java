@@ -68,5 +68,13 @@ public class MqttConfig {
         return client;
     }
 
+    /**
+     * 重新构造 MQTT 客户端
+     * @return
+     */
+    public MqttClient createNewMqttClient(){
+        return mqttClient();
+    }
+
 
 }

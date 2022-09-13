@@ -1,9 +1,6 @@
 package com.java110.core.factory;
 
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.MqttTopic;
+import org.eclipse.paho.client.mqttv3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +24,22 @@ public class MqttFactory {
     public static final MqttClient getMqttClient() {
         return ApplicationContextFactory.getBean("mqttClient", MqttClient.class);
     }
+
+
+    public static final void distoryMqttConnect(){
+        MqttClient mqttClient = getMqttClient();
+        try {
+            mqttClient.disconnect();
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+        try {
+            mqttClient.close(true);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * 订阅某个主题 qos默认为1
