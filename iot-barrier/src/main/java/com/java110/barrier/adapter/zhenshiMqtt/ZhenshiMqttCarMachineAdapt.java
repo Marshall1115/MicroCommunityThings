@@ -217,7 +217,7 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
 
             JinjieScreenMqttFactory.pay(taskId, license, machineDto, resultParkingAreaTextDto.getVoice());
             if (!StringUtil.isEmpty(resultParkingAreaTextDto.getText1())) {
-                Thread.sleep(300); //这里停一秒
+                //Thread.sleep(300); //这里停一秒
                 JinjieScreenMqttFactory.downloadTempTexts(taskId, license, machineDto, 0, resultParkingAreaTextDto.getText1());
             }
             if (!StringUtil.isEmpty(resultParkingAreaTextDto.getText2())) {
@@ -241,7 +241,7 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
                     || ResultParkingAreaTextDto.CODE_TEMP_CAR_OUT_SUCCESS == resultParkingAreaTextDto.getCode()
                     || ResultParkingAreaTextDto.CODE_CAR_OUT_SUCCESS == resultParkingAreaTextDto.getCode()
             ) {
-                Thread.sleep(300); //这里停一秒
+                Thread.sleep(500); //这里停一秒
                 // openDoor(machineDto, null);
                 String triggerCmd = "{\n" +
                         "    \"Response_AlarmInfoPlate\": {\n" +
@@ -305,17 +305,16 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
                 carNum = parkingAreaTextDto.getCarNum();
             }
 
-            ZhenshiMqttSend.sendCmd(taskId, carNum, machineDto, triggerCmd);
-            Thread.sleep(300); //这里停一秒
             if (parkingAreaTextDto == null) {
                 JinjieScreenMqttFactory.pay(taskId, carNum, machineDto, "欢迎光临");
                 Thread.sleep(300); //这里停一秒
                 JinjieScreenMqttFactory.downloadTempTexts(taskId, carNum, machineDto, 0, "欢迎光临");
+                Thread.sleep(500); //这里停一秒
+                ZhenshiMqttSend.sendCmd(taskId, carNum, machineDto, triggerCmd);
                 return;
             }
             JinjieScreenMqttFactory.pay(taskId, carNum, machineDto, parkingAreaTextDto.getVoice());
             if (!StringUtil.isEmpty(parkingAreaTextDto.getText1())) {
-                Thread.sleep(300); //这里停一秒
                 JinjieScreenMqttFactory.downloadTempTexts(taskId, carNum, machineDto, 0, parkingAreaTextDto.getText1());
             }
             if (!StringUtil.isEmpty(parkingAreaTextDto.getText2())) {
@@ -331,8 +330,9 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
             if (!StringUtil.isEmpty(parkingAreaTextDto.getText4())) {
                 Thread.sleep(300); //这里停一秒
                 JinjieScreenMqttFactory.downloadTempTexts(taskId, carNum, machineDto, 3, parkingAreaTextDto.getText4());
-
             }
+            Thread.sleep(500); //这里停一秒
+            ZhenshiMqttSend.sendCmd(taskId, carNum, machineDto, triggerCmd);
         } catch (Exception e) {
             e.printStackTrace();
         }
