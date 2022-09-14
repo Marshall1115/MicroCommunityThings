@@ -45,21 +45,26 @@ public class MqttPushCallback implements MqttCallbackExtended {
         log.error("连接断开", cause);
         while (true) {
             try {
+
                 if (client.isConnected()) {
-                    log.debug("连接mqtt 成功");
+                    log.debug("MqttPushCallback:==========================>mqtt connect success!!!<=============================================");
                     break;
                 }
-
+                log.debug("MqttPushCallback:==========================>mqtt connect error, try reconnect<=============================================");
                 // 重新连接
-                client.connect(option);
+                client.reconnect();
                 //client.reconnect();
-
                 //重新订阅消息
                 MqttClientSubscribeFactory.subscribe();
                 Thread.sleep(3000);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
                 //continue;
+                try {
+                    Thread.sleep(3000);
+                } catch (Throwable ex) {
+                    e.printStackTrace();
+                }
             }
 
         }

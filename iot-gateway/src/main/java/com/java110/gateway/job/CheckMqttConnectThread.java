@@ -27,7 +27,7 @@ import javax.sip.SipException;
 public class CheckMqttConnectThread implements Runnable {
     Logger logger = LoggerFactory.getLogger(CheckMqttConnectThread.class);
 
-    public static final long DEFAULT_WAIT_SECOND = 3 * 10 * 1000; // 默认5分钟执行一次
+    public static final long DEFAULT_WAIT_SECOND = 15  * 1000; // 默认5分钟执行一次
 
     private static final int DEFAULT_CONNECT_ERROR_NUM = 10;
 
@@ -37,17 +37,17 @@ public class CheckMqttConnectThread implements Runnable {
     public void run() {
         while (true) {
             try {
-                executeTask();
                 Thread.sleep(DEFAULT_WAIT_SECOND);
+                executeTask();
             } catch (Throwable e) {
                 logger.error("连接mqtt 失败", e);
-                errorNum  +=1;
-
-                if(errorNum < DEFAULT_CONNECT_ERROR_NUM){
-                    continue;
-                }
+//                errorNum  +=1;
+//
+//                if(errorNum < DEFAULT_CONNECT_ERROR_NUM){
+//                    continue;
+//                }
                 //触发 重新构造实例
-                recreateMqttClient();
+               // recreateMqttClient();
             }
         }
     }
@@ -78,17 +78,15 @@ public class CheckMqttConnectThread implements Runnable {
 
         MqttClient mqttClient = MqttFactory.getMqttClient();
 
-
         if(mqttClient.isConnected()){
-            logger.debug("mqtt 连接正常");
+            logger.debug("CheckMqttConnectThread:==========================>mqtt connect success!!!<=============================================");
             errorNum = 0;
             return ;
         }
 
-        logger.debug("mqtt 连接异常 重新连接");
+        logger.debug("CheckMqttConnectThread:==========================>mqtt connect error, try reconnect<=============================================");
 
         mqttClient.reconnect();
-
         MqttClientSubscribeFactory.subscribe();
 
     }
