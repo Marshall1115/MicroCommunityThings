@@ -24,8 +24,8 @@ import javax.sip.SipException;
  * @Version 1.0
  * add by wuxw 2020/5/14
  **/
-public class CheckMqttConnetThread implements Runnable {
-    Logger logger = LoggerFactory.getLogger(CheckMqttConnetThread.class);
+public class CheckMqttConnectThread implements Runnable {
+    Logger logger = LoggerFactory.getLogger(CheckMqttConnectThread.class);
 
     public static final long DEFAULT_WAIT_SECOND = 3 * 10 * 1000; // 默认5分钟执行一次
 
@@ -55,7 +55,7 @@ public class CheckMqttConnetThread implements Runnable {
     public void recreateMqttClient(){
         try {
             MqttFactory.distoryMqttConnect();
-            MqttConfig mqttConfig = ApplicationContextFactory.getBean("mqttClient", MqttConfig.class);
+            MqttConfig mqttConfig = ApplicationContextFactory.getBean("mqttConfig", MqttConfig.class);
             MqttClient mqttClient = mqttConfig.createNewMqttClient();
             DefaultListableBeanFactory defaultListableBeanFactory =
                     (DefaultListableBeanFactory) ApplicationContextFactory.getApplicationContext().getAutowireCapableBeanFactory();
@@ -81,6 +81,7 @@ public class CheckMqttConnetThread implements Runnable {
 
         if(mqttClient.isConnected()){
             logger.debug("mqtt 连接正常");
+            errorNum = 0;
             return ;
         }
 
