@@ -91,6 +91,7 @@ spring :
     url: tcp://mqtt.homecommunity.cn:1883
     username: wuxw
     keepalive: 10
+    poolSize: 20
 
 netty:
   server:

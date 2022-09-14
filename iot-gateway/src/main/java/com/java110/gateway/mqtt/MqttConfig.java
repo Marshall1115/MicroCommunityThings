@@ -10,6 +10,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.concurrent.Executors;
+
 /**
  * @ClassName MqttReceiveConfig
  * @Description TODO
@@ -43,6 +45,9 @@ public class MqttConfig {
     @Value("${spring.mqtt.keepalive}")
     private int keepalive;
 
+    @Value("${spring.mqtt.poolSize}")
+    private int poolSize;
+
 
     @Bean
     @ConditionalOnBean(name = "manufacturerServiceImpl")
@@ -50,7 +55,7 @@ public class MqttConfig {
         MqttClient client = null;
         //clientId = SeqUtil.getId();
         try {
-            client = new MqttClient(hostUrl, clientId, new MemoryPersistence());
+            client = new MqttClient(hostUrl, clientId, new MemoryPersistence(), Executors.newScheduledThreadPool(poolSize));
             MqttConnectOptions option = new MqttConnectOptions();
             option.setCleanSession(true);
             option.setUserName(username);
