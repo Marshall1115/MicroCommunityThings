@@ -84,7 +84,7 @@ spring :
   mqtt:
     client:
       id: java110-client-id8
-    completionTimeout: 3000
+    completionTimeout: 10
     default:
       topic: topic
     password: wuxw2015
