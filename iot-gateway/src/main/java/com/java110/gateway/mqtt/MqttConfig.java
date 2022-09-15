@@ -65,6 +65,7 @@ public class MqttConfig {
             option.setAutomaticReconnect(true);
 
             client.setCallback(new MqttPushCallback(client, option));
+            client.setTimeToWait(5000);
             client.connect(option);
 
         } catch (Exception e) {
