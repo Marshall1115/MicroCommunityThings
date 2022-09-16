@@ -103,7 +103,10 @@ public class MqttFactory {
         MqttDeliveryToken token;
         try {
             token = mqttTopic.publish(message);
-            token.waitForCompletion();
+           // token.waitForCompletion(5000);
+            if(token.isComplete()) {
+                logger.debug("消息发布成功");
+            }
         } catch (Exception e) {
             logger.error("发布失败", e);
         }
