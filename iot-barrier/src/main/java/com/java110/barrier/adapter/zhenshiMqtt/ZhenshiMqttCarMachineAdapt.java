@@ -214,7 +214,27 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
 
             System.out.println("------------------------------------------------------业务处理耗时：" + (DateUtil.getCurrentDate().getTime() - startTime.getTime()));
 
+            if (ResultParkingAreaTextDto.CODE_CAR_IN_SUCCESS == resultParkingAreaTextDto.getCode()
+                    || ResultParkingAreaTextDto.CODE_MONTH_CAR_SUCCESS == resultParkingAreaTextDto.getCode()
+                    || ResultParkingAreaTextDto.CODE_TEMP_CAR_SUCCESS == resultParkingAreaTextDto.getCode()
+                    || ResultParkingAreaTextDto.CODE_FREE_CAR_OUT_SUCCESS == resultParkingAreaTextDto.getCode()
+                    || ResultParkingAreaTextDto.CODE_MONTH_CAR_OUT_SUCCESS == resultParkingAreaTextDto.getCode()
+                    || ResultParkingAreaTextDto.CODE_TEMP_CAR_OUT_SUCCESS == resultParkingAreaTextDto.getCode()
+                    || ResultParkingAreaTextDto.CODE_CAR_OUT_SUCCESS == resultParkingAreaTextDto.getCode()
+            ) {
+               // Thread.sleep(500); //这里停一秒
+                String triggerCmd = "{\n" +
+                        "    \"Response_AlarmInfoPlate\": {\n" +
+                        "        \"channelNum\": 0,\n" +
+                        "        \"delay\": 1000,\n" +
+                        "        \"info\": \"ok\",\n" +
+                        "        \"msgId\": \"" + SeqUtil.getId() + "\"\n" +
+                        "    }\n" +
+                        "}";
+                ZhenshiMqttSend.sendCmd(taskId, license, machineDto, triggerCmd);
+            }
 
+            Thread.sleep(400); //这里停一秒
             JinjieScreenMqttFactory.pay(taskId, license, machineDto, resultParkingAreaTextDto.getVoice());
             if (!StringUtil.isEmpty(resultParkingAreaTextDto.getText1())) {
                 Thread.sleep(400); //这里停一秒
@@ -233,26 +253,7 @@ public class ZhenshiMqttCarMachineAdapt extends BaseMachineAdapt implements ICar
                 JinjieScreenMqttFactory.downloadTempTexts(taskId, license, machineDto, 3, resultParkingAreaTextDto.getText4());
             }
 
-            if (ResultParkingAreaTextDto.CODE_CAR_IN_SUCCESS == resultParkingAreaTextDto.getCode()
-                    || ResultParkingAreaTextDto.CODE_MONTH_CAR_SUCCESS == resultParkingAreaTextDto.getCode()
-                    || ResultParkingAreaTextDto.CODE_TEMP_CAR_SUCCESS == resultParkingAreaTextDto.getCode()
-                    || ResultParkingAreaTextDto.CODE_FREE_CAR_OUT_SUCCESS == resultParkingAreaTextDto.getCode()
-                    || ResultParkingAreaTextDto.CODE_MONTH_CAR_OUT_SUCCESS == resultParkingAreaTextDto.getCode()
-                    || ResultParkingAreaTextDto.CODE_TEMP_CAR_OUT_SUCCESS == resultParkingAreaTextDto.getCode()
-                    || ResultParkingAreaTextDto.CODE_CAR_OUT_SUCCESS == resultParkingAreaTextDto.getCode()
-            ) {
-                Thread.sleep(500); //这里停一秒
-                // openDoor(machineDto, null);
-                String triggerCmd = "{\n" +
-                        "    \"Response_AlarmInfoPlate\": {\n" +
-                        "        \"channelNum\": 0,\n" +
-                        "        \"delay\": 1000,\n" +
-                        "        \"info\": \"ok\",\n" +
-                        "        \"msgId\": \"" + SeqUtil.getId() + "\"\n" +
-                        "    }\n" +
-                        "}";
-                ZhenshiMqttSend.sendCmd(taskId, license, machineDto, triggerCmd);
-            }
+
 
 
         } catch (Exception e) {
