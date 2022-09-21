@@ -21,6 +21,7 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import javax.sip.*;
@@ -149,6 +150,7 @@ public class SipLayer implements SipListener {
     /**
      * 终端发送的Request信令
      */
+    @Autowired
     public void processRequest(RequestEvent evt) {
         Request request = evt.getRequest();
         String method = request.getMethod();
