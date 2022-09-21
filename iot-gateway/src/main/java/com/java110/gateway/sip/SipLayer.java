@@ -150,7 +150,6 @@ public class SipLayer implements SipListener {
     /**
      * 终端发送的Request信令
      */
-    @Autowired
     public void processRequest(RequestEvent evt) {
         Request request = evt.getRequest();
         String method = request.getMethod();
