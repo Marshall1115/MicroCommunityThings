@@ -55,4 +55,6 @@ public interface ICarInoutServiceDao {
      * @return 返回影响记录数
      */
     int delete(CarInoutDto carInoutDto);
+
+    List<CarInoutDto> hasOpenDoorError(CarInoutDto tmpCarInoutDto);
 }

@@ -180,5 +180,13 @@ public class CarInoutServiceImpl implements ICarInoutService {
         return resultDto;
     }
 
+    @Override
+    public List<CarInoutDto> hasOpenDoorError(CarInoutDto tmpCarInoutDto) {
+        List<CarInoutDto> carInoutDtoList = null;
+        carInoutDtoList = carInoutServiceDao.hasOpenDoorError(tmpCarInoutDto);
+        //刷新人脸地
+        return carInoutDtoList;
+    }
+
 
 }
