@@ -88,7 +88,7 @@ spring :
     default:
       topic: topic
     password: wuxw2015
-    url: tcp://mqtt.homecommunity.cn:1883
+    url: tcp://mqtt.homecommunity.cn:2883
     username: wuxw
     keepalive: 20
     poolSize: 20
