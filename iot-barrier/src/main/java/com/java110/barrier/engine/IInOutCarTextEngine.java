@@ -127,6 +127,16 @@ public interface IInOutCarTextEngine {
     InOutCarTextDto carNotInParkingArea(String carNum, MachineDto machineDto, String defaultPaId);
 
 
+    /**
+     * 车辆未在场时可以出场
+     * @param carNum
+     * @param machineDto
+     * @param defaultPaId
+     * @return
+     */
+    InOutCarTextDto carNotInParkingAreaCanOut(String carNum, MachineDto machineDto, String defaultPaId);
+
+
     InOutCarTextDto blackCarOut(String carNum, MachineDto machineDto, String defaultPaId);
     /**
      * 白名单 车辆出场
