@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -353,21 +354,53 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         if ("MANUAL_TRIGGER".equals(manualTriggerOrOpenDoor)) {
             //门口二维码支付
             CarMachineProcessFactory.getCarImpl(machineDtos.get(0).getHmId()).manualTrigger(machineDtos.get(0));
-        } else {
-            JSONObject param = new JSONObject();
-            param.put("carNum", carInoutDtos.get(0).getCarNum());
-            param.put("payCharge", tempCarPayOrderDto.getPayCharge());
-            param.put("amount", tempCarPayOrderDto.getAmount());
-            param.put("payType", tempCarPayOrderDto.getPayType());
-            uploadcarout(machineDto, param);
-            ResultParkingAreaTextDto parkingAreaTextDto
-                    = new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_OUT_SUCCESS, carInoutDtos.get(0).getCarNum(),
-                    "一路平安", "", "", carInoutDtos.get(0).getCarNum() + ",一路平安", carInoutDtos.get(0).getCarNum());
-            parkingAreaTextDto.setCarNum(carInoutDtos.get(0).getCarNum());
-            machineServiceImpl.openDoor(machineDto, parkingAreaTextDto,new JSONObject());
+
+            return new ResultDto(ResultDto.SUCCESS, "支付成功");
         }
 
+        // 校验是否有车辆 在门口
+        if(!carHasOpenError(carInoutDtos.get(0).getCarNum(),carInoutDtos.get(0).getPaId())){
+            return new ResultDto(ResultDto.SUCCESS, "支付成功");
+        }
+
+
+        JSONObject param = new JSONObject();
+        param.put("carNum", carInoutDtos.get(0).getCarNum());
+        param.put("payCharge", tempCarPayOrderDto.getPayCharge());
+        param.put("amount", tempCarPayOrderDto.getAmount());
+        param.put("payType", tempCarPayOrderDto.getPayType());
+        uploadcarout(machineDto, param);
+        ResultParkingAreaTextDto parkingAreaTextDto
+                = new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_OUT_SUCCESS, carInoutDtos.get(0).getCarNum(),
+                "一路平安", "", "", carInoutDtos.get(0).getCarNum() + ",一路平安", carInoutDtos.get(0).getCarNum());
+        parkingAreaTextDto.setCarNum(carInoutDtos.get(0).getCarNum());
+        machineServiceImpl.openDoor(machineDto, parkingAreaTextDto, new JSONObject());
+
+
         return new ResultDto(ResultDto.SUCCESS, "支付成功");
+    }
+
+    private boolean carHasOpenError(String carNum,String paId) {
+        int openDoorTime = 5* 60;
+        String openDoorTimeStr = MappingCacheFactory.getValue("CAR_OPEN_DOOR_TIME");
+
+        if( StringUtil.isNumber(openDoorTimeStr)){
+            openDoorTime = Integer.parseInt(openDoorTimeStr);
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.SECOND,-1 * openDoorTime);
+
+        CarInoutDto tmpCarInoutDto = new CarInoutDto();
+        tmpCarInoutDto.setCarNum(carNum);
+        tmpCarInoutDto.setPaId(paId);
+        tmpCarInoutDto.setOpenTime(DateUtil.getFormatTimeString(calendar.getTime(),DateUtil.DATE_FORMATE_STRING_A));
+        List<CarInoutDto> carInoutDtos = carInoutServiceImpl.hasOpenDoorError(tmpCarInoutDto);
+        if(carInoutDtos == null || carInoutDtos.size()<1){
+            return false;
+        }
+
+        return true;
     }
 
 

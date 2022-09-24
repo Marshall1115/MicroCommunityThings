@@ -59,4 +59,6 @@ public interface ICarInoutService {
      * @throws Exception
      */
     ResultDto deleteCarInout(CarInoutDto carInoutDto) throws Exception;
+
+    List<CarInoutDto> hasOpenDoorError(CarInoutDto tmpCarInoutDto);
 }
