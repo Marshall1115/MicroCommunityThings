@@ -140,6 +140,14 @@ public class InCarEngine extends CarEngine implements IInCarEngine {
             saveCarInInfo(carNum, machineDto, inOutCarTextDto, "开门成功", type, parkingAreaDtos, CarInoutDto.STATE_IN);
             return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_IN_SUCCESS, inOutCarTextDto, carNum);
         }
+
+        // 校验临时车 是否 允许进场
+        if ("N".equals(parkingAreaDtos.get(0).getTempCarIn())) {
+            inOutCarTextDto = inOutCarTextEngine.tempCarCannotIn(carNum, machineDto, getDefaultPaId(parkingAreaDtos));
+            saveCarInInfo(carNum, machineDto, inOutCarTextDto, "开门失败", type, parkingAreaDtos, CarInoutDto.STATE_IN_FAIL);
+            return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_BLACK, inOutCarTextDto, carNum);
+        }
+
         inOutCarTextDto = inOutCarTextEngine.carInTempCar(carNum, machineDto, getDefaultPaId(parkingAreaDtos), carDayDto);
         saveCarInInfo(carNum, machineDto, inOutCarTextDto, "开门成功", type, parkingAreaDtos, CarInoutDto.STATE_IN);
         return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_IN_SUCCESS, inOutCarTextDto, carNum);

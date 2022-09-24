@@ -14,6 +14,10 @@ public class ParkingAreaDto extends PageDto implements Serializable {
     private String createTime;
     private String statusCd;
     private String defaultArea;
+    private String tempCarIn;
+    private String fee;
+    private String blueCarIn;
+    private String yelowCarIn;
 
     private List<ParkingAreaAttrDto> attrs;
 
@@ -79,5 +83,37 @@ public class ParkingAreaDto extends PageDto implements Serializable {
 
     public void setDefaultArea(String defaultArea) {
         this.defaultArea = defaultArea;
+    }
+
+    public String getTempCarIn() {
+        return tempCarIn;
+    }
+
+    public void setTempCarIn(String tempCarIn) {
+        this.tempCarIn = tempCarIn;
+    }
+
+    public String getFee() {
+        return fee;
+    }
+
+    public void setFee(String fee) {
+        this.fee = fee;
+    }
+
+    public String getBlueCarIn() {
+        return blueCarIn;
+    }
+
+    public void setBlueCarIn(String blueCarIn) {
+        this.blueCarIn = blueCarIn;
+    }
+
+    public String getYelowCarIn() {
+        return yelowCarIn;
+    }
+
+    public void setYelowCarIn(String yelowCarIn) {
+        this.yelowCarIn = yelowCarIn;
     }
 }

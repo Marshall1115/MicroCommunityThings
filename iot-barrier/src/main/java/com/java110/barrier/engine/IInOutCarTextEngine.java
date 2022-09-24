@@ -97,6 +97,15 @@ public interface IInOutCarTextEngine {
      * @return
      */
     InOutCarTextDto carInMonthExpire(String carNum, MachineDto machineDto, String paId, CarDayDto carDayDto);
+
+    /**
+     * 临时车禁止入场
+     * @param carNum
+     * @param machineDto
+     * @param paId
+     * @return
+     */
+    InOutCarTextDto tempCarCannotIn(String carNum, MachineDto machineDto, String paId);
     /**
      * 临时车进场
      * @param carNum
