@@ -47,7 +47,11 @@
         t.num num,
         t.ext_pa_id extPaId,
         t.create_time createTime,
-        boa.default_area defaultArea
+        boa.default_area defaultArea,
+        bo.temp_car_in tempCarIn,
+        bo.fee fee,
+        bo.blue_car_in blueCarIn,
+        bo.yelow_car_in yelowCarIn
         from parking_area t
         left join parking_box_area boa on t.pa_id = boa.pa_id and boa.status_cd = '0'
         LEFT JOIN parking_box bo on boa.box_id = bo.box_id and bo.status_cd = '0'

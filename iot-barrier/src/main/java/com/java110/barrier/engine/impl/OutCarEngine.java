@@ -61,9 +61,15 @@ public class OutCarEngine extends CarEngine implements IOutCarEngine {
         CarDayDto carDayDto = judgeOwnerCarEngine.judgeOwnerCar(machineDto, carNum, parkingAreaDtos);
 
         if (carInoutDtos == null || carInoutDtos.size() < 1) {
-            inOutCarTextDto = inOutCarTextEngine.carNotInParkingArea(carNum, machineDto, getDefaultPaId(parkingAreaDtos));
-            saveCarOutInfo(carNum,machineDto,inOutCarTextDto,0,"开门失败",null,parkingAreaDtos, CarInoutDto.STATE_IN_FAIL);
-            return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_NO_IN, inOutCarTextDto, carNum);
+            if("N".equals(parkingAreaDtos.get(0).getYelowCarIn())) {
+                inOutCarTextDto = inOutCarTextEngine.carNotInParkingArea(carNum, machineDto, getDefaultPaId(parkingAreaDtos));
+                saveCarOutInfo(carNum, machineDto, inOutCarTextDto, 0, "开门失败", null, parkingAreaDtos, CarInoutDto.STATE_IN_FAIL);
+                return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_NO_IN, inOutCarTextDto, carNum);
+            }else{
+                inOutCarTextDto = inOutCarTextEngine.carNotInParkingAreaCanOut(carNum, machineDto, getDefaultPaId(parkingAreaDtos));
+                saveCarOutInfo(carNum, machineDto, inOutCarTextDto, 0, "开门成功", null, parkingAreaDtos, CarInoutDto.STATE_IN_FAIL);
+                return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_FREE_CAR_OUT_SUCCESS, inOutCarTextDto, carNum);
+            }
         }
 
         //判断是否为黑名单

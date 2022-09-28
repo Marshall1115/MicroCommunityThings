@@ -127,6 +127,11 @@ public class ZhenshiMqttInOutCarTextEngine implements IInOutCarTextEngine {
         return new InOutCarTextDto("月租车", carNum, "已过期", "", "月租车," + carNum + ",已过期");
     }
 
+    @Override
+    public InOutCarTextDto tempCarCannotIn(String carNum, MachineDto machineDto, String paId) {
+        return new InOutCarTextDto("临时车", carNum, "禁止通行", "", "临时车," + carNum + ",禁止通行");
+    }
+
     /**
      * 9.0入场：临时车进场
      * @param carNum
@@ -150,6 +155,18 @@ public class ZhenshiMqttInOutCarTextEngine implements IInOutCarTextEngine {
     @Override
     public InOutCarTextDto carNotInParkingArea(String carNum, MachineDto machineDto, String defaultPaId) {
         return new InOutCarTextDto(carNum, "车未入场", carNum + ",车未入场");
+    }
+
+    /**
+     * 10.0出场：车辆未入场(可以出场)
+     * @param carNum
+     * @param machineDto
+     * @param defaultPaId
+     * @return
+     */
+    @Override
+    public InOutCarTextDto carNotInParkingAreaCanOut(String carNum, MachineDto machineDto, String defaultPaId){
+        return new InOutCarTextDto(carNum, ",一路平安", carNum + ",一路平安");
     }
 
     public InOutCarTextDto blackCarOut(String carNum, MachineDto machineDto, String defaultPaId){
