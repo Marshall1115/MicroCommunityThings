@@ -81,39 +81,40 @@ public class MqttPushCallback implements MqttCallbackExtended {
         try {
             log.debug("====================================>Topic: " + topic);
             log.debug("=====================================>Message: " + new String(message.getPayload()));
-            String taskId = SeqUtil.getId();
-            MqttLogFactory.saveReceiveLog(taskId, topic, new String(message.getPayload()));
+            MqttQueue.addMsg(topic,new String(message.getPayload()));
+//            String taskId = SeqUtil.getId();
+ //           MqttLogFactory.saveReceiveLog(taskId, topic, new String(message.getPayload()));
 
-            //先去 topic 表中查询
-            IManufacturerService manufacturerServiceImpl = ApplicationContextFactory.getBean("manufacturerServiceImpl", IManufacturerService.class);
-            ManufacturerAttrDto tmpManufacturerDto = new ManufacturerAttrDto();
-            tmpManufacturerDto.setSpecCd(ManufacturerAttrDto.SPEC_TOPIC);
-            tmpManufacturerDto.setValue(topic);
-            List<ManufacturerAttrDto> manufacturerAttrDtos = manufacturerServiceImpl.getManufacturerAttr(tmpManufacturerDto);
-
-            if (manufacturerAttrDtos == null || manufacturerAttrDtos.size() < 1) {
-                if ("/device/push/result".equals(topic)) { //臻识的摄像头
-                    CarMachineProcessFactory.getCarImpl("17").mqttMessageArrived(taskId,topic, new String(message.getPayload()));
-                } else {
-                    String hmId = getHmId(topic, message);
-                    if ("18".contains(hmId)) {
-                        AttendanceProcessFactory.getAttendanceProcessImpl(hmId).mqttMessageArrived(taskId,topic, new String(message.getPayload()));
-                    } else {
-                        AccessControlProcessFactory.getAssessControlProcessImpl(getHmId(topic, message)).mqttMessageArrived(taskId,topic, new String(message.getPayload()));
-                    }
-                }
-                return;
-            }
-
-            for (ManufacturerAttrDto manufacturerAttrDto : manufacturerAttrDtos) {
-                if (ManufacturerDto.HM_TYPE_ACCESS_CONTROL.equals(manufacturerAttrDto.getHmType())) {
-                    AccessControlProcessFactory.getAssessControlProcessImpl(manufacturerAttrDto.getHmId()).mqttMessageArrived(taskId,topic, new String(message.getPayload()));
-                } else if (ManufacturerDto.HM_TYPE_CAR.equals(manufacturerAttrDto.getHmType())) {
-                    CarMachineProcessFactory.getCarImpl(manufacturerAttrDto.getHmId()).mqttMessageArrived(taskId,topic, new String(message.getPayload()));
-                } else if (ManufacturerDto.HM_TYPE_ATTENDANCE.equals(manufacturerAttrDto.getHmType())) {
-                    AttendanceProcessFactory.getAttendanceProcessImpl(manufacturerAttrDto.getHmId()).mqttMessageArrived(taskId,topic, new String(message.getPayload()));
-                }
-            }
+//            //先去 topic 表中查询
+//            IManufacturerService manufacturerServiceImpl = ApplicationContextFactory.getBean("manufacturerServiceImpl", IManufacturerService.class);
+//            ManufacturerAttrDto tmpManufacturerDto = new ManufacturerAttrDto();
+//            tmpManufacturerDto.setSpecCd(ManufacturerAttrDto.SPEC_TOPIC);
+//            tmpManufacturerDto.setValue(topic);
+//            List<ManufacturerAttrDto> manufacturerAttrDtos = manufacturerServiceImpl.getManufacturerAttr(tmpManufacturerDto);
+//
+//            if (manufacturerAttrDtos == null || manufacturerAttrDtos.size() < 1) {
+//                if ("/device/push/result".equals(topic)) { //臻识的摄像头
+//                    CarMachineProcessFactory.getCarImpl("17").mqttMessageArrived(taskId,topic, new String(message.getPayload()));
+//                } else {
+//                    String hmId = getHmId(topic, message);
+//                    if ("18".contains(hmId)) {
+//                        AttendanceProcessFactory.getAttendanceProcessImpl(hmId).mqttMessageArrived(taskId,topic, new String(message.getPayload()));
+//                    } else {
+//                        AccessControlProcessFactory.getAssessControlProcessImpl(getHmId(topic, message)).mqttMessageArrived(taskId,topic, new String(message.getPayload()));
+//                    }
+//                }
+//                return;
+//            }
+//
+//            for (ManufacturerAttrDto manufacturerAttrDto : manufacturerAttrDtos) {
+//                if (ManufacturerDto.HM_TYPE_ACCESS_CONTROL.equals(manufacturerAttrDto.getHmType())) {
+//                    AccessControlProcessFactory.getAssessControlProcessImpl(manufacturerAttrDto.getHmId()).mqttMessageArrived(taskId,topic, new String(message.getPayload()));
+//                } else if (ManufacturerDto.HM_TYPE_CAR.equals(manufacturerAttrDto.getHmType())) {
+//                    CarMachineProcessFactory.getCarImpl(manufacturerAttrDto.getHmId()).mqttMessageArrived(taskId,topic, new String(message.getPayload()));
+//                } else if (ManufacturerDto.HM_TYPE_ATTENDANCE.equals(manufacturerAttrDto.getHmType())) {
+//                    AttendanceProcessFactory.getAttendanceProcessImpl(manufacturerAttrDto.getHmId()).mqttMessageArrived(taskId,topic, new String(message.getPayload()));
+//                }
+//            }
 
         } catch (Exception e) {
             log.error("处理订阅消息失败", e);
