@@ -25,6 +25,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -71,6 +72,11 @@ public class ThingsApplicationStart implements WebMvcConfigurer {
     public RestTemplate restTemplate() {
         StringHttpMessageConverter m = new StringHttpMessageConverter(Charset.forName("UTF-8"));
         RestTemplate restTemplate = new RestTemplateBuilder().additionalMessageConverters(m).build();
+        HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+        httpRequestFactory.setConnectionRequestTimeout(3000);
+        httpRequestFactory.setConnectTimeout(3000);
+        httpRequestFactory.setReadTimeout(3000);
+        restTemplate.setRequestFactory(httpRequestFactory);
         return restTemplate;
 
 
@@ -81,6 +87,11 @@ public class ThingsApplicationStart implements WebMvcConfigurer {
     public RestTemplate outRestTemplate() {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter(Charset.forName("UTF-8")));
+        HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+        httpRequestFactory.setConnectionRequestTimeout(3000);
+        httpRequestFactory.setConnectTimeout(3000);
+        httpRequestFactory.setReadTimeout(3000);
+        restTemplate.setRequestFactory(httpRequestFactory);
         return restTemplate;
     }
 
