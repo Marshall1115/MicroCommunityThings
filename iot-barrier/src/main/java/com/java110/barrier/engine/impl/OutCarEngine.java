@@ -67,7 +67,7 @@ public class OutCarEngine extends CarEngine implements IOutCarEngine {
                 return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_NO_IN, inOutCarTextDto, carNum);
             }else{
                 inOutCarTextDto = inOutCarTextEngine.carNotInParkingAreaCanOut(carNum, machineDto, getDefaultPaId(parkingAreaDtos));
-                saveCarOutInfo(carNum, machineDto, inOutCarTextDto, 0, "开门成功", null, parkingAreaDtos, CarInoutDto.STATE_IN_FAIL);
+                saveCarOutInfo(carNum, machineDto, inOutCarTextDto, 0, "开门成功", null, parkingAreaDtos, CarInoutDto.STATE_OUT);
                 return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_FREE_CAR_OUT_SUCCESS, inOutCarTextDto, carNum);
             }
         }
