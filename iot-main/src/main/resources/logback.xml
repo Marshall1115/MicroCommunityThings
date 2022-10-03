@@ -69,7 +69,7 @@
     <logger name="com.java110.barrier" level="DEBUG">
         <appender-ref ref="STDOUT_FILE"/>
     </logger>
-    <logger name="com.java110" level="DEBUG">
+    <logger name="com.java110" level="ERROR">
         <appender-ref ref="STDOUT_FILE"/>
     </logger>
     <!--<logger name="com.java110" level="DEBUG"/>-->
