@@ -155,15 +155,15 @@ public class SipLayer implements SipListener {
         String method = request.getMethod();
         logger.info("processRequest >>> {}", request);
         try {
-            if (method.equalsIgnoreCase(Request.REGISTER)) {
-                processRegister(evt);
-            } else if (method.equalsIgnoreCase(Request.MESSAGE)) {
-                processMessage(evt);
-            } else if (method.equalsIgnoreCase(Request.BYE)) {
-                processBye(evt);
-            } else {
-                // processCommon(evt);
-            }
+//            if (method.equalsIgnoreCase(Request.REGISTER)) {
+//                processRegister(evt);
+//            } else if (method.equalsIgnoreCase(Request.MESSAGE)) {
+//                processMessage(evt);
+//            } else if (method.equalsIgnoreCase(Request.BYE)) {
+//                processBye(evt);
+//            } else {
+//                // processCommon(evt);
+//            }
         } catch (Exception e) {
             logger.error("处理摄像头 请求失败", e);
         }
