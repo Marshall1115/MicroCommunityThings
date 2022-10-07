@@ -407,8 +407,9 @@ public class SipLayer implements SipListener {
         //请求行
         SipURI requestLine = mAddressFactory.createSipURI(deviceId, address);
         //Via头
+
         ArrayList viaHeaderList = new ArrayList();
-        ViaHeader viaHeader = mHeaderFactory.createViaHeader(targetIp, targetPort, protocol, null);
+        ViaHeader viaHeader = mHeaderFactory.createViaHeader(targetIp, targetPort, protocol, "z9hG4bK"+System.currentTimeMillis());
         viaHeader.setRPort();
         viaHeaderList.add(viaHeader);
 
