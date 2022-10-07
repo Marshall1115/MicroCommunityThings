@@ -165,7 +165,21 @@ public class CarExtController extends BaseController {
         tmpCarDto.setPaId(parkingAreaDtos.get(0).getPaId());
         List<CarDto> carDtos = carServiceImpl.queryCars(tmpCarDto);
 
-        Assert.listOnlyOne(carDtos, "未找到车辆信息");
+        //找不到 就添加
+        if(carDtos == null || carDtos.size() <1){
+            carDto = BeanConvertUtil.covertBean(reqJson, CarDto.class);
+            carDto.setCarId(SeqUtil.getId());
+            carDto.setPaId(parkingAreaDtos.get(0).getPaId());
+            carDto.setExtPaId(parkingAreaDtos.get(0).getExtPaId());
+            CommunityDto communityDto = new CommunityDto();
+            communityDto.setExtCommunityId(reqJson.getString("extCommunityId"));
+            ResultDto resultDto = communityServiceImpl.getCommunity(communityDto);
+            List<CommunityDto> communityDtos = (List<CommunityDto>) resultDto.getData();
+            Assert.listOnlyOne(communityDtos, "未找到小区信息");
+            carDto.setCommunityId(communityDtos.get(0).getCommunityId());
+            ResultDto result = carServiceImpl.saveCar(carDto);
+            return ResultDto.createResponseEntity(result);
+        }
         carDto.setCarId(carDtos.get(0).getCarId());
         carDto.setCardId(carDto.getCardId());
         carDto.setExtPaId(carDtos.get(0).getExtPaId());
