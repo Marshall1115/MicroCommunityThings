@@ -361,10 +361,14 @@ public class SipLayer implements SipListener {
     private void sendCatalog(Device device, String callId, String fromTag, long cseq, String sn) throws Exception {
         Host host = device.getHost();
         String deviceId = device.getDeviceId();
-        Request request = createRequest(deviceId, host.getAddress(), host.getWanIp(), host.getWanPort(), device.getProtocol(),
+        Request request = createRequest(deviceId, host.getAddress(), "47.103.9.147", 5060, device.getProtocol(),
                 mSipId, mSipRealm, fromTag,
                 deviceId, mSipRealm, null,
                 callId, cseq, Request.MESSAGE);
+//        Request request = createRequest(deviceId, host.getAddress(), host.getWanIp(), host.getWanPort(), device.getProtocol(),
+//                mSipId, mSipRealm, fromTag,
+//                deviceId, mSipRealm, null,
+//                callId, cseq, Request.MESSAGE);
         String catalogContent = SipContentHelper.generateCatalogContent(deviceId, sn);
         ContentTypeHeader contentTypeHeader = mHeaderFactory.createContentTypeHeader("Application", "MANSCDP+xml");
         request.setContent(catalogContent, contentTypeHeader);
@@ -455,8 +459,8 @@ public class SipLayer implements SipListener {
     }
 
     private Host getHost(ViaHeader viaHeader) {
-        //String received = viaHeader.getReceived();
-        String received = "";
+        String received = viaHeader.getReceived();
+        //String received = "";
         int rPort = viaHeader.getRPort();
         //本地模拟设备 received 为空 rPort 为 -1
         //解析本地地址替代
