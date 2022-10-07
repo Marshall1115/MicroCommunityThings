@@ -47,6 +47,8 @@ public class SipLayer implements SipListener {
 
     private MessageFactory mMessageFactory;
 
+    private SipFactory sipFactory;
+
     private SipProvider mTCPSipProvider;
     private SipProvider mUDPSipProvider;
 
@@ -114,7 +116,7 @@ public class SipLayer implements SipListener {
     @SuppressWarnings("deprecation")
     private boolean initSip() {
         try {
-            SipFactory sipFactory = SipFactory.getInstance();
+            sipFactory = SipFactory.getInstance();
             Properties properties = new Properties();
             properties.setProperty("javax.sip.STACK_NAME", "GB28181_SIP");
             properties.setProperty("javax.sip.IP_ADDRESS", mLocalIp);
@@ -363,7 +365,7 @@ public class SipLayer implements SipListener {
         String deviceId = device.getDeviceId();
         Request request = createRequest(deviceId, host.getAddress(), "47.103.9.147", 5060, device.getProtocol(),
                 mSipId, mSipRealm, fromTag,
-                deviceId, mSipRealm, null,
+                deviceId, host.getAddress(), null,
                 callId, cseq, Request.MESSAGE);
 //        Request request = createRequest(deviceId, host.getAddress(), host.getWanIp(), host.getWanPort(), device.getProtocol(),
 //                mSipId, mSipRealm, fromTag,
@@ -373,6 +375,20 @@ public class SipLayer implements SipListener {
         ContentTypeHeader contentTypeHeader = mHeaderFactory.createContentTypeHeader("Application", "MANSCDP+xml");
         request.setContent(catalogContent, contentTypeHeader);
         request.addHeader(contentTypeHeader);
+
+        Address concatAddress = sipFactory.createAddressFactory().createAddress(sipFactory.createAddressFactory().createSipURI(mSipId, "47.103.9.147:5060"));
+        request.addHeader(sipFactory.createHeaderFactory().createContactHeader(concatAddress));
+
+        // Expires
+//        ExpiresHeader expireHeader = sipFactory.createHeaderFactory().createExpiresHeader(expires);
+//        request.addHeader(expireHeader);
+
+        // Event
+//        EventHeader eventHeader = sipFactory.createHeaderFactory().createEventHeader(event);
+
+//        int random = (int) Math.floor(Math.random() * 10000);
+//        eventHeader.setEventId(random + "");
+//        request.addHeader(eventHeader);
 
         sendRequest(request);
 
