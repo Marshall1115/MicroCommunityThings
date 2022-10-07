@@ -155,15 +155,15 @@ public class SipLayer implements SipListener {
         String method = request.getMethod();
         logger.info("processRequest >>> {}", request);
         try {
-//            if (method.equalsIgnoreCase(Request.REGISTER)) {
-//                processRegister(evt);
-//            } else if (method.equalsIgnoreCase(Request.MESSAGE)) {
-//                processMessage(evt);
-//            } else if (method.equalsIgnoreCase(Request.BYE)) {
-//                processBye(evt);
-//            } else {
-//                // processCommon(evt);
-//            }
+            if (method.equalsIgnoreCase(Request.REGISTER)) {
+                processRegister(evt);
+            } else if (method.equalsIgnoreCase(Request.MESSAGE)) {
+                processMessage(evt);
+            } else if (method.equalsIgnoreCase(Request.BYE)) {
+                processBye(evt);
+            } else {
+                // processCommon(evt);
+            }
         } catch (Exception e) {
             logger.error("处理摄像头 请求失败", e);
         }
@@ -346,6 +346,7 @@ public class SipLayer implements SipListener {
             }
         }
         sendResponse(response, serverTransaction);
+
         //注册成功
         //1.保存到redis
         //2.下发catelog查询目录
@@ -454,7 +455,8 @@ public class SipLayer implements SipListener {
     }
 
     private Host getHost(ViaHeader viaHeader) {
-        String received = viaHeader.getReceived();
+        //String received = viaHeader.getReceived();
+        String received = "";
         int rPort = viaHeader.getRPort();
         //本地模拟设备 received 为空 rPort 为 -1
         //解析本地地址替代
