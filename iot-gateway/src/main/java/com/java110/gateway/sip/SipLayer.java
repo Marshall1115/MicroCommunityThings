@@ -376,8 +376,8 @@ public class SipLayer implements SipListener {
         request.setContent(catalogContent, contentTypeHeader);
         request.addHeader(contentTypeHeader);
 
-        Address concatAddress = sipFactory.createAddressFactory().createAddress(sipFactory.createAddressFactory().createSipURI(mSipId, "47.103.9.147:5060"));
-        request.addHeader(sipFactory.createHeaderFactory().createContactHeader(concatAddress));
+//        Address concatAddress = sipFactory.createAddressFactory().createAddress(sipFactory.createAddressFactory().createSipURI(mSipId, "47.103.9.147:5060"));
+//        request.addHeader(sipFactory.createHeaderFactory().createContactHeader(concatAddress));
 
         // Expires
 //        ExpiresHeader expireHeader = sipFactory.createHeaderFactory().createExpiresHeader(expires);
