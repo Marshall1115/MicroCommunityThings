@@ -17,7 +17,7 @@ public interface IVideoInnerService {
     /**
      * 暂停推流
      *
-     * @param callId
+     * @param reqJson
      * @return
      */
     ResponseEntity<String> bye(JSONObject reqJson);

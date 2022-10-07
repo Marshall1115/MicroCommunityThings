@@ -66,6 +66,8 @@ public class Play implements OnProcessListener {
             Device device = JSONObject.parseObject(deviceStr, Device.class);
             Map<String, DeviceChannel> channelMap = device.getChannelMap();
             if (channelMap == null || !channelMap.containsKey(channelId)) {
+                //删除deviceId 让摄像头重新注册 一秒就过期
+                RedisUtil.expire(deviceId,1);
                 throw new IllegalArgumentException("通道不存在");
             }
             boolean isTcp = mediaProtocol.toUpperCase().equals(SipLayer.TCP);
