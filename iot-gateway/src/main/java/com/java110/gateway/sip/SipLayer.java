@@ -57,6 +57,7 @@ public class SipLayer implements SipListener {
 
     private String mLocalIp;
     private int mLocalPort;
+    private String mSipIp;
     private String mSipId;
     private String mSipRealm;
     private String mPassword;
@@ -99,7 +100,7 @@ public class SipLayer implements SipListener {
     private MessageManager mMessageManager = MessageManager.getInstance();
     private PushStreamDeviceManager mPushStreamDeviceManager = PushStreamDeviceManager.getInstance();
 
-    public SipLayer(String sipId, String sipRealm, String password, String localIp, int localPort, String streamMediaIp, int streamMediaPort) {
+    public SipLayer(String sipId, String sipRealm, String password,String sipIp, String localIp, int localPort, String streamMediaIp, int streamMediaPort) {
         this.mSipId = sipId;
         this.mLocalIp = localIp;
         this.mLocalPort = localPort;
@@ -107,6 +108,7 @@ public class SipLayer implements SipListener {
         this.mPassword = password;
         this.mSsrcRealm = mSipId.substring(3, 8);
         this.mStreamMediaIp = streamMediaIp;
+        this.mSipIp = sipIp;
     }
 
     public boolean startServer() {
@@ -363,7 +365,7 @@ public class SipLayer implements SipListener {
     private void sendCatalog(Device device, String callId, String fromTag, long cseq, String sn) throws Exception {
         Host host = device.getHost();
         String deviceId = device.getDeviceId();
-        Request request = createRequest(deviceId, host.getAddress(), "47.103.9.147", 5060, device.getProtocol(),
+        Request request = createRequest(deviceId, host.getAddress(), mSipIp, mLocalPort, device.getProtocol(),
                 mSipId, mSipRealm, fromTag,
                 deviceId, host.getAddress(), null,
                 callId, cseq, Request.MESSAGE);

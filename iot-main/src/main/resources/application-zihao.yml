@@ -165,6 +165,7 @@ sip:
   checkSsrc: false
   heartbeatExpire: 180
   listenIp: 0.0.0.0
+  sipIp: ${sipIp}
   listenPort: 5060
   password: 12345678
   pullRtmpAddress: ${pullRtmpAddress}

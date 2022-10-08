@@ -165,6 +165,7 @@ sip:
   checkSsrc: false
   heartbeatExpire: 180
   listenIp: 0.0.0.0
+  sipIp: 192.168.1.2
   listenPort: 5060
   password: 12345678
   pullRtmpAddress: webrtc://117.159.177.191:1985/live/
