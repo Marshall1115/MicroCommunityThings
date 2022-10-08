@@ -229,10 +229,10 @@ public class SipLayer implements SipListener {
         if (MESSAGE_KEEP_ALIVE.equals(cmd)) {
             if (RedisUtil.checkExist(deviceId)) {
                 RedisUtil.expire(deviceId, RedisUtil.EXPIRE);
-                String heartBeatTime = DateUtil.getNow(DateUtil.DATE_FORMATE_STRING_A);
-                MachineHeartbeatDto machineHeartbeatDto = new MachineHeartbeatDto(deviceId, heartBeatTime);
-                ICallAccessControlService notifyAccessControlService = NotifyAccessControlFactory.getCallAccessControlService();
-                notifyAccessControlService.machineHeartbeat(machineHeartbeatDto);
+//                String heartBeatTime = DateUtil.getNow(DateUtil.DATE_FORMATE_STRING_A);
+//                MachineHeartbeatDto machineHeartbeatDto = new MachineHeartbeatDto(deviceId, heartBeatTime);
+//                ICallAccessControlService notifyAccessControlService = NotifyAccessControlFactory.getCallAccessControlService();
+//                notifyAccessControlService.machineHeartbeat(machineHeartbeatDto);
             } else {
                 //response = mMessageFactory.createResponse(Response.BAD_REQUEST, request);
                 response = mMessageFactory.createResponse(Response.UNAUTHORIZED, request);
