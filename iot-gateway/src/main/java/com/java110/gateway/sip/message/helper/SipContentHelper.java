@@ -9,7 +9,7 @@ public class SipContentHelper {
         content.append("<CmdType>Catalog</CmdType>\r\n");
         content.append("<SN>"+sn+"</SN>\r\n");
         content.append("<DeviceID>"+deviceId+"</DeviceID>\r\n");
-        content.append("</Query>");
+        content.append("</Query>\r\n");
         return content.toString();
 	}
 	public static String generateRealTimeMeidaStreamInviteContent(String sessionId,String ip,int port,boolean isTcp,boolean isActive,String sessionName,String ssrc){
