@@ -1,10 +1,14 @@
 package com.java110.gateway.sip;
 
 import com.alibaba.fastjson.JSONObject;
+import com.java110.core.adapt.ICallAccessControlService;
 import com.java110.core.constant.DeviceConstants;
+import com.java110.core.factory.NotifyAccessControlFactory;
+import com.java110.core.util.DateUtil;
 import com.java110.core.util.IDUtils;
 import com.java110.core.util.PortUtils;
 import com.java110.core.util.RedisUtil;
+import com.java110.entity.cloud.MachineHeartbeatDto;
 import com.java110.entity.sip.Device;
 import com.java110.entity.sip.DeviceChannel;
 import com.java110.entity.sip.Host;
@@ -225,6 +229,10 @@ public class SipLayer implements SipListener {
         if (MESSAGE_KEEP_ALIVE.equals(cmd)) {
             if (RedisUtil.checkExist(deviceId)) {
                 RedisUtil.expire(deviceId, RedisUtil.EXPIRE);
+                String heartBeatTime = DateUtil.getNow(DateUtil.DATE_FORMATE_STRING_A);
+                MachineHeartbeatDto machineHeartbeatDto = new MachineHeartbeatDto(deviceId, heartBeatTime);
+                ICallAccessControlService notifyAccessControlService = NotifyAccessControlFactory.getCallAccessControlService();
+                notifyAccessControlService.machineHeartbeat(machineHeartbeatDto);
             } else {
                 //response = mMessageFactory.createResponse(Response.BAD_REQUEST, request);
                 response = mMessageFactory.createResponse(Response.UNAUTHORIZED, request);

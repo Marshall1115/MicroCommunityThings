@@ -537,12 +537,16 @@ public class CallAccessControlServiceImpl implements ICallAccessControlService {
         machineDto.setMachineCode(machineHeartbeatDto.getMachineCode());
         List<MachineDto> machineDtos = machineServiceDao.getMachines(machineDto);
 
-        Assert.listOnlyOne(machineDtos, "设备不存在");
+        if(machineDtos == null  || machineDtos.size()< 1){
+           throw new IllegalArgumentException("设备不存在");
+        };
         CommunityDto communityDto = new CommunityDto();
         communityDto.setCommunityId(machineDtos.get(0).getCommunityId());
         List<CommunityDto> communityDtos = communityServiceImpl.queryCommunitys(communityDto);
-        Assert.listOnlyOne(communityDtos, "小区不存在");
 
+        if(communityDtos == null  || communityDtos.size()< 1){
+            throw new IllegalArgumentException("小区不存在");
+        };
         machineHeartbeatDto.setExtCommunityId(communityDtos.get(0).getExtCommunityId());
 
         machineHeartbeatDto.setTaskId(SeqUtil.getId());
