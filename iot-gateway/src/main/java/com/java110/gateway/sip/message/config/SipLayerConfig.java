@@ -15,6 +15,9 @@ public class SipLayerConfig {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
 
+    @Value("${sip.sipIp}")
+    private String sipIp;
+
     @Value("${sip.listenIp}")
     private String listenIp;
 
@@ -38,7 +41,7 @@ public class SipLayerConfig {
 
     @Bean
     public SipLayer sipLayer() {
-        SipLayer sipLayer = new SipLayer(sipId, sipRealm, password, listenIp, listenPort, streamMediaIp, streamMediaPort);
+        SipLayer sipLayer = new SipLayer(sipId, sipRealm, password,sipIp, listenIp, listenPort, streamMediaIp, streamMediaPort);
         boolean startStatus = sipLayer.startServer();
         if (startStatus) {
             logger.info("Sip Server 启动成功 port {}", listenPort);
