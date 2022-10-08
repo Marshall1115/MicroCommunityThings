@@ -363,7 +363,7 @@ public class SipLayer implements SipListener {
     private void sendCatalog(Device device, String callId, String fromTag, long cseq, String sn) throws Exception {
         Host host = device.getHost();
         String deviceId = device.getDeviceId();
-        Request request = createRequest(deviceId, host.getAddress(), "106.53.223.241", 5060, device.getProtocol(),
+        Request request = createRequest(deviceId, host.getAddress(), "47.103.9.147", 5060, device.getProtocol(),
                 mSipId, mSipRealm, fromTag,
                 deviceId, host.getAddress(), null,
                 callId, cseq, Request.MESSAGE);
