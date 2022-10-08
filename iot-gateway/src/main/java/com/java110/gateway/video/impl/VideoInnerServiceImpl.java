@@ -25,6 +25,7 @@ import org.springframework.util.StringUtils;
 
 import javax.sip.Dialog;
 import javax.sip.SipException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -40,6 +41,8 @@ public class VideoInnerServiceImpl implements IVideoInnerService, OnProcessListe
 
     @Autowired
     private ConfigProperties configProperties;
+
+    private static final Map<String, SipPushStreamServer> pushStreamServer = new HashMap<>();
 
 
     private MessageManager mMessageManager = MessageManager.getInstance();
@@ -104,20 +107,23 @@ public class VideoInnerServiceImpl implements IVideoInnerService, OnProcessListe
 
 
             //启动服务 =================================
+            String existsPushStreamServerKey = deviceId + "_" + channelId +"_"+mediaProtocol;
+            //停掉老服务
+            stopExistsPushStreamServer(existsPushStreamServerKey);
+
             String address = configProperties.getPushRtmpAddress().concat(streamName);
             Server server = isTcp ? new TCPServer() : new UDPServer();
             Observer observer = new RtmpPusher(address, callId);
-
             server.subscribe(observer);
             pushStreamDevice = new PushStreamDevice(deviceId, Integer.valueOf(ssrc), callId, streamName, port, isTcp, server,
                     observer, address);
-
             server.startServer(pushStreamDevice.getFrameDeque(), Integer.valueOf(ssrc), port, false);
             observer.startRemux();
-
             observer.setOnProcessListener(this);
             mPushStreamDeviceManager.put(streamName, callId, Integer.valueOf(ssrc), pushStreamDevice);
 
+            //保存起来 如果 服务没有停止时手工停止一下服务，以免端口死掉
+            pushStreamServer.put(existsPushStreamServerKey, new SipPushStreamServer(observer, server));
             //启动完成=====================================
 
             mSipLayer.sendInvite(device, SipLayer.SESSION_NAME_PLAY, callId, channelId, port, ssrc, isTcp);
@@ -147,6 +153,38 @@ public class VideoInnerServiceImpl implements IVideoInnerService, OnProcessListe
             throw new IllegalArgumentException("系统异常");
         }
         return ResultDto.createResponseEntity(result);
+    }
+
+    /**
+     * 停止已经存在的 接受流服务
+     * @param existsPushStreamServerKey
+     */
+    private void stopExistsPushStreamServer(String existsPushStreamServerKey) {
+
+        if(!pushStreamServer.containsKey(existsPushStreamServerKey)){
+            return ;
+
+        }
+        SipPushStreamServer sipPushStreamServer = pushStreamServer.get(existsPushStreamServerKey);
+        if(sipPushStreamServer == null){
+            return ;
+        }
+        if(sipPushStreamServer.getObserver() != null){
+            try{
+                sipPushStreamServer.getObserver().stopRemux();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        if(sipPushStreamServer.getServer() != null){
+            try{
+                sipPushStreamServer.getServer().stopServer();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        pushStreamServer.remove(existsPushStreamServerKey);
     }
 
     @Override
