@@ -58,6 +58,8 @@ public class VideoInnerServiceImpl implements IVideoInnerService, OnProcessListe
         Assert.hasKeyAndValue(paramIn, "port", "未包含port");
         Assert.hasKeyAndValue(paramIn, "mediaProtocol", "未包含mediaProtocol");
 
+        logger.debug("收到播放视频请求，{}", paramIn.toJSONString());
+
         String deviceId = paramIn.getString("deviceId");
         String channelId = paramIn.getString("channelId");
         String mediaProtocol = paramIn.getString("mediaProtocol");
@@ -107,7 +109,7 @@ public class VideoInnerServiceImpl implements IVideoInnerService, OnProcessListe
 
 
             //启动服务 =================================
-            String existsPushStreamServerKey = deviceId + "_" + channelId +"_"+mediaProtocol;
+            String existsPushStreamServerKey = deviceId + "_" + channelId + "_" + mediaProtocol;
             //停掉老服务
             stopExistsPushStreamServer(existsPushStreamServerKey);
 
@@ -157,29 +159,30 @@ public class VideoInnerServiceImpl implements IVideoInnerService, OnProcessListe
 
     /**
      * 停止已经存在的 接受流服务
+     *
      * @param existsPushStreamServerKey
      */
     private void stopExistsPushStreamServer(String existsPushStreamServerKey) {
 
-        if(!pushStreamServer.containsKey(existsPushStreamServerKey)){
-            return ;
+        if (!pushStreamServer.containsKey(existsPushStreamServerKey)) {
+            return;
 
         }
         SipPushStreamServer sipPushStreamServer = pushStreamServer.get(existsPushStreamServerKey);
-        if(sipPushStreamServer == null){
-            return ;
+        if (sipPushStreamServer == null) {
+            return;
         }
-        if(sipPushStreamServer.getObserver() != null){
-            try{
+        if (sipPushStreamServer.getObserver() != null) {
+            try {
                 sipPushStreamServer.getObserver().stopRemux();
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        if(sipPushStreamServer.getServer() != null){
-            try{
+        if (sipPushStreamServer.getServer() != null) {
+            try {
                 sipPushStreamServer.getServer().stopServer();
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
