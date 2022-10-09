@@ -35,6 +35,7 @@ public class UDPServer extends Server {
             bootstrap.group(workerGroup)//
                     .channel(NioDatagramChannel.class) //
                     .option(ChannelOption.SO_RCVBUF, 1024 * 1024)
+                    .option(ChannelOption.SO_REUSEADDR,true)
                     .handler(new ChannelInitializer<NioDatagramChannel>() { //
                         @Override
                         public void initChannel(NioDatagramChannel ch) throws Exception {
@@ -80,7 +81,7 @@ public class UDPServer extends Server {
         this.isRunning = false;
         if(serverChannel != null){
             try {
-                serverChannel.close();
+                serverChannel.close().sync();
                 serverChannel = null;
             }catch (Exception e){
                 e.printStackTrace();
