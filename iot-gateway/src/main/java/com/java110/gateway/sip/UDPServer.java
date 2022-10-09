@@ -4,9 +4,7 @@ package com.java110.gateway.sip;
 import com.java110.gateway.sip.codec.Frame;
 import com.java110.gateway.sip.handler.UDPHandler;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.concurrent.Future;
@@ -27,6 +25,8 @@ public class UDPServer extends Server {
     private volatile boolean isRunning = false;
     private Bootstrap bootstrap = null;
     private EventLoopGroup workerGroup = null;
+    private Channel serverChannel;
+
 
     private void bind(int port, int ssrc, boolean checkSsrc) throws Exception {
         workerGroup = new NioEventLoopGroup();
@@ -42,7 +42,11 @@ public class UDPServer extends Server {
                         }
                     });
             this.log.info("UDP服务启动成功port:{}", port);
-            bootstrap.bind(port).sync().channel().closeFuture().sync();
+            ChannelFuture channelFuture =bootstrap.bind(port).sync();
+
+            serverChannel = channelFuture.channel();
+            // 阻塞至channel关闭
+            serverChannel.closeFuture().sync();
 
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -74,6 +78,14 @@ public class UDPServer extends Server {
            return;
         }
         this.isRunning = false;
+        if(serverChannel != null){
+            try {
+                serverChannel.close();
+                serverChannel = null;
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
         try {
             Future<?> future = this.workerGroup.shutdownGracefully().await();
             if (!future.isSuccess()) {
