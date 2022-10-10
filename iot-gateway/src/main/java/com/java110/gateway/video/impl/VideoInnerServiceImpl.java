@@ -65,69 +65,96 @@ public class VideoInnerServiceImpl implements IVideoInnerService, OnProcessListe
         String mediaProtocol = paramIn.getString("mediaProtocol");
 
         JSONObject result = new JSONObject();
-        try {
-            //1.从redis查找设备，如果不存在，返回离线
-            String deviceStr = RedisUtil.get(deviceId);
-            if (StringUtils.isEmpty(deviceStr)) {
-                //throw new IllegalArgumentException("设备离线");
-                return ResultDto.error("设备离线");
-            }
-            //2.设备在线，先检查是否正在推流
-            //如果正在推流，直接返回rtmp地址
-            String streamName = StreamNameUtils.play(deviceId, channelId);
-            PushStreamDevice pushStreamDevice = mPushStreamDeviceManager.get(streamName);
-            if (pushStreamDevice != null) {
-                String callId = RedisCacheFactory.getValue(pushStreamDevice.getCallId() + "_pushStream");
+        //1.从redis查找设备，如果不存在，返回离线
+        String deviceStr = RedisUtil.get(deviceId);
+        if (StringUtils.isEmpty(deviceStr)) {
+            //throw new IllegalArgumentException("设备离线");
+            return ResultDto.error("设备离线");
+        }
+        //2.设备在线，先检查是否正在推流
+        //如果正在推流，直接返回rtmp地址
+        String streamName = StreamNameUtils.play(deviceId, channelId);
+        PushStreamDevice pushStreamDevice = mPushStreamDeviceManager.get(streamName);
+        if (pushStreamDevice != null) {
+            String callId = RedisCacheFactory.getValue(pushStreamDevice.getCallId() + "_pushStream");
 
-                if (!StringUtil.isEmpty(callId)) {
-                    result.put("address", configProperties.getPullRtmpAddress().concat(streamName));
-                    result.put("callId", pushStreamDevice.getCallId());
-                    prolongedSurvival(pushStreamDevice.getCallId());
-                    return ResultDto.createResponseEntity(result);
-                } else {
-                    try {
-                        mSipLayer.sendBye(callId);
-                    } catch (SipException e) {
-                        e.printStackTrace();
-                    }
+            if (!StringUtil.isEmpty(callId)) {
+                result.put("address", configProperties.getPullRtmpAddress().concat(streamName));
+                result.put("callId", pushStreamDevice.getCallId());
+                prolongedSurvival(pushStreamDevice.getCallId());
+                return ResultDto.createResponseEntity(result);
+            } else {
+                try {
+                    mSipLayer.sendBye(callId);
+                } catch (SipException e) {
+                    e.printStackTrace();
                 }
             }
-            //检查通道是否存在
-            Device device = JSONObject.parseObject(deviceStr, Device.class);
-            Map<String, DeviceChannel> channelMap = device.getChannelMap();
-            if (channelMap == null || !channelMap.containsKey(channelId)) {
-                //throw new IllegalArgumentException("通道不存在");
-                return ResultDto.error("通道不存在");
+        }
+        //检查通道是否存在
+        Device device = JSONObject.parseObject(deviceStr, Device.class);
+        Map<String, DeviceChannel> channelMap = device.getChannelMap();
+        if (channelMap == null || !channelMap.containsKey(channelId)) {
+            //throw new IllegalArgumentException("通道不存在");
+            return ResultDto.error("通道不存在");
+        }
+
+        boolean isTcp = mediaProtocol.toUpperCase().equals(SipLayer.TCP);
+        //3.下发指令
+        String callId = IDUtils.id();
+        int port = paramIn.getIntValue("port");
+        String ssrc = mSipLayer.getSsrc(true);
+        //启动服务 =================================
+        String existsPushStreamServerKey = deviceId + "_" + channelId + "_" + mediaProtocol;
+        stopExistsPushStreamServer(existsPushStreamServerKey);
+
+        String address = configProperties.getPushRtmpAddress().concat(streamName);
+        Server server = isTcp ? new TCPServer() : new UDPServer();
+        Observer observer = new RtmpPusher(address, callId);
+        server.subscribe(observer);
+        pushStreamDevice = new PushStreamDevice(deviceId, Integer.valueOf(ssrc), callId, streamName, port, isTcp, server,
+                observer, address);
+        server.startServer(pushStreamDevice.getFrameDeque(), Integer.valueOf(ssrc), port, false);
+        observer.startRemux();
+        observer.setOnProcessListener(this);
+        mPushStreamDeviceManager.put(streamName, callId, Integer.valueOf(ssrc), pushStreamDevice);
+
+        //保存起来 如果 服务没有停止时手工停止一下服务，以免端口死掉
+        pushStreamServer.put(existsPushStreamServerKey, new SipPushStreamServer(observer, server));
+        //启动完成=====================================
+
+        //下发摄像头 push stream command
+        PushStreamDevice finalPushStreamDevice = pushStreamDevice;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                inivitCamare(callId,port,ssrc,isTcp,channelId,device, finalPushStreamDevice,server,observer);
             }
-            boolean isTcp = mediaProtocol.toUpperCase().equals(SipLayer.TCP);
-            //3.下发指令
-            String callId = IDUtils.id();
-            //getPort可能耗时，在外面调用。
-            //int port = mSipLayer.getPort(isTcp);
-            int port = paramIn.getIntValue("port");
-            String ssrc = mSipLayer.getSsrc(true);
+        }).start();
+
+        result.put("address", configProperties.getPullRtmpAddress().concat(streamName));
+        result.put("callId", pushStreamDevice.getCallId());
 
 
-            //启动服务 =================================
-            String existsPushStreamServerKey = deviceId + "_" + channelId + "_" + mediaProtocol;
+        return ResultDto.createResponseEntity(result);
+    }
+
+    private void inivitCamare(String callId, int port, String ssrc,
+                              boolean isTcp,
+                              String channelId,
+                              Device device,
+                              PushStreamDevice pushStreamDevice,
+                              Server server,
+                              Observer observer
+                              ) {
+
+
+        //getPort可能耗时，在外面调用。
+        //int port = mSipLayer.getPort(isTcp);
+
+
+        try {
             //停掉老服务
-            stopExistsPushStreamServer(existsPushStreamServerKey);
-
-            String address = configProperties.getPushRtmpAddress().concat(streamName);
-            Server server = isTcp ? new TCPServer() : new UDPServer();
-            Observer observer = new RtmpPusher(address, callId);
-            server.subscribe(observer);
-            pushStreamDevice = new PushStreamDevice(deviceId, Integer.valueOf(ssrc), callId, streamName, port, isTcp, server,
-                    observer, address);
-            server.startServer(pushStreamDevice.getFrameDeque(), Integer.valueOf(ssrc), port, false);
-            observer.startRemux();
-            observer.setOnProcessListener(this);
-            mPushStreamDeviceManager.put(streamName, callId, Integer.valueOf(ssrc), pushStreamDevice);
-
-            //保存起来 如果 服务没有停止时手工停止一下服务，以免端口死掉
-            pushStreamServer.put(existsPushStreamServerKey, new SipPushStreamServer(observer, server));
-            //启动完成=====================================
-
             mSipLayer.sendInvite(device, SipLayer.SESSION_NAME_PLAY, callId, channelId, port, ssrc, isTcp);
             //4.等待指令响应
             SyncFuture<?> receive = mMessageManager.receive(callId);
@@ -137,8 +164,7 @@ public class VideoInnerServiceImpl implements IVideoInnerService, OnProcessListe
             if (response != null) {
                 pushStreamDevice.setDialog(response);
                 //result = GBResult.ok(new MediaData(configProperties.getPullRtmpAddress().concat(streamName), pushStreamDevice.getCallId()));
-                result.put("address", configProperties.getPullRtmpAddress().concat(streamName));
-                result.put("callId", pushStreamDevice.getCallId());
+
                 RedisCacheFactory.setValue(port + "_port", callId);
 
                 prolongedSurvival(pushStreamDevice.getCallId());
@@ -148,13 +174,12 @@ public class VideoInnerServiceImpl implements IVideoInnerService, OnProcessListe
                 //3.2响应失败，删除推流session
                 mMessageManager.remove(callId);
                 //throw new IllegalArgumentException("摄像头 指令未响应");
-                return ResultDto.error("摄像头 指令未响应");
+                //return ResultDto.error("摄像头 指令未响应");
             }
         } catch (Exception e) {
             logger.error("系统异常", e);
             throw new IllegalArgumentException("系统异常");
         }
-        return ResultDto.createResponseEntity(result);
     }
 
     /**
