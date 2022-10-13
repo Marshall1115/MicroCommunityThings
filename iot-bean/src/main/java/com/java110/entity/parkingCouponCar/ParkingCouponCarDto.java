@@ -14,6 +14,9 @@ import java.io.Serializable;
  **/
 public class ParkingCouponCarDto extends PageDto implements Serializable {
 
+    public static final String STATE_W = "1001";
+    public static final String STATE_F = "2002";
+
     private String taskId;
     private String pccId;
 
