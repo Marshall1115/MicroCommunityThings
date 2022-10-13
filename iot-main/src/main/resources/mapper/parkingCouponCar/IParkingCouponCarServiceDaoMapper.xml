@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.java110.core.dao.IParkingCouponCarServiceDao">
+
+    <select id="get" parameterType="string" resultType="Map">
+        select * from u_user
+    </select>
+
+    <!-- 保存小区 -->
+    <insert id="saveParkingCouponCar" parameterType="com.java110.entity.parkingCouponCar.ParkingCouponCarDto">
+        INSERT INTO
+        parking_coupon_car (pcc_id, coupon_name, shop_name, community_id,ext_pcc_id,pa_id,car_num,
+        give_way,type_cd,value,state,remark,start_time,end_time,ext_pcc_id)
+        VALUES (#{pccId}, #{couponName}, #{shop_name}, #{communityId},#{extPccId},#{paId},#{carNum},
+        #{giveWay},#{typeCd},#{value},#{state},#{remark},#{startTime},#{endTime},#{extPccId})
+    </insert>
+
+
+    <select id="getParkingCouponCarCount" parameterType="com.java110.entity.parkingCouponCar.ParkingCouponCarDto"
+            resultType="long">
+        select
+        count(1) count
+        from parking_coupon_car t
+        where 1=1
+        <if test="pccId != null and pccId != ''">
+            and t.pcc_id = #{pccId}
+        </if>
+        <if test="couponName != null and couponName != ''">
+            and t.coupon_name = #{couponName}
+        </if>
+        <if test="communityId != null and communityId != ''">
+            and t.community_id = #{communityId}
+        </if>
+        <if test="extPccId != null and extPccId != ''">
+            and t.ext_pcc_id = #{extPccId}
+        </if>
+        <if test="paId != null and paId != ''">
+            and t.pa_id = #{paId}
+        </if>
+        <if test="carNum != null and carNum != ''">
+            and t.car_num = #{carNum}
+        </if>
+        <if test="giveWay != null and giveWay != ''">
+            and t.give_way = #{giveWay}
+        </if>
+        <if test="typeCd != null and typeCd != ''">
+            and t.type_cd = #{typeCd}
+        </if>
+        <if test="value != null and value != ''">
+            and t.value = #{value}
+        </if>
+        <if test="state != null and state != ''">
+            and t.state = #{state}
+        </if>
+        <if test="remark != null and remark != ''">
+            and t.remark = #{remark}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            and t.start_time = #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and t.end_time = #{endTime}
+        </if>
+        <if test="extPccId != null and extPccId != ''">
+            and t.ext_pcc_id = #{extPccId}
+        </if>
+
+        and t.status_cd = '0'
+
+    </select>
+
+
+    <!--
+        查询小区信息
+    -->
+    <select id="getParkingCouponCars" parameterType="com.java110.entity.parkingCouponCar.ParkingCouponCarDto"
+            resultType="com.java110.entity.parkingCouponCar.ParkingCouponCarDto">
+        select
+        t.pcc_id pccId,
+        t.coupon_name couponName,
+        t.shop_name shopName,
+        t.community_id communityId,
+        t.create_time createTime,
+        t.ext_pcc_id extPccId,
+        t.pa_id paId,
+        t.car_num carNum,
+        t.give_way giveWay,
+        t.type_cd typeCd,
+        t.value,
+        t.state,
+        t.remark,
+        t.start_time startTime,
+        t.end_time endTime,
+        t.create_time createTime,
+        t.ext_pcc_id extPccId
+        from parking_coupon_car t
+        where 1=1
+        <if test="pccId != null and pccId != ''">
+            and t.pcc_id = #{pccId}
+        </if>
+        <if test="couponName != null and couponName != ''">
+            and t.coupon_name = #{couponName}
+        </if>
+        <if test="communityId != null and communityId != ''">
+            and t.community_id = #{communityId}
+        </if>
+        <if test="extPccId != null and extPccId != ''">
+            and t.ext_pcc_id = #{extPccId}
+        </if>
+        <if test="paId != null and paId != ''">
+            and t.pa_id = #{paId}
+        </if>
+        <if test="carNum != null and carNum != ''">
+            and t.car_num = #{carNum}
+        </if>
+        <if test="giveWay != null and giveWay != ''">
+            and t.give_way = #{giveWay}
+        </if>
+        <if test="typeCd != null and typeCd != ''">
+            and t.type_cd = #{typeCd}
+        </if>
+        <if test="value != null and value != ''">
+            and t.value = #{value}
+        </if>
+        <if test="state != null and state != ''">
+            and t.state = #{state}
+        </if>
+        <if test="remark != null and remark != ''">
+            and t.remark = #{remark}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            and t.start_time = #{startTime}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and t.end_time = #{endTime}
+        </if>
+        <if test="extPccId != null and extPccId != ''">
+            and t.ext_pcc_id = #{extPccId}
+        </if>
+        and t.status_cd = '0'
+        order by t.create_time desc
+        <if test="page != -1 and page != null ">
+            limit #{page}, #{row}
+        </if>
+
+    </select>
+
+    <update id="updateParkingCouponCar" parameterType="com.java110.entity.parkingCouponCar.ParkingCouponCarDto">
+        update parking_coupon_car t
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="pccId != null and pccId != ''">
+                t.pcc_id = #{pccId},
+            </if>
+            <if test="couponName != null and couponName != ''">
+                t.coupon_name = #{couponName},
+            </if>
+            <if test="shop_name != null and shop_name != ''">
+                t.shop_name = #{shop_name},
+            </if>
+            <if test="communityId != null and communityId != ''">
+                t.community_id = #{communityId},
+            </if>
+            <if test="statusCd != null and statusCd != ''">
+                t.status_cd = #{statusCd},
+            </if>
+            <if test="state != null and state != ''">
+                 t.state = #{state},
+            </if>
+            <if test="remark != null and remark != ''">
+                 t.remark = #{remark},
+            </if>
+            <if test="extPccId != null and extPccId != ''">
+                t.ext_pcc_id = #{extPccId}
+            </if>
+        </trim>
+        where 1=1
+        and t.status_cd = '0'
+        <if test="pccId != null and pccId != ''">
+            and t.pcc_id = #{pccId}
+        </if>
+        <if test="paId != null and paId != ''">
+            and t.pa_id = #{paId}
+        </if>
+    </update>
+
+</mapper>
