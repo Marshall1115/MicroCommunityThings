@@ -18,7 +18,7 @@ public class ShenxingFactory {
 
     public static HttpHeaders getHeader(String sxdmSn, RestTemplate outRestTemplate) {
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Cookie", getToken(sxdmSn, outRestTemplate));
+        //httpHeaders.add("Cookie", getToken(sxdmSn, outRestTemplate));
         httpHeaders.add("Content-Type", "application/json;charset=UTF-8");
         httpHeaders.add("sxdmToken",  MappingCacheFactory.getValue("sxdmToken"));
         httpHeaders.add("sxdmSn", sxdmSn);
