@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -255,9 +256,20 @@ public class FeeExtController {
         Assert.hasKeyAndValue(reqJson, "carNum", "未包含车辆编码");
         Assert.hasKeyAndValue(reqJson, "extPaId", "未包含外部停车场ID");
         Assert.hasKeyAndValue(reqJson, "taskId", "未包含任务ID");
+        List<String> extPccIds = new ArrayList<>();
+        if(reqJson.containsKey("extPccIds") && reqJson.getJSONArray("extPccIds").size()>0){
+            JSONArray extPccIdArrays = reqJson.getJSONArray("extPccIds");
+
+            for(int pccIdIndex = 0; pccIdIndex < extPccIdArrays.size();pccIdIndex++){
+                extPccIds.add(extPccIdArrays.getString(pccIdIndex));
+            }
+        }
+
+        reqJson.remove("extPccIds");
 
 
         CarDto carDto = BeanConvertUtil.covertBean(reqJson, CarDto.class);
+        carDto.setExtPccIds(extPccIds.toArray(new String[extPccIds.size()]));
         ResultDto tempResultDto = tempCarFeeConfigServiceImpl.getTempCarFeeOrder(carDto);
         return ResultDto.createResponseEntity(tempResultDto);
     }
@@ -297,6 +309,18 @@ public class FeeExtController {
         if(reqJson.containsKey("extMachineId")){
             tempCarPayOrderDto.setExtMachineId(reqJson.getString("extMachineId"));
         }
+
+        List<String> extPccIds = new ArrayList<>();
+        if(reqJson.containsKey("extPccIds") && reqJson.getJSONArray("extPccIds").size()>0){
+            JSONArray extPccIdArrays = reqJson.getJSONArray("extPccIds");
+
+            for(int pccIdIndex = 0; pccIdIndex < extPccIdArrays.size();pccIdIndex++){
+                extPccIds.add(extPccIdArrays.getString(pccIdIndex));
+            }
+        }
+
+        reqJson.remove("extPccIds");
+        tempCarPayOrderDto.setExtPccIds(extPccIds.toArray(new String[extPccIds.size()]));
         ResultDto tempResultDto = tempCarFeeConfigServiceImpl.notifyTempCarFeeOrder(tempCarPayOrderDto);
         return ResultDto.createResponseEntity(tempResultDto);
     }

@@ -21,6 +21,8 @@ public class TempCarPayOrderDto implements Serializable {
 
     private String extMachineId;
 
+    private String[] extPccIds;
+
 
     public String getOrderId() {
         return orderId;
@@ -116,5 +118,13 @@ public class TempCarPayOrderDto implements Serializable {
 
     public void setExtMachineId(String extMachineId) {
         this.extMachineId = extMachineId;
+    }
+
+    public String[] getExtPccIds() {
+        return extPccIds;
+    }
+
+    public void setExtPccIds(String[] extPccIds) {
+        this.extPccIds = extPccIds;
     }
 }

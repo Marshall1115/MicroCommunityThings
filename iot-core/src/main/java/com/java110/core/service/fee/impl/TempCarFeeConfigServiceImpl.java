@@ -394,6 +394,9 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         carInoutDto.setCommunityId(carInoutDtos.get(0).getCommunityId());
         carCallHcServiceImpl.notifyTempCarFeeOrder(carInoutDto);
 
+        //判断是否有停车劵
+        dealParkingCouponCar(tempCarPayOrderDto);
+
         //场内二维码支付
         if (StringUtil.isEmpty(tempCarPayOrderDto.getExtMachineId())) {
             return new ResultDto(ResultDto.SUCCESS, "支付成功");
@@ -432,6 +435,22 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
 
 
         return new ResultDto(ResultDto.SUCCESS, "支付成功");
+    }
+
+    private void dealParkingCouponCar(TempCarPayOrderDto tempCarPayOrderDto) throws Exception{
+
+        if(tempCarPayOrderDto.getExtPccIds() == null || tempCarPayOrderDto.getExtPccIds().length<1){
+            return ;
+        }
+
+        ParkingCouponCarDto tmpParkingCouponCarDto = null;
+        for(String extPccId : tempCarPayOrderDto.getExtPccIds()) {
+            tmpParkingCouponCarDto = new ParkingCouponCarDto();
+            tmpParkingCouponCarDto.setExtPccId(extPccId);
+            tmpParkingCouponCarDto.setState(ParkingCouponCarDto.STATE_F);
+            tmpParkingCouponCarDto.setRemark("手机端支付核销");
+            parkingCouponCarServiceImpl.updateParkingCouponCar(tmpParkingCouponCarDto);
+        }
     }
 
     private boolean carHasOpenError(String carNum, String paId) {

@@ -93,6 +93,7 @@ public class CarOutLogEngine extends CarEngine{
             tmpParkingCouponCarDto = new ParkingCouponCarDto();
             tmpParkingCouponCarDto.setPccId(parkingCouponCarDto.getPccId());
             tmpParkingCouponCarDto.setState(ParkingCouponCarDto.STATE_F);
+            tmpParkingCouponCarDto.setRemark("车辆出场核销");
             parkingCouponCarServiceImpl.updateParkingCouponCar(tmpParkingCouponCarDto);
         }
 
