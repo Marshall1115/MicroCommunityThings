@@ -126,7 +126,7 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
             logger.error("请求下游服务【" + MappingCacheFactory.getValue("Shenxing_URL") + ADD_MACHINE + "】异常，参数为" + httpEntity + e.getResponseBodyAsString(), e);
             logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + e.getResponseBodyAsString());
             JSONObject errrors = JSONObject.parseObject(e.getResponseBodyAsString());
-            throw new IllegalStateException("添加人脸失败：" + errrors.getJSONArray("errors").getJSONObject(0).getString("detail"));
+            throw new IllegalStateException("添加设备失败：" + errrors.getJSONArray("errors").getJSONObject(0).getString("detail"));
         }
         saveLog(SeqUtil.getId(), machineDto.getMachineId(), CMD_ADD_FACE_FIND, paramIn.toJSONString(), responseEntity.getBody());
         if (responseEntity.getStatusCode().value() >= 400) {
