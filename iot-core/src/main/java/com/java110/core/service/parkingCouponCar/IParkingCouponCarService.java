@@ -58,4 +58,6 @@ public interface IParkingCouponCarService {
      * @throws Exception
      */
     ResultDto deleteParkingCouponCar(ParkingCouponCarDto ParkingCouponCarDto) throws Exception;
+
+    double dealParkingCouponCar(double payChare,List<ParkingCouponCarDto> parkingCouponCarDtos);
 }

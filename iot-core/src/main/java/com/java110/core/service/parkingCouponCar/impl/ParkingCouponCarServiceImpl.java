@@ -4,16 +4,20 @@ import com.alibaba.fastjson.JSONObject;
 import com.java110.core.constant.ResponseConstant;
 import com.java110.core.constant.SystemConstant;
 import com.java110.core.dao.IParkingCouponCarServiceDao;
+import com.java110.core.service.fee.impl.TempCarFeeConfigServiceImpl;
 import com.java110.core.service.parkingCouponCar.IParkingCouponCarService;
 import com.java110.core.util.StringUtil;
 import com.java110.entity.PageDto;
 import com.java110.entity.car.CarDto;
 import com.java110.entity.parkingCouponCar.ParkingCouponCarDto;
 import com.java110.entity.response.ResultDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +32,9 @@ import java.util.List;
 
 @Service("parkingCouponCarServiceImpl")
 public class ParkingCouponCarServiceImpl implements IParkingCouponCarService {
+
+    private static Logger logger = LoggerFactory.getLogger(ParkingCouponCarServiceImpl.class);
+
 
     @Autowired
     private IParkingCouponCarServiceDao parkingCouponCarServiceDao;
@@ -131,6 +138,66 @@ public class ParkingCouponCarServiceImpl implements IParkingCouponCarService {
             resultDto = new ResultDto(ResponseConstant.SUCCESS, ResponseConstant.SUCCESS_MSG, data);
         }
         return resultDto;
+    }
+
+
+    /**
+     * 停车劵处理 这里主要处理 全免 打折 金额
+     *
+     * @param payCharge
+     * @param parkingCouponCarDtos
+     * @return
+     */
+    public double dealParkingCouponCar(double payCharge, List<ParkingCouponCarDto> parkingCouponCarDtos) {
+
+
+        if (parkingCouponCarDtos == null || parkingCouponCarDtos.size() < 1) {
+            return payCharge;
+        }
+
+        if(payCharge == 0){
+            return payCharge;
+        }
+
+        BigDecimal amountDec = new BigDecimal(payCharge);
+
+        double couponAmount = 0.0;
+
+        for (ParkingCouponCarDto parkingCouponCarDto : parkingCouponCarDtos) {
+            try {
+                if (ParkingCouponCarDto.TYPE_CD_HOURS.equals(parkingCouponCarDto.getTypeCd())) {
+                    continue;
+                }
+
+                parkingCouponCarDto.setHasUser(true);
+
+                if (ParkingCouponCarDto.TYPE_CD_FREE.equals(parkingCouponCarDto.getTypeCd())) {
+                    return 0;
+                }
+
+                couponAmount = Double.parseDouble(parkingCouponCarDto.getValue());
+
+                if (ParkingCouponCarDto.TYPE_CD_MONEY.equals(parkingCouponCarDto.getTypeCd())) {
+                    if (amountDec.doubleValue() < couponAmount) {
+                        return 0;
+                    }
+                    amountDec = amountDec.subtract(new BigDecimal(couponAmount));
+                }
+
+                if (ParkingCouponCarDto.TYPE_CD_DISCOUNT.equals(parkingCouponCarDto.getTypeCd())) {
+                    if (amountDec.doubleValue() < couponAmount) {
+                        return 0;
+                    }
+                    amountDec = amountDec.multiply(new BigDecimal(couponAmount)).setScale(2, BigDecimal.ROUND_HALF_UP);
+                }
+            } catch (Exception e) {
+                logger.error("停车劵 处理失败",e);
+            }
+
+        }
+
+
+        return amountDec.doubleValue();
     }
 
 

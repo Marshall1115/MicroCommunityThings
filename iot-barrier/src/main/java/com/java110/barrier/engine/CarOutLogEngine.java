@@ -1,11 +1,13 @@
 package com.java110.barrier.engine;
 
 import com.java110.core.service.car.ICarInoutService;
+import com.java110.core.service.parkingCouponCar.IParkingCouponCarService;
 import com.java110.core.util.DateUtil;
 import com.java110.core.util.SeqUtil;
 import com.java110.entity.car.CarInoutDto;
 import com.java110.entity.machine.MachineDto;
 import com.java110.entity.parkingArea.ParkingAreaDto;
+import com.java110.entity.parkingCouponCar.ParkingCouponCarDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +20,23 @@ public class CarOutLogEngine extends CarEngine{
     @Autowired
     private ICarInoutService carInoutServiceImpl;
 
-    public void saveCarOutLog(String carNum, MachineDto machineDto, List<ParkingAreaDto> parkingAreaDtos, String state, String remark) throws Exception {
+    @Autowired
+    private IParkingCouponCarService parkingCouponCarServiceImpl;
+
+    public void saveCarOutLog(String carNum,
+                              MachineDto machineDto,
+                              List<ParkingAreaDto> parkingAreaDtos,
+                              String state,
+                              String remark) throws Exception {
+        saveCarOutLog(carNum,machineDto,parkingAreaDtos,state,remark,null);
+    }
+
+    public void saveCarOutLog(String carNum,
+                              MachineDto machineDto,
+                              List<ParkingAreaDto> parkingAreaDtos,
+                              String state,
+                              String remark,
+                              List<ParkingCouponCarDto> parkingCouponCarDtos) throws Exception {
 
         //查询是否有入场数据
         CarInoutDto carInoutDto = new CarInoutDto();
@@ -52,6 +70,7 @@ public class CarOutLogEngine extends CarEngine{
             carInoutDto.setPayType("1");
         }
         carInoutDto.setMachineCode(machineDto.getMachineCode());
+        carInoutDto.setParkingCouponCarDtos(parkingCouponCarDtos);
         carInoutServiceImpl.saveCarInout(carInoutDto);
 
         if (CarInoutDto.STATE_IN_FAIL.equals(state)) {
@@ -64,6 +83,19 @@ public class CarOutLogEngine extends CarEngine{
             tmpCarInoutDto.setState(CarInoutDto.STATE_OUT);
             carInoutServiceImpl.updateCarInout(tmpCarInoutDto);
         }
+
+        if(parkingCouponCarDtos == null || parkingCouponCarDtos.size() < 1){
+            return ;
+        }
+        //停车劵核销
+        ParkingCouponCarDto tmpParkingCouponCarDto = null;
+        for(ParkingCouponCarDto parkingCouponCarDto : parkingCouponCarDtos) {
+            tmpParkingCouponCarDto = new ParkingCouponCarDto();
+            tmpParkingCouponCarDto.setPccId(parkingCouponCarDto.getPccId());
+            tmpParkingCouponCarDto.setState(ParkingCouponCarDto.STATE_F);
+            parkingCouponCarServiceImpl.updateParkingCouponCar(tmpParkingCouponCarDto);
+        }
+
 
 //        //异步上报HC小区管理系统
 //        carCallHcServiceImpl.carInout(carInoutDto);

@@ -9,6 +9,7 @@ import com.java110.core.factory.TempCarFeeFactory;
 import com.java110.core.service.car.ICarInoutService;
 import com.java110.core.service.fee.ITempCarFeeConfigService;
 import com.java110.core.service.parkingBox.IParkingBoxService;
+import com.java110.core.service.parkingCouponCar.IParkingCouponCarService;
 import com.java110.core.util.Assert;
 import com.java110.entity.car.*;
 import com.java110.entity.machine.MachineDto;
@@ -16,9 +17,11 @@ import com.java110.entity.parkingArea.InOutCarTextDto;
 import com.java110.entity.parkingArea.ParkingAreaDto;
 import com.java110.entity.parkingArea.ParkingBoxDto;
 import com.java110.entity.parkingArea.ResultParkingAreaTextDto;
+import com.java110.entity.parkingCouponCar.ParkingCouponCarDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -45,6 +48,9 @@ public class OutCarEngine extends CarEngine implements IOutCarEngine {
 
     @Autowired
     private ITempCarFeeConfigService tempCarFeeConfigServiceImpl;
+
+    @Autowired
+    private IParkingCouponCarService parkingCouponCarServiceImpl;
 
 
     @Override
@@ -168,12 +174,21 @@ public class OutCarEngine extends CarEngine implements IOutCarEngine {
             return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_NO_PRI, "临时车无权限");
         }
 
+        //考虑停车劵
+        List<ParkingCouponCarDto> parkingCouponCarDtos = getCarCoupons(carNum,tempCarFeeConfigDto.getPaId());
+
         IComputeTempCarFee computeTempCarFee = ApplicationContextFactory.getBean(tempCarFeeConfigDtos.get(0).getRuleId(), IComputeTempCarFee.class);
-        TempCarFeeResult result = computeTempCarFee.computeTempCarFee(carInoutDtos.get(0), tempCarFeeConfigDtos.get(0));
+        TempCarFeeResult result = computeTempCarFee.computeTempCarFee(carInoutDtos.get(0), tempCarFeeConfigDtos.get(0),getDurationCarCoupons(parkingCouponCarDtos));
+
+        // 停车劵处理 这里主要处理 全免 打折 金额
+        double amount = parkingCouponCarServiceImpl.dealParkingCouponCar(result.getPayCharge(), parkingCouponCarDtos);
+        result.setPayCharge(amount);
 
         //不收费，直接出场
         if (result.getPayCharge() == 0) {
             inOutCarTextDto = inOutCarTextEngine.carOutFinishPayFee(carNum, machineDto, getDefaultPaId(parkingAreaDtos), carDayDto);
+            //刷入停车劵到车辆出场
+            refreshParkingCouponToCarInout(parkingCouponCarDtos,carInoutDtos.get(0));
             saveCarOutInfo(carNum,machineDto,inOutCarTextDto,0,"开门成功",carInoutDtos.get(0),parkingAreaDtos, CarInoutDto.STATE_OUT);
             return new ResultParkingAreaTextDto(ResultParkingAreaTextDto.CODE_CAR_OUT_SUCCESS, inOutCarTextDto, carNum);
         }
@@ -188,10 +203,79 @@ public class OutCarEngine extends CarEngine implements IOutCarEngine {
         return resultParkingAreaTextDto;
     }
 
-    private void saveCarOutInfo(String carNum, MachineDto machineDto, InOutCarTextDto inOutCarTextDto,double payCharge, String openStats, CarInoutDto carInoutDto, List<ParkingAreaDto> parkingAreaDtos, String stateInFail) throws Exception {
+    /**
+     *  刷入停车劵
+     * @param parkingCouponCarDtos
+     * @param carInoutDto
+     */
+    private void refreshParkingCouponToCarInout(List<ParkingCouponCarDto> parkingCouponCarDtos, CarInoutDto carInoutDto) {
+
+        List<ParkingCouponCarDto> tmpParkingCouponCarDtos = new ArrayList<>();
+
+        if(parkingCouponCarDtos == null || parkingCouponCarDtos.size() < 1){
+            carInoutDto.setParkingCouponCarDtos(tmpParkingCouponCarDtos);
+            return ;
+        }
+
+        for(ParkingCouponCarDto tmpParkingCouponCarDto : parkingCouponCarDtos){
+            if(!tmpParkingCouponCarDto.isHasUser()){
+                continue;
+            }
+            tmpParkingCouponCarDtos.add(tmpParkingCouponCarDto);
+        }
+
+        carInoutDto.setParkingCouponCarDtos(tmpParkingCouponCarDtos);
+    }
+
+    /**
+     * 获取时长优惠券
+     *
+     * @param parkingCouponCarDtos
+     * @return
+     */
+    private List<ParkingCouponCarDto> getDurationCarCoupons(List<ParkingCouponCarDto> parkingCouponCarDtos) {
+
+        List<ParkingCouponCarDto> tmpParkingCouponCarDtos = new ArrayList<>();
+
+        if (parkingCouponCarDtos == null || parkingCouponCarDtos.size() < 1) {
+            return tmpParkingCouponCarDtos;
+        }
+
+        for (ParkingCouponCarDto parkingCouponCarDto : parkingCouponCarDtos) {
+            if (ParkingCouponCarDto.TYPE_CD_HOURS.equals(parkingCouponCarDto.getTypeCd())) {
+                tmpParkingCouponCarDtos.add(parkingCouponCarDto);
+            }
+        }
+
+        return tmpParkingCouponCarDtos;
+    }
+
+    private List<ParkingCouponCarDto> getCarCoupons(String carNum,String  paId) {
+
+        ParkingCouponCarDto parkingCouponCarDto = new ParkingCouponCarDto();
+        parkingCouponCarDto.setCarNum(carNum);
+        parkingCouponCarDto.setPaId(paId);
+        parkingCouponCarDto.setState(ParkingCouponCarDto.STATE_W);
+        List<ParkingCouponCarDto> parkingCouponCarDtos = parkingCouponCarServiceImpl.queryParkingCouponCars(parkingCouponCarDto);
+
+        if(parkingCouponCarDtos == null || parkingCouponCarDtos.size() <1){
+            parkingCouponCarDtos = new ArrayList<>();
+        }
+
+        return parkingCouponCarDtos;
+    }
+
+    private void saveCarOutInfo(String carNum,
+                                MachineDto machineDto,
+                                InOutCarTextDto inOutCarTextDto,
+                                double payCharge,
+                                String openStats,
+                                CarInoutDto carInoutDto,
+                                List<ParkingAreaDto> parkingAreaDtos,
+                                String stateInFail) throws Exception {
         BarrierGateControlDto barrierGateControlDto
                 = new BarrierGateControlDto(BarrierGateControlDto.ACTION_FEE_INFO, carNum, machineDto, payCharge, carInoutDto, inOutCarTextDto.getRemark(), openStats);
         sendInfoEngine.sendInfo(barrierGateControlDto, machineDto.getLocationObjId(), machineDto);
-        carOutLogEngine.saveCarOutLog(carNum, machineDto, parkingAreaDtos, stateInFail, inOutCarTextDto.getRemark());
+        carOutLogEngine.saveCarOutLog(carNum, machineDto, parkingAreaDtos, stateInFail, inOutCarTextDto.getRemark(),carInoutDto.getParkingCouponCarDtos());
     }
 }

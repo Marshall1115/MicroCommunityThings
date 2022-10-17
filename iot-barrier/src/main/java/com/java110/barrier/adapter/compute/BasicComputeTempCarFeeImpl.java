@@ -5,6 +5,7 @@ import com.java110.entity.car.TempCarFeeConfigAttrDto;
 import com.java110.entity.car.TempCarFeeConfigDto;
 import com.java110.entity.car.TempCarFeeResult;
 import com.java110.core.factory.TempCarFeeFactory;
+import com.java110.entity.parkingCouponCar.ParkingCouponCarDto;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -37,12 +38,14 @@ public class BasicComputeTempCarFeeImpl extends BaseComputeTempCarFee {
     public static final String SPEC_CD_5600012009 = "5600012009";
 
     @Override
-    public TempCarFeeResult doCompute(CarInoutDto carInoutDto, TempCarFeeConfigDto tempCarFeeConfigDto,
-                                      List<TempCarFeeConfigAttrDto> tempCarFeeConfigAttrDtos) {
+    public TempCarFeeResult doCompute(CarInoutDto carInoutDto,
+                                      TempCarFeeConfigDto tempCarFeeConfigDto,
+                                      List<TempCarFeeConfigAttrDto> tempCarFeeConfigAttrDtos,
+                                      List<ParkingCouponCarDto> parkingCouponCarDtos) {
 
 
         //获取停车时间
-        long min = TempCarFeeFactory.getTempCarCeilMin(carInoutDto);
+        long min = TempCarFeeFactory.getTempCarCeilMin(carInoutDto,parkingCouponCarDtos);
 
         int freeMin = TempCarFeeFactory.getAttrValueInt(tempCarFeeConfigAttrDtos, SPEC_CD_5600012001);
 

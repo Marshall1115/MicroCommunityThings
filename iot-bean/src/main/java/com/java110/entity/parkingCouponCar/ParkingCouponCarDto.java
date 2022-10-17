@@ -17,6 +17,11 @@ public class ParkingCouponCarDto extends PageDto implements Serializable {
     public static final String STATE_W = "1001";
     public static final String STATE_F = "2002";
 
+    public static final String TYPE_CD_HOURS = "1001";
+    public static final String TYPE_CD_MONEY = "2002";
+    public static final String TYPE_CD_DISCOUNT = "3003";
+    public static final String TYPE_CD_FREE = "4004";
+
     private String taskId;
     private String pccId;
 
@@ -43,6 +48,10 @@ public class ParkingCouponCarDto extends PageDto implements Serializable {
     private String startTime;
     private String endTime;
     private String extPccId;
+
+    private boolean hasUser =false;
+
+    private String[] extPccIds;
 
 
     public String getPccId() {
@@ -179,5 +188,21 @@ public class ParkingCouponCarDto extends PageDto implements Serializable {
 
     public void setTaskId(String taskId) {
         this.taskId = taskId;
+    }
+
+    public String[] getExtPccIds() {
+        return extPccIds;
+    }
+
+    public void setExtPccIds(String[] extPccIds) {
+        this.extPccIds = extPccIds;
+    }
+
+    public boolean isHasUser() {
+        return hasUser;
+    }
+
+    public void setHasUser(boolean hasUser) {
+        this.hasUser = hasUser;
     }
 }

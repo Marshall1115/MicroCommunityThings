@@ -256,6 +256,7 @@ public class FeeExtController {
         Assert.hasKeyAndValue(reqJson, "extPaId", "未包含外部停车场ID");
         Assert.hasKeyAndValue(reqJson, "taskId", "未包含任务ID");
 
+
         CarDto carDto = BeanConvertUtil.covertBean(reqJson, CarDto.class);
         ResultDto tempResultDto = tempCarFeeConfigServiceImpl.getTempCarFeeOrder(carDto);
         return ResultDto.createResponseEntity(tempResultDto);

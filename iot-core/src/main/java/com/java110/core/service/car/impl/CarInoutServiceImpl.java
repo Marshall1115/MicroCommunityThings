@@ -130,7 +130,7 @@ public class CarInoutServiceImpl implements ICarInoutService {
             }
 
             computeTempCarFee = ApplicationContextFactory.getBean(tempCarFeeConfigDtos.get(0).getRuleId(), IComputeTempCarFee.class);
-            TempCarFeeResult result = computeTempCarFee.computeTempCarFee(carInoutDto, tempCarFeeConfigDtos.get(0));
+            TempCarFeeResult result = computeTempCarFee.computeTempCarFee(carInoutDto, tempCarFeeConfigDtos.get(0),new ArrayList<>());
 
             carInoutDto.setMin(result.getMin());
             carInoutDto.setPayCharge(result.getPayCharge() + "");

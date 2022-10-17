@@ -14,6 +14,7 @@ import com.java110.core.service.fee.ITempCarFeeConfigService;
 import com.java110.core.service.hc.ICarCallHcService;
 import com.java110.core.service.machine.IMachineService;
 import com.java110.core.service.parkingArea.IParkingAreaService;
+import com.java110.core.service.parkingCouponCar.IParkingCouponCarService;
 import com.java110.core.util.Assert;
 import com.java110.core.util.DateUtil;
 import com.java110.core.util.SeqUtil;
@@ -26,11 +27,15 @@ import com.java110.entity.parkingArea.ParkingAreaDto;
 import com.java110.entity.parkingArea.ParkingBoxAreaDto;
 import com.java110.entity.parkingArea.ParkingBoxDto;
 import com.java110.entity.parkingArea.ResultParkingAreaTextDto;
+import com.java110.entity.parkingCouponCar.ParkingCouponCarDto;
 import com.java110.entity.response.ResultDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -46,6 +51,9 @@ import java.util.List;
 
 @Service("tempCarFeeConfigServiceImpl")
 public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
+
+    private static Logger logger = LoggerFactory.getLogger(TempCarFeeConfigServiceImpl.class);
+
 
     @Autowired
     private ITempCarFeeConfigServiceDao carServiceDao;
@@ -70,6 +78,9 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
 
     @Autowired
     IMachineService machineServiceImpl;
+
+    @Autowired
+    private IParkingCouponCarService parkingCouponCarServiceImpl;
 
 
     /**
@@ -255,8 +266,16 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
             throw new IllegalArgumentException("未查询到临时车费用规则");
         }
 
+        //根据extPccIds 查询停车劵
+
+        List<ParkingCouponCarDto> parkingCouponCarDtos = getCarCoupons(carDto);
+
         IComputeTempCarFee computeTempCarFee = ApplicationContextFactory.getBean(tempCarFeeConfigDtos.get(0).getRuleId(), IComputeTempCarFee.class);
-        TempCarFeeResult result = computeTempCarFee.computeTempCarFee(carInoutDtos.get(0), tempCarFeeConfigDtos.get(0));
+        TempCarFeeResult result = computeTempCarFee.computeTempCarFee(carInoutDtos.get(0), tempCarFeeConfigDtos.get(0), getDurationCarCoupons(parkingCouponCarDtos));
+
+
+        // 停车劵处理 这里主要处理 全免 打折 金额
+        double amount = parkingCouponCarServiceImpl.dealParkingCouponCar(result.getPayCharge(), parkingCouponCarDtos);
 
 
         TempCarPayOrderDto tempCarPayOrderDto = new TempCarPayOrderDto();
@@ -265,11 +284,46 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         tempCarPayOrderDto.setQueryTime(DateUtil.getCurrentDate());
         tempCarPayOrderDto.setCarNum(carDto.getCarNum());
         tempCarPayOrderDto.setPayCharge(result.getPayCharge());
-        tempCarPayOrderDto.setAmount(result.getPayCharge());
+        tempCarPayOrderDto.setAmount(amount);
         tempCarPayOrderDto.setStopTimeTotal(result.getHours() * 60 + result.getMin());
         tempCarPayOrderDto.setPaId(parkingAreaDtos.get(0).getPaId());
         tempCarPayOrderDto.setOrderId(carInoutDtos.get(0).getInoutId());
         return tempCarPayOrderDto;
+    }
+
+
+
+    /**
+     * 获取时长优惠券
+     *
+     * @param parkingCouponCarDtos
+     * @return
+     */
+    private List<ParkingCouponCarDto> getDurationCarCoupons(List<ParkingCouponCarDto> parkingCouponCarDtos) {
+
+        List<ParkingCouponCarDto> tmpParkingCouponCarDtos = new ArrayList<>();
+
+        if (parkingCouponCarDtos == null || parkingCouponCarDtos.size() < 1) {
+            return tmpParkingCouponCarDtos;
+        }
+
+        for (ParkingCouponCarDto parkingCouponCarDto : parkingCouponCarDtos) {
+            if (ParkingCouponCarDto.TYPE_CD_HOURS.equals(parkingCouponCarDto.getTypeCd())) {
+                tmpParkingCouponCarDtos.add(parkingCouponCarDto);
+            }
+        }
+
+        return tmpParkingCouponCarDtos;
+    }
+
+    private List<ParkingCouponCarDto> getCarCoupons(CarDto carDto) {
+
+        ParkingCouponCarDto parkingCouponCarDto = new ParkingCouponCarDto();
+        parkingCouponCarDto.setExtPccIds(carDto.getExtPccIds());
+        parkingCouponCarDto.setState(ParkingCouponCarDto.STATE_W);
+        List<ParkingCouponCarDto> parkingCouponCarDtos = parkingCouponCarServiceImpl.queryParkingCouponCars(parkingCouponCarDto);
+
+        return parkingCouponCarDtos;
     }
 
     @Override
@@ -359,7 +413,7 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         }
 
         // 校验是否有车辆 在门口
-        if(!carHasOpenError(carInoutDtos.get(0).getCarNum(),carInoutDtos.get(0).getPaId())){
+        if (!carHasOpenError(carInoutDtos.get(0).getCarNum(), carInoutDtos.get(0).getPaId())) {
             return new ResultDto(ResultDto.SUCCESS, "支付成功");
         }
 
@@ -380,23 +434,23 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         return new ResultDto(ResultDto.SUCCESS, "支付成功");
     }
 
-    private boolean carHasOpenError(String carNum,String paId) {
-        int openDoorTime = 5* 60;
+    private boolean carHasOpenError(String carNum, String paId) {
+        int openDoorTime = 5 * 60;
         String openDoorTimeStr = MappingCacheFactory.getValue("CAR_OPEN_DOOR_TIME");
 
-        if( StringUtil.isNumber(openDoorTimeStr)){
+        if (StringUtil.isNumber(openDoorTimeStr)) {
             openDoorTime = Integer.parseInt(openDoorTimeStr);
         }
 
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.SECOND,-1 * openDoorTime);
+        calendar.add(Calendar.SECOND, -1 * openDoorTime);
 
         CarInoutDto tmpCarInoutDto = new CarInoutDto();
         tmpCarInoutDto.setCarNum(carNum);
         tmpCarInoutDto.setPaId(paId);
-        tmpCarInoutDto.setOpenTime(DateUtil.getFormatTimeString(calendar.getTime(),DateUtil.DATE_FORMATE_STRING_A));
+        tmpCarInoutDto.setOpenTime(DateUtil.getFormatTimeString(calendar.getTime(), DateUtil.DATE_FORMATE_STRING_A));
         List<CarInoutDto> carInoutDtos = carInoutServiceImpl.hasOpenDoorError(tmpCarInoutDto);
-        if(carInoutDtos == null || carInoutDtos.size()<1){
+        if (carInoutDtos == null || carInoutDtos.size() < 1) {
             return false;
         }
 

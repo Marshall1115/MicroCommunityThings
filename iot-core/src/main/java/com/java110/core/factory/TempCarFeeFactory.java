@@ -3,6 +3,7 @@ package com.java110.core.factory;
 import com.java110.entity.car.CarInoutDto;
 import com.java110.entity.car.TempCarFeeConfigAttrDto;
 import com.java110.core.util.DateUtil;
+import com.java110.entity.parkingCouponCar.ParkingCouponCarDto;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -42,11 +43,12 @@ public class TempCarFeeFactory {
      * @param carInoutDto
      * @return
      */
-    public static long getTempCarCeilMin(CarInoutDto carInoutDto) {
+    public static long getTempCarCeilMin(CarInoutDto carInoutDto,List<ParkingCouponCarDto> parkingCouponCarDtos) {
 
         //支付时间是否超过15分钟
         Date payTime = null;
         double min = 0.0;
+        long minLong = 0;
         try {
             //不是支付完成 状态
             if (CarInoutDto.STATE_PAY.equals(carInoutDto.getState())) {
@@ -59,11 +61,36 @@ public class TempCarFeeFactory {
 
             min = (nowTime.getTime() - payTime.getTime()) / (60 * 1000*1.00);
 
-            return new Double(Math.ceil(min)).longValue();
+            minLong = new Double(Math.ceil(min)).longValue();
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        return 0;
+
+        if(parkingCouponCarDtos == null || parkingCouponCarDtos.size()<1){
+            return minLong;
+        }
+
+        long couponMin = 0;
+        for(ParkingCouponCarDto parkingCouponCarDto : parkingCouponCarDtos){
+            if(!ParkingCouponCarDto.TYPE_CD_HOURS.equals(parkingCouponCarDto.getTypeCd())){
+                continue;
+            }
+
+            couponMin = Long.parseLong(parkingCouponCarDto.getValue());
+
+            if(minLong == 0){
+                break;
+            }
+            parkingCouponCarDto.setHasUser(true);
+            if(minLong > couponMin){
+                minLong = minLong - couponMin;
+            }else{
+                minLong = 0;
+                break;
+            }
+        }
+
+        return minLong;
     }
 
     /**

@@ -15,6 +15,7 @@ import com.java110.core.exception.ServiceException;
 import com.java110.core.factory.HttpFactory;
 import com.java110.core.service.community.ICommunityService;
 import com.java110.core.util.Assert;
+import com.java110.entity.parkingCouponCar.ParkingCouponCarDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,6 +103,9 @@ public class CarCallHcServiceImpl implements ICarCallHcService {
             data.put("payCharge", carInoutDto.getPayCharge());
             data.put("realCharge", carInoutDto.getRealCharge());
             data.put("payType", carInoutDto.getPayType());
+
+            //是否有停车劵
+            refreshParkingCoupons(data,carInoutDto);
         }
         ResponseEntity<String> tmpResponseEntity = HttpFactory.exchange(restTemplate, url, data.toString(), headers, HttpMethod.POST, securityCode);
 
@@ -108,6 +113,22 @@ public class CarCallHcServiceImpl implements ICarCallHcService {
             throw new ServiceException(Result.SYS_ERROR, "上传车辆失败" + tmpResponseEntity.getBody());
         }
 
+    }
+
+    private void refreshParkingCoupons(JSONObject data, CarInoutDto carInoutDto) {
+
+        List<ParkingCouponCarDto> parkingCouponCarDtos = carInoutDto.getParkingCouponCarDtos();
+
+        if(parkingCouponCarDtos == null || parkingCouponCarDtos.size() <1){
+            return ;
+        }
+
+        List<String> pccIds = new ArrayList<>();
+        for(ParkingCouponCarDto parkingCouponCarDto : parkingCouponCarDtos){
+            pccIds.add(parkingCouponCarDto.getExtPccId());
+        }
+
+        data.put("pccIds",pccIds);
     }
 
     @Override

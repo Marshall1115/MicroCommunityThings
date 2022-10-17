@@ -1,9 +1,11 @@
 package com.java110.entity.car;
 
 import com.java110.entity.PageDto;
+import com.java110.entity.parkingCouponCar.ParkingCouponCarDto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class CarInoutDto extends PageDto implements Serializable {
 
@@ -45,6 +47,8 @@ public class CarInoutDto extends PageDto implements Serializable {
     private String areaNum;
 
     private long min;
+
+    private List<ParkingCouponCarDto> parkingCouponCarDtos;
 
     private String photoJpg;
 
@@ -230,5 +234,13 @@ public class CarInoutDto extends PageDto implements Serializable {
 
     public void setPhotoJpg(String photoJpg) {
         this.photoJpg = photoJpg;
+    }
+
+    public List<ParkingCouponCarDto> getParkingCouponCarDtos() {
+        return parkingCouponCarDtos;
+    }
+
+    public void setParkingCouponCarDtos(List<ParkingCouponCarDto> parkingCouponCarDtos) {
+        this.parkingCouponCarDtos = parkingCouponCarDtos;
     }
 }
