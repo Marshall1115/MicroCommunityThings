@@ -263,13 +263,14 @@ public class FeeExtController {
             for(int pccIdIndex = 0; pccIdIndex < extPccIdArrays.size();pccIdIndex++){
                 extPccIds.add(extPccIdArrays.getString(pccIdIndex));
             }
+            reqJson.remove("extPccIds");
         }
-
-        reqJson.remove("extPccIds");
 
 
         CarDto carDto = BeanConvertUtil.covertBean(reqJson, CarDto.class);
-        carDto.setExtPccIds(extPccIds.toArray(new String[extPccIds.size()]));
+        if(extPccIds.size()>0) {
+            carDto.setExtPccIds(extPccIds.toArray(new String[extPccIds.size()]));
+        }
         ResultDto tempResultDto = tempCarFeeConfigServiceImpl.getTempCarFeeOrder(carDto);
         return ResultDto.createResponseEntity(tempResultDto);
     }
