@@ -10,9 +10,9 @@
     <insert id="saveParkingCouponCar" parameterType="com.java110.entity.parkingCouponCar.ParkingCouponCarDto">
         INSERT INTO
         parking_coupon_car (pcc_id, coupon_name, shop_name, community_id,ext_pcc_id,pa_id,car_num,
-        give_way,type_cd,value,state,remark,start_time,end_time,ext_pcc_id)
+        give_way,type_cd,value,state,remark,start_time,end_time)
         VALUES (#{pccId}, #{couponName}, #{shopName}, #{communityId},#{extPccId},#{paId},#{carNum},
-        #{giveWay},#{typeCd},#{value},#{state},#{remark},#{startTime},#{endTime},#{extPccId})
+        #{giveWay},#{typeCd},#{value},#{state},#{remark},#{startTime},#{endTime})
     </insert>
 
 
