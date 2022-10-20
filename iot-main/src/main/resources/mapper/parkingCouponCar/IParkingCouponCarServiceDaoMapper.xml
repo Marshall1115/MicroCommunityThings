@@ -155,7 +155,7 @@
             <if test="couponName != null and couponName != ''">
                 t.coupon_name = #{couponName},
             </if>
-            <if test="shop_name != null and shop_name != ''">
+            <if test="shopName != null and shopName != ''">
                 t.shop_name = #{shopName},
             </if>
             <if test="communityId != null and communityId != ''">
