@@ -275,6 +275,7 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
             }
         } catch (HttpStatusCodeException e) {
             JSONObject errrors = JSONObject.parseObject(e.getResponseBodyAsString());
+            logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + e.getResponseBodyAsString());
             throw new IllegalStateException("添加人脸失败：" + errrors.getJSONArray("errors").getJSONObject(0).getString("detail"));
         }
 
@@ -306,18 +307,20 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
         HttpEntity httpEntity = new HttpEntity(paramIn.toJSONString(), ShenxingFactory.getHeader(machineDto.getMachineCode(), restTemplate));
         logger.debug("请求信息 ： " + httpEntity);
         JSONObject paramOut = null;
+        ResponseEntity<String> responseEntity = null;
         try {
-            ResponseEntity<String> responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_UPDATE_USER + userFaceDto.getUserId(), HttpMethod.PUT, httpEntity, String.class);
+             restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_UPDATE_USER + userFaceDto.getUserId(), HttpMethod.PUT, httpEntity, String.class);
             logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
             if (responseEntity.getStatusCode().value() >= 400) {
                 throw new IllegalStateException("请求添加权限组失败" + responseEntity);
             }
             paramOut = JSONObject.parseObject(responseEntity.getBody());
             if (!paramOut.containsKey("id")) {
-                throw new IllegalStateException("添加人员失败" + responseEntity);
+                throw new IllegalStateException("修改人脸失败" + responseEntity);
             }
         } catch (HttpStatusCodeException e) {
             JSONObject errrors = JSONObject.parseObject(e.getResponseBodyAsString());
+            logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + e.getResponseBodyAsString());
             throw new IllegalStateException("修改人脸失败：" + errrors.getJSONArray("errors").getJSONObject(0).getString("detail"));
         }
 

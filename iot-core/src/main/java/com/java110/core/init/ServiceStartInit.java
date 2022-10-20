@@ -29,6 +29,10 @@ public class ServiceStartInit {
         //加载配置文件，注册订单处理侦听
         try {
             ApplicationContextFactory.setApplicationContext(context);
+
+            //刷入缓存
+            freshCache();
+
             //启动心跳
             //startHeartbeatCloudApiThread();
 
@@ -41,8 +45,7 @@ public class ServiceStartInit {
             //mqtt 注册
             initMqttClientSubscribe();
 
-            //刷入缓存
-            freshCache();
+
 
         } catch (Exception ex) {
             logger.error("系统初始化失败", ex);
