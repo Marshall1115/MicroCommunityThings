@@ -191,9 +191,9 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
         }
 
         httpEntity = new HttpEntity("", ShenxingFactory.getHeader(machineDto.getMachineCode(), restTemplate));
-        try{
-        responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + DELETE_MACHINE + extMachineIds[0], HttpMethod.DELETE, httpEntity, String.class);
-        logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
+        try {
+            responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + DELETE_MACHINE + extMachineIds[0], HttpMethod.DELETE, httpEntity, String.class);
+            logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
         } catch (HttpStatusCodeException e) { //这里spring 框架 在4XX 或 5XX 时抛出 HttpServerErrorException 异常，需要重新封装一下
             logger.error("请求下游服务【" + MappingCacheFactory.getValue("Shenxing_URL") + DELETE_MACHINE + "】异常，参数为" + httpEntity + e.getResponseBodyAsString(), e);
             logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + e.getResponseBodyAsString());
@@ -224,8 +224,9 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
         HttpEntity httpEntity = new HttpEntity("", ShenxingFactory.getHeader(machineDto.getMachineCode(), restTemplate));
         ResponseEntity<String> responseEntity = null;
         try {
-            responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_GET_FACE + userFaceDto.getUserId(), HttpMethod.DELETE, httpEntity, String.class);
-        } catch (Exception e) {
+            responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_GET_FACE + userFaceDto.getUserId(), HttpMethod.GET, httpEntity, String.class);
+        } catch (HttpStatusCodeException e) {
+            logger.error("请求地址：" + MappingCacheFactory.getValue("Shenxing_URL") + CMD_GET_FACE + userFaceDto.getUserId() + "请求信息 ： " + httpEntity + "，返回信息:" + e.getResponseBodyAsString(), e);
             return "-1";
         }
         logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
@@ -275,7 +276,7 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
             }
         } catch (HttpStatusCodeException e) {
             JSONObject errrors = JSONObject.parseObject(e.getResponseBodyAsString());
-            logger.error("请求信息 ： " + httpEntity + "，返回信息:" + e.getResponseBodyAsString(),e);
+            logger.error("请求信息 ： " + httpEntity + "，返回信息:" + e.getResponseBodyAsString(), e);
             throw new IllegalStateException("添加人脸失败：" + errrors.getJSONArray("errors").getJSONObject(0).getString("detail"));
         }
 
@@ -309,7 +310,7 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
         JSONObject paramOut = null;
         ResponseEntity<String> responseEntity = null;
         try {
-             restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_UPDATE_USER + userFaceDto.getUserId(), HttpMethod.PUT, httpEntity, String.class);
+            restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_UPDATE_USER + userFaceDto.getUserId(), HttpMethod.PUT, httpEntity, String.class);
             logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
             if (responseEntity.getStatusCode().value() >= 400) {
                 throw new IllegalStateException("请求添加权限组失败" + responseEntity);
@@ -320,7 +321,7 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
             }
         } catch (HttpStatusCodeException e) {
             JSONObject errrors = JSONObject.parseObject(e.getResponseBodyAsString());
-            logger.error("请求信息 ： " + httpEntity + "，返回信息:" + e.getResponseBodyAsString(),e);
+            logger.error("请求信息 ： " + httpEntity + "，返回信息:" + e.getResponseBodyAsString(), e);
             throw new IllegalStateException("修改人脸失败：" + errrors.getJSONArray("errors").getJSONObject(0).getString("detail"));
         }
 
