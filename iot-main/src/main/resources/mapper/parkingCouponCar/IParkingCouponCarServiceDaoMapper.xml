@@ -104,8 +104,11 @@
         <if test="communityId != null and communityId != ''">
             and t.community_id = #{communityId}
         </if>
-        <if test="extPccId != null and extPccId != ''">
-            and t.ext_pcc_id = #{extPccId}
+        <if test="extPccIds != null ">
+            and t.ext_pcc_id in
+            <foreach collection="extPccIds" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
         </if>
         <if test="paId != null and paId != ''">
             and t.pa_id = #{paId}
