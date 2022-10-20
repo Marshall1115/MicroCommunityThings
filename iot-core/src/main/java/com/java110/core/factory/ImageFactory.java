@@ -34,7 +34,7 @@ public class ImageFactory {
             return "";
         }
         imgStr = imgStr.replaceAll("\r|\n", "");
-        System.out.printf("imgStr=" + imgStr);
+        //System.out.printf("imgStr=" + imgStr);
         BASE64Decoder decoder = new BASE64Decoder();
         BASE64Encoder encoder = new BASE64Encoder();
         OutputStream out = null;

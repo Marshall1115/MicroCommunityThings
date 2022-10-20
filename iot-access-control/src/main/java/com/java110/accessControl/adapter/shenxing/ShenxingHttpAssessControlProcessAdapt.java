@@ -320,7 +320,7 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
             }
         } catch (HttpStatusCodeException e) {
             JSONObject errrors = JSONObject.parseObject(e.getResponseBodyAsString());
-            logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + e.getResponseBodyAsString());
+            logger.error("请求信息 ： " + httpEntity + "，返回信息:" + e.getResponseBodyAsString(),e);
             throw new IllegalStateException("修改人脸失败：" + errrors.getJSONArray("errors").getJSONObject(0).getString("detail"));
         }
 
