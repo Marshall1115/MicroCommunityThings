@@ -84,11 +84,7 @@ public class VideoInnerServiceImpl implements IVideoInnerService, OnProcessListe
                 prolongedSurvival(pushStreamDevice.getCallId());
                 return ResultDto.createResponseEntity(result);
             } else {
-                try {
-                    mSipLayer.sendBye(callId);
-                } catch (SipException e) {
-                    e.printStackTrace();
-                }
+                sendBye(callId);
             }
         }
         //检查通道是否存在
@@ -137,6 +133,19 @@ public class VideoInnerServiceImpl implements IVideoInnerService, OnProcessListe
 
 
         return ResultDto.createResponseEntity(result);
+    }
+
+    private void sendBye(String callId) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mSipLayer.sendBye(callId);
+                } catch (SipException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     private void inivitCamare(String callId, int port, String ssrc,
