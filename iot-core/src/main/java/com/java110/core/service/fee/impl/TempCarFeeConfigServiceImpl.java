@@ -308,7 +308,8 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         }
 
         for (ParkingCouponCarDto parkingCouponCarDto : parkingCouponCarDtos) {
-            if (ParkingCouponCarDto.TYPE_CD_HOURS.equals(parkingCouponCarDto.getTypeCd())) {
+            if (ParkingCouponCarDto.TYPE_CD_HOURS.equals(parkingCouponCarDto.getTypeCd())
+                    || ParkingCouponCarDto.TYPE_CD_FREE.equals(parkingCouponCarDto.getTypeCd())) {
                 tmpParkingCouponCarDtos.add(parkingCouponCarDto);
             }
         }

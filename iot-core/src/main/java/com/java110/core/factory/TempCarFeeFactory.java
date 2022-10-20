@@ -72,11 +72,16 @@ public class TempCarFeeFactory {
 
         long couponMin = 0;
         for(ParkingCouponCarDto parkingCouponCarDto : parkingCouponCarDtos){
-            if(!ParkingCouponCarDto.TYPE_CD_HOURS.equals(parkingCouponCarDto.getTypeCd())){
+            if(!ParkingCouponCarDto.TYPE_CD_HOURS.equals(parkingCouponCarDto.getTypeCd())
+                    && !ParkingCouponCarDto.TYPE_CD_FREE.equals(parkingCouponCarDto.getTypeCd())){
                 continue;
             }
 
             couponMin = Long.parseLong(parkingCouponCarDto.getValue());
+
+            if(ParkingCouponCarDto.TYPE_CD_FREE.equals(parkingCouponCarDto.getTypeCd())){
+                couponMin = 24 * 60;
+            }
 
             if(minLong == 0){
                 break;

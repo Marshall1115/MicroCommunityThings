@@ -180,7 +180,7 @@ public class OutCarEngine extends CarEngine implements IOutCarEngine {
         IComputeTempCarFee computeTempCarFee = ApplicationContextFactory.getBean(tempCarFeeConfigDtos.get(0).getRuleId(), IComputeTempCarFee.class);
         TempCarFeeResult result = computeTempCarFee.computeTempCarFee(carInoutDtos.get(0), tempCarFeeConfigDtos.get(0),getDurationCarCoupons(parkingCouponCarDtos));
 
-        // 停车劵处理 这里主要处理 全免 打折 金额
+        // 停车劵处理 这里主要处理 打折 金额
         double amount = parkingCouponCarServiceImpl.dealParkingCouponCar(result.getPayCharge(), parkingCouponCarDtos);
         result.setPayCharge(amount);
 
@@ -242,7 +242,9 @@ public class OutCarEngine extends CarEngine implements IOutCarEngine {
         }
 
         for (ParkingCouponCarDto parkingCouponCarDto : parkingCouponCarDtos) {
-            if (ParkingCouponCarDto.TYPE_CD_HOURS.equals(parkingCouponCarDto.getTypeCd())) {
+            if (ParkingCouponCarDto.TYPE_CD_HOURS.equals(parkingCouponCarDto.getTypeCd())
+                    || ParkingCouponCarDto.TYPE_CD_FREE.equals(parkingCouponCarDto.getTypeCd())
+                    ) {
                 tmpParkingCouponCarDtos.add(parkingCouponCarDto);
             }
         }

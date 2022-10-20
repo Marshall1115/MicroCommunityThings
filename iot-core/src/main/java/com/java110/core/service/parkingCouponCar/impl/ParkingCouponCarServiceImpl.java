@@ -168,12 +168,10 @@ public class ParkingCouponCarServiceImpl implements IParkingCouponCarService {
                 if (ParkingCouponCarDto.TYPE_CD_HOURS.equals(parkingCouponCarDto.getTypeCd())) {
                     continue;
                 }
-
-                parkingCouponCarDto.setHasUser(true);
-
                 if (ParkingCouponCarDto.TYPE_CD_FREE.equals(parkingCouponCarDto.getTypeCd())) {
-                    return 0;
+                    continue;
                 }
+                parkingCouponCarDto.setHasUser(true);
 
                 couponAmount = Double.parseDouble(parkingCouponCarDto.getValue());
 
