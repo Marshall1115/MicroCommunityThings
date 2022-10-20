@@ -278,6 +278,6 @@ public class OutCarEngine extends CarEngine implements IOutCarEngine {
         BarrierGateControlDto barrierGateControlDto
                 = new BarrierGateControlDto(BarrierGateControlDto.ACTION_FEE_INFO, carNum, machineDto, payCharge, carInoutDto, inOutCarTextDto.getRemark(), openStats);
         sendInfoEngine.sendInfo(barrierGateControlDto, machineDto.getLocationObjId(), machineDto);
-        carOutLogEngine.saveCarOutLog(carNum, machineDto, parkingAreaDtos, stateInFail, inOutCarTextDto.getRemark(),carInoutDto.getParkingCouponCarDtos());
+        carOutLogEngine.saveCarOutLog(carNum, machineDto, parkingAreaDtos, stateInFail, inOutCarTextDto.getRemark(),carInoutDto == null ? null : carInoutDto.getParkingCouponCarDtos());
     }
 }
