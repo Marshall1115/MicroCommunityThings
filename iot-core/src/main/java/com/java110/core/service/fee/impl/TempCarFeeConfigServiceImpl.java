@@ -319,6 +319,10 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
 
     private List<ParkingCouponCarDto> getCarCoupons(CarDto carDto) {
 
+        if(carDto.getExtPccIds() == null){
+            return new ArrayList<>();
+        }
+
         ParkingCouponCarDto parkingCouponCarDto = new ParkingCouponCarDto();
         parkingCouponCarDto.setExtPccIds(carDto.getExtPccIds());
         parkingCouponCarDto.setState(ParkingCouponCarDto.STATE_W);
