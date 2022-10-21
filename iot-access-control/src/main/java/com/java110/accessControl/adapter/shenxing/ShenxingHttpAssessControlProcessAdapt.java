@@ -310,7 +310,7 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
         JSONObject paramOut = null;
         ResponseEntity<String> responseEntity = null;
         try {
-            restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_UPDATE_USER + userFaceDto.getUserId(), HttpMethod.PUT, httpEntity, String.class);
+            responseEntity = restTemplate.exchange(MappingCacheFactory.getValue("Shenxing_URL") + CMD_UPDATE_USER + userFaceDto.getUserId(), HttpMethod.PUT, httpEntity, String.class);
             logger.debug("请求信息 ： " + httpEntity + "，返回信息:" + responseEntity);
             if (responseEntity.getStatusCode().value() >= 400) {
                 throw new IllegalStateException("请求添加权限组失败" + responseEntity);
