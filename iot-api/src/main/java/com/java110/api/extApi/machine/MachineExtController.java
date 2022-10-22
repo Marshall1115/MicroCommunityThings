@@ -463,9 +463,13 @@ public class MachineExtController extends BaseController {
      */
     @RequestMapping(path = "/playVideo", method = RequestMethod.POST)
     public ResponseEntity<String> playVideo(@RequestBody String reqParam) throws Exception {
-        JSONObject paramIn = JSONObject.parseObject(reqParam);
 
-        return videoInnerServiceImpl.doPlay(paramIn);
+        System.out.println("接收到 播放视频 请求:"+reqParam);
+        JSONObject paramIn = JSONObject.parseObject(reqParam);
+        ResponseEntity<String> responseEntity = videoInnerServiceImpl.doPlay(paramIn);
+        System.out.println(" 播放视频 返回:"+responseEntity);
+
+        return responseEntity;
     }
 
     /**
