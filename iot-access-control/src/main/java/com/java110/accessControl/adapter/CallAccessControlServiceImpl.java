@@ -272,6 +272,7 @@ public class CallAccessControlServiceImpl implements ICallAccessControlService {
         List<AppDto> appDtos = appServiceImpl.getApp(appDto);
 
         Assert.listOnlyOne(appDtos, "未找到应用信息");
+        ///machine/openDoorLog
         AppAttrDto appAttrDto = appDtos.get(0).getAppAttr(AppAttrDto.SPEC_CD_UPLOAD_FACE_URL);
 
         if (appAttrDto == null) {
