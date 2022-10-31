@@ -406,6 +406,7 @@ public class ShenxingHttpAssessControlProcessAdapt extends DefaultAbstractAccess
     public String httpFaceResult(MachineDto machineDto, String data) {
         ICallAccessControlService notifyAccessControlService = NotifyAccessControlFactory.getCallAccessControlService();
         JSONObject resultParam = new JSONObject();
+        logger.debug("开门记录，{}",data);
         try {
             JSONObject body = JSONObject.parseObject(data);
 
