@@ -66,7 +66,7 @@ public class CarServiceImpl implements ICarService {
         int count = carServiceDao.saveCar(carDto);
 
         if (count < 1) {
-            resultDto = new ResultDto(ResponseConstant.ERROR, ResponseConstant.ERROR_MSG);
+            resultDto = new ResultDto(ResponseConstant.ERROR, "添加车辆处理失败");
         } else {
             resultDto = new ResultDto(ResponseConstant.SUCCESS, ResponseConstant.SUCCESS_MSG);
         }
@@ -159,7 +159,7 @@ public class CarServiceImpl implements ICarService {
         int count = carServiceDao.updateCar(carDto);
 
         if (count < 1) {
-            resultDto = new ResultDto(ResponseConstant.ERROR, ResponseConstant.ERROR_MSG);
+            resultDto = new ResultDto(ResponseConstant.ERROR, "修改车辆处理失败");
         } else {
             resultDto = new ResultDto(ResponseConstant.SUCCESS, ResponseConstant.SUCCESS_MSG);
         }

@@ -161,7 +161,8 @@ public class CarExtController extends BaseController {
         Assert.listOnlyOne(parkingAreaDtos, "未找到停车场信息");
 
         CarDto tmpCarDto = new CarDto();
-        tmpCarDto.setExtCarId(reqJson.getString("extCarId"));
+        //tmpCarDto.setExtCarId(reqJson.getString("extCarId"));
+        tmpCarDto.setCarNum(reqJson.getString("carNum"));
         tmpCarDto.setPaId(parkingAreaDtos.get(0).getPaId());
         List<CarDto> carDtos = carServiceImpl.queryCars(tmpCarDto);
 
