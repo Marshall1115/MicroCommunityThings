@@ -241,20 +241,6 @@ public class CallAttendanceServiceImpl implements ICallAttendanceService {
     @Override
     public ClockInResultDto clockIn(ClockInDto clockInDto) throws Exception {
 
-        //先写考勤日志
-        StaffAttendanceLogDto staffAttendanceLogDto = new StaffAttendanceLogDto();
-        staffAttendanceLogDto.setClockTime(clockInDto.getClockInTime());
-        staffAttendanceLogDto.setLogId(SeqUtil.getId());
-        staffAttendanceLogDto.setStaffId(clockInDto.getStaffId());
-        staffAttendanceLogDto.setReqParam(clockInDto.getPic());
-        attendanceClassesServiceDao.saveStaffAttendanceLog(staffAttendanceLogDto);
-
-        //异步同步HC小区管理系统
-        try {
-            attendanceCallHcServiceImpl.checkInTime(staffAttendanceLogDto);
-        } catch (Exception e) {
-            logger.error("同步HC小区管理系统失败", e);
-        }
 
         ClockInResultDto clockInResultDto = null;
         Calendar calendar = Calendar.getInstance();
@@ -282,101 +268,15 @@ public class CallAttendanceServiceImpl implements ICallAttendanceService {
             return new ClockInResultDto(ClockInResultDto.CODE_ERROR, "班次异常，未找到班次数据");
         }
 
-        attendanceClassesDto = attendanceClassesDtos.get(0);
-        Assert.isInteger(attendanceClassesDto.getTimeOffset(), "不是有效的整数");
-        int timeOffset = Integer.parseInt(attendanceClassesDto.getTimeOffset());
-        int lateOffset = Integer.parseInt(attendanceClassesDto.getLateOffset()); //早退
-        int leaveOffset = Integer.parseInt(attendanceClassesDto.getLeaveOffset()); //迟到
-        AttendanceClassesTaskDetailDto attendanceClassesTaskDetailDto = new AttendanceClassesTaskDetailDto();
-        attendanceClassesTaskDetailDto.setTaskId(tmpAttendanceClassesTaskDto.getTaskId());
-        attendanceClassesTaskDetailDto.setState("10000");
-        List<AttendanceClassesTaskDetailDto> attendanceClassesTaskDetailDtos =
-                attendanceClassesServiceDao.getAttendanceClassesTaskDetails(attendanceClassesTaskDetailDto);
-
-        Date clockInTime = DateUtil.getDateFromString(clockInDto.getClockInTime(), DateUtil.DATE_FORMATE_STRING_A);
-        Date curHopeTime = null;
-        AttendanceClassesTaskDetailDto curAttendanceClassesTaskDetailDto = null;
-
-        Map<String, AttendanceClassesTaskDetailDto> mulTimeMap = new HashMap<>();
-        //1.0 判断 在哪个考勤范围内 属于正常考勤
-        for (AttendanceClassesTaskDetailDto tmpAttendanceClassesTaskDetailDto : attendanceClassesTaskDetailDtos) {
-            if (!CLOCK_TIME_MORNING_WORK.equals(tmpAttendanceClassesTaskDetailDto.getSpecCd())
-                    && !CLOCK_TIME_AFTERNOON_OFF_DUTY.equals(tmpAttendanceClassesTaskDetailDto.getSpecCd())
-                    && !CLOCK_TIME_NOON_OFF_DUTY.equals(tmpAttendanceClassesTaskDetailDto.getSpecCd())
-                    && !CLOCK_TIME_NOON_WORK.equals(tmpAttendanceClassesTaskDetailDto.getSpecCd())
-                    && !CLOCK_TIME_NIGHT_WORK.equals(tmpAttendanceClassesTaskDetailDto.getSpecCd())
-                    && !CLOCK_TIME_NIGHT_OFF_DUTY.equals(tmpAttendanceClassesTaskDetailDto.getSpecCd())) {
-                continue;
-            }
-
-            try {
-                String timeStr = tmpAttendanceClassesTaskDetailDto.getValue() + ":00";
-                String dateStr = DateUtil.getFormatTimeString(new Date(), DateUtil.DATE_FORMATE_STRING_B);
-
-                Date hopeTime = DateUtil.getDateFromString(dateStr + " " + timeStr, DateUtil.DATE_FORMATE_STRING_A);
-                Calendar startCal = Calendar.getInstance();
-                startCal.setTime(hopeTime);
-                startCal.add(Calendar.MINUTE, (timeOffset * -1));
-
-                Calendar endCal = Calendar.getInstance();
-                endCal.setTime(hopeTime);
-                endCal.add(Calendar.MINUTE, timeOffset);
-
-                boolean timeIn = belongCalendar(clockInTime, startCal.getTime(), endCal.getTime());
-                //如果在时间段内
-                if (timeIn) { //正常考勤范围内
-                    doClockIn(tmpAttendanceClassesTaskDetailDto, clockInDto);
-                    return new ClockInResultDto(ClockInResultDto.CODE_SUCCESS, "正常考勤");
-                }
-
-                if (CLOCK_TIME_MORNING_WORK.equals(tmpAttendanceClassesTaskDetailDto.getSpecCd())
-                        || CLOCK_TIME_NOON_WORK.equals(tmpAttendanceClassesTaskDetailDto.getSpecCd())
-                        || CLOCK_TIME_NIGHT_WORK.equals(tmpAttendanceClassesTaskDetailDto.getSpecCd())) { // 上班时间点
-                    if (outEndCalendar(clockInTime, endCal.getTime(), lateOffset)) {
-                        continue;
-                    }
-                }else{ //下班时间点
-                    if (outStartCalendar(clockInTime, startCal.getTime(), leaveOffset)) {
-                        continue;
-                    }
-                }
-
-                curHopeTime = hopeTime;
-                curAttendanceClassesTaskDetailDto = tmpAttendanceClassesTaskDetailDto;
-
-            } catch (Exception e) {
-                logger.error("班次时间设置有误", e);
-                return new ClockInResultDto(ClockInResultDto.CODE_ERROR, "班次时间设置有误");
-            }
-        }
-
-        if(curHopeTime == null){
-            return new ClockInResultDto(ClockInResultDto.CODE_ERROR, "当前不是考勤时间");
-        }
-
-
-        //2.0 判断距离哪个考勤时间最近
-        AttendanceClassesTaskDetailDto tmpAttendanceClassesTaskDetailDto = curAttendanceClassesTaskDetailDto;
-
-
-        if (CLOCK_TIME_MORNING_WORK.equals(tmpAttendanceClassesTaskDetailDto.getSpecCd())
-                || CLOCK_TIME_NOON_WORK.equals(tmpAttendanceClassesTaskDetailDto.getSpecCd())
-                || CLOCK_TIME_NIGHT_WORK.equals(tmpAttendanceClassesTaskDetailDto.getSpecCd())) { //距离上班时间最近
-
-            if (clockInTime.after(curHopeTime)) { //还没有到打卡时间，不能打卡 //2.1 如果早于上班时间最近，不允许打卡
-                doClockIn(tmpAttendanceClassesTaskDetailDto, clockInDto, "40000");
-                clockInResultDto = new ClockInResultDto(ClockInResultDto.CODE_SUCCESS, "考勤成功，考勤状态为迟到");
-            } else { //迟到  //2.2 如果迟于上班时间最近 ，迟到
-                return new ClockInResultDto(ClockInResultDto.CODE_ERROR, "还没有到考勤时间，请勿考勤");
-            }
-        } else { //2.3 如果早于下班时间最近 早退
-            if (clockInTime.before(curHopeTime)) { //2.3 如果早于下班时间最近 早退
-                doClockIn(tmpAttendanceClassesTaskDetailDto, clockInDto, "50000");
-                clockInResultDto = new ClockInResultDto(ClockInResultDto.CODE_SUCCESS, "考勤成功，考勤状态为早退");
-            } else { //2.4 如果迟于下班时间最近 正常考勤
-                doClockIn(tmpAttendanceClassesTaskDetailDto, clockInDto, "30000");
-                clockInResultDto = new ClockInResultDto(ClockInResultDto.CODE_SUCCESS, "考勤成功，请注意休息，早点下班");
-            }
+        try {
+            JSONObject param = new JSONObject();
+            param.put("classId", attendanceClassesDtos.get(0).getExtClassesId());
+            param.put("staffId", clockInDto.getStaffId());
+            param.put("checkTime", DateUtil.getNow(DateUtil.DATE_FORMATE_STRING_A));
+            param.put("photo",clockInDto.getPic());
+            attendanceCallHcServiceImpl.checkInTime(param);
+        } catch (Exception e) {
+            logger.error("同步HC小区管理系统失败", e);
         }
 
         return clockInResultDto;

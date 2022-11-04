@@ -6,6 +6,7 @@ import com.java110.core.service.hc.IAttendanceCallHcService;
 import com.java110.core.service.machine.IMachineService;
 import com.java110.core.service.staff.IStaffService;
 import com.java110.core.dao.IAttendanceClassesServiceDao;
+import com.java110.core.util.DateUtil;
 import com.java110.entity.app.AppAttrDto;
 import com.java110.entity.app.AppDto;
 import com.java110.entity.attendance.AttendanceClassesDto;
@@ -213,10 +214,10 @@ public class AttendanceCallHcServiceImpl implements IAttendanceCallHcService {
 
     @Override
     @Async
-    public void checkInTime(StaffAttendanceLogDto staffAttendanceLogDto) throws Exception {
+    public void checkInTime(JSONObject param) throws Exception {
 
         StaffDto staffDto = new StaffDto();
-        staffDto.setStaffId(staffAttendanceLogDto.getStaffId());
+        staffDto.setStaffId(param.getString("staffId"));
         List<StaffDto> staffDtos = staffServiceImpl.queryStaffs(staffDto);
 
         Assert.listOnlyOne(staffDtos, "员工不存在");
@@ -264,14 +265,7 @@ public class AttendanceCallHcServiceImpl implements IAttendanceCallHcService {
 
         headers.put("communityId", communityDtos.get(0).getCommunityId());
 
-        JSONObject tmpAttendanceClassesTaskDetailDto = JSONObject.parseObject(JSONObject.toJSONString(staffAttendanceLogDto));
-        tmpAttendanceClassesTaskDetailDto.put("departmentId", staffDtos.get(0).getDepartmentId());
-        tmpAttendanceClassesTaskDetailDto.put("departmentName", staffDtos.get(0).getDepartmentName());
-        tmpAttendanceClassesTaskDetailDto.put("staffName", staffDtos.get(0).getStaffName());
-        tmpAttendanceClassesTaskDetailDto.put("staffId", staffDtos.get(0).getExtStaffId());
-
-        String data = JSONObject.toJSONString(tmpAttendanceClassesTaskDetailDto);
-        ResponseEntity<String> tmpResponseEntity = HttpFactory.exchange(restTemplate, url, data, headers, HttpMethod.POST, securityCode);
+        ResponseEntity<String> tmpResponseEntity = HttpFactory.exchange(restTemplate, url, param.toJSONString(), headers, HttpMethod.POST, securityCode);
 
         if (tmpResponseEntity.getStatusCode() != HttpStatus.OK) {
             throw new ServiceException(Result.SYS_ERROR, "打卡同步 HC失败" + tmpResponseEntity.getBody());

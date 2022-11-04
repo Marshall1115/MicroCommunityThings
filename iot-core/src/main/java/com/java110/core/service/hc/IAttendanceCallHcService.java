@@ -1,5 +1,6 @@
 package com.java110.core.service.hc;
 
+import com.alibaba.fastjson.JSONObject;
 import com.java110.entity.attendance.AttendanceClassesTaskDetailDto;
 import com.java110.entity.attendance.StaffAttendanceLogDto;
 
@@ -34,7 +35,7 @@ public interface IAttendanceCallHcService {
     /**
      * 考勤记录同步
      *
-     * @param staffAttendanceLogDto
+     * @param paramIn
      */
-    void checkInTime(StaffAttendanceLogDto staffAttendanceLogDto) throws Exception;
+    void checkInTime(JSONObject paramIn) throws Exception;
 }
