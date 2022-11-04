@@ -241,36 +241,8 @@ public class CallAttendanceServiceImpl implements ICallAttendanceService {
     @Override
     public ClockInResultDto clockIn(ClockInDto clockInDto) throws Exception {
 
-
-        ClockInResultDto clockInResultDto = null;
-        Calendar calendar = Calendar.getInstance();
-
-        //根据员工查询今日未考勤任务
-        AttendanceClassesTaskDto attendanceClassesTaskDto = new AttendanceClassesTaskDto();
-        attendanceClassesTaskDto.setStaffId(clockInDto.getStaffId());
-        attendanceClassesTaskDto.setTaskYear(calendar.get(Calendar.YEAR) + "");
-        attendanceClassesTaskDto.setTaskMonth((calendar.get(Calendar.MONTH) + 1) + "");
-        attendanceClassesTaskDto.setTaskDay(calendar.get(Calendar.DATE) + "");
-        attendanceClassesTaskDto.setStates(new String[]{"10000", "20000"});
-        List<AttendanceClassesTaskDto> attendanceClassesTaskDtos = attendanceClassesServiceDao.getAttendanceClassesTasks(attendanceClassesTaskDto);
-        if (attendanceClassesTaskDtos == null || attendanceClassesTaskDtos.size() < 1) {
-            logger.debug("该员工今天没有考勤任务" + JSONObject.toJSONString(clockInDto));
-            return new ClockInResultDto(ClockInResultDto.CODE_ERROR, "该员工今天没有考勤任务");
-        }
-
-        //一个员工不应该有多条考勤任务 如果有多条 我们只取一条
-        AttendanceClassesTaskDto tmpAttendanceClassesTaskDto = attendanceClassesTaskDtos.get(0);
-        AttendanceClassesDto attendanceClassesDto = new AttendanceClassesDto();
-        attendanceClassesDto.setClassesId(tmpAttendanceClassesTaskDto.getClassId());
-        List<AttendanceClassesDto> attendanceClassesDtos = attendanceClassesServiceDao.getAttendanceClassess(attendanceClassesDto);
-
-        if (attendanceClassesDtos == null || attendanceClassesDtos.size() < 1) {
-            return new ClockInResultDto(ClockInResultDto.CODE_ERROR, "班次异常，未找到班次数据");
-        }
-
         try {
             JSONObject param = new JSONObject();
-            param.put("classId", attendanceClassesDtos.get(0).getExtClassesId());
             param.put("staffId", clockInDto.getStaffId());
             param.put("checkTime", DateUtil.getNow(DateUtil.DATE_FORMATE_STRING_A));
             param.put("photo",clockInDto.getPic());
@@ -279,7 +251,7 @@ public class CallAttendanceServiceImpl implements ICallAttendanceService {
             logger.error("同步HC小区管理系统失败", e);
         }
 
-        return clockInResultDto;
+        return new ClockInResultDto(ClockInResultDto.CODE_SUCCESS,"成功");
     }
 
     private Map getMinMulTime(Map<String, AttendanceClassesTaskDetailDto> mulMap) {
