@@ -45,6 +45,7 @@ public class CarInoutDto extends PageDto implements Serializable {
     private String[] states;
     private Date payTime;
     private String areaNum;
+    private String unlicense;
 
     private long min;
 
@@ -242,5 +243,13 @@ public class CarInoutDto extends PageDto implements Serializable {
 
     public void setParkingCouponCarDtos(List<ParkingCouponCarDto> parkingCouponCarDtos) {
         this.parkingCouponCarDtos = parkingCouponCarDtos;
+    }
+
+    public String getUnlicense() {
+        return unlicense;
+    }
+
+    public void setUnlicense(String unlicense) {
+        this.unlicense = unlicense;
     }
 }

@@ -4,9 +4,9 @@
 
     <insert id="saveCarInout" parameterType="com.java110.entity.car.CarInoutDto">
         INSERT INTO car_inout(`inout_id`, `community_id`, `car_num`, `car_type`, `open_time`, `gate_name`,
-        `pay_charge`, `real_charge`, `pay_type`, `remark`, `inout_type`,pa_id,state)
+        `pay_charge`, `real_charge`, `pay_type`, `remark`, `inout_type`,pa_id,state,unlicense)
         VALUES (#{inoutId}, #{communityId}, #{carNum}, #{carType}, #{openTime}, #{gateName}, #{payCharge},
-        #{realCharge}, #{payType}, #{remark}, #{inoutType},#{paId},#{state})
+        #{realCharge}, #{payType}, #{remark}, #{inoutType},#{paId},#{state},#{unlicense})
     </insert>
     <!--
         查询设备信息
@@ -28,6 +28,7 @@
         t.pa_id paId,
         t.state,
         t.pay_time payTime,
+        t.unlicense,
         pa.num areaNum
         from car_inout t
         left join parking_area pa on t.pa_id = pa.pa_id and pa.status_cd = '0'
@@ -43,6 +44,9 @@
         </if>
         <if test="paId != null and paId != ''">
             and t.pa_id = #{paId}
+        </if>
+        <if test="unlicense != null and unlicense != ''">
+            and t.unlicense = #{unlicense}
         </if>
         <if test="paIds != null">
             and t.pa_id in
@@ -86,12 +90,16 @@
         <if test="paId != null and paId != ''">
             and t.pa_id = #{paId}
         </if>
+        <if test="unlicense != null and unlicense != ''">
+            and t.unlicense = #{unlicense}
+        </if>
         <if test="paIds != null">
             and t.pa_id in
             <foreach collection="paIds" item="item" open="(" close=")" separator=",">
                 #{item}
             </foreach>
         </if>
+
         <if test="inoutType != null and inoutType != ''">
             and t.inout_type = #{inoutType}
         </if>

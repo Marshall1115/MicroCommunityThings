@@ -421,7 +421,7 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         }
 
         // 校验是否有车辆 在门口
-        if (!carHasOpenError(carInoutDtos.get(0).getCarNum(), carInoutDtos.get(0).getPaId())) {
+        if (!carHasOpenError(carInoutDtos.get(0).getCarNum(), carInoutDtos.get(0).getPaId(),carInoutDtos.get(0).getUnlicense())) {
             return new ResultDto(ResultDto.SUCCESS, "支付成功");
         }
 
@@ -458,7 +458,13 @@ public class TempCarFeeConfigServiceImpl implements ITempCarFeeConfigService {
         }
     }
 
-    private boolean carHasOpenError(String carNum, String paId) {
+    private boolean carHasOpenError(String carNum, String paId,String unlicense) {
+
+        //无牌车直接 出场
+        if("T".equals(unlicense)){
+            return true;
+        }
+
         int openDoorTime = 5 * 60;
         String openDoorTimeStr = MappingCacheFactory.getValue("CAR_OPEN_DOOR_TIME");
 

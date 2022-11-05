@@ -439,6 +439,7 @@ public class MachineExtController extends BaseController {
         carInoutDto.setState("1");
         carInoutDto.setInoutType(CarInoutDto.INOUT_TYPE_IN);
         carInoutDto.setRemark("手工进场");
+        carInoutDto.setUnlicense(acceptJson.getString("unlicense"));
         carInoutServiceImpl.saveCarInout(carInoutDto);
 
         BarrierGateControlDto barrierGateControlDto
