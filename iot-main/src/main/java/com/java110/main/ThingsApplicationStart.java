@@ -72,11 +72,11 @@ public class ThingsApplicationStart implements WebMvcConfigurer {
     public RestTemplate restTemplate() {
         StringHttpMessageConverter m = new StringHttpMessageConverter(Charset.forName("UTF-8"));
         RestTemplate restTemplate = new RestTemplateBuilder().additionalMessageConverters(m).build();
-//        HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
-//        httpRequestFactory.setConnectionRequestTimeout(3000);
-//        httpRequestFactory.setConnectTimeout(3000);
-//        httpRequestFactory.setReadTimeout(3000);
-//        restTemplate.setRequestFactory(httpRequestFactory);
+        HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+        httpRequestFactory.setConnectionRequestTimeout(3000);
+        httpRequestFactory.setConnectTimeout(3000);
+        httpRequestFactory.setReadTimeout(3000);
+        restTemplate.setRequestFactory(httpRequestFactory);
         return restTemplate;
 
 
@@ -87,11 +87,11 @@ public class ThingsApplicationStart implements WebMvcConfigurer {
     public RestTemplate outRestTemplate() {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter(Charset.forName("UTF-8")));
-//        HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
-//        httpRequestFactory.setConnectionRequestTimeout(3000);
-//        httpRequestFactory.setConnectTimeout(3000);
-//        httpRequestFactory.setReadTimeout(3000);
-//        restTemplate.setRequestFactory(httpRequestFactory);
+        HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+        httpRequestFactory.setConnectionRequestTimeout(3000);
+        httpRequestFactory.setConnectTimeout(3000);
+        httpRequestFactory.setReadTimeout(3000);
+        restTemplate.setRequestFactory(httpRequestFactory);
         return restTemplate;
     }
 
