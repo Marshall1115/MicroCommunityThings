@@ -41,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -526,6 +527,7 @@ public class CallAccessControlServiceImpl implements ICallAccessControlService {
     }
 
     @Override
+    @Async
     public void machineHeartbeat(MachineHeartbeatDto machineHeartbeatDto) throws Exception {
 
         Assert.hasLength(machineHeartbeatDto.getMachineCode(), "未包含设备信息");
